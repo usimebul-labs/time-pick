@@ -3,9 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./utils": "./src/lib/utils.ts",
-    "./globals.css": "./src/globals.css",
-    "./*": "./src/components/*.tsx"
+    ".": "./src/index.ts",
+    "./globals.css": "./src/globals.css"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

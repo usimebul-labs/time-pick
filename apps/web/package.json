@@ -11,6 +11,7 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@repo/database": "workspace:*",
     "@repo/ui": "workspace:*",
     "@stackflow/plugin-basic-ui": "^1.18.1",
     "@stackflow/plugin-history-sync": "^1.8.1",
@@ -21,6 +22,7 @@
     "next": "^16.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "zod": "^4.1.13",
     "zustand": "^5.0.9"
   },
   "devDependencies": {

@@ -5,7 +5,7 @@ import { Button } from '@repo/ui';
 
 const MainActivity: ActivityComponentType = () => {
   return (
-    <AppScreen appBar={{ title: 'Main App' }}>
+    <AppScreen>
       <div className="flex flex-col items-center justify-center h-full gap-4 p-4">
         <h1 className="text-2xl font-bold">Hello Monorepo!</h1>
         <Button appName="" onClick={() => alert('Clicked shared button!')}>
