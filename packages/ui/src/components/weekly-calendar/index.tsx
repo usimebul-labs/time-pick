@@ -2,65 +2,60 @@
 'use client';
 
 import * as React from 'react';
-import { addDays, addWeeks, subWeeks, startOfWeek, endOfWeek, isAfter, isBefore } from 'date-fns';
-import { cn } from '../../lib/utils'; // 경로 주의
-
+import { cn } from '../../lib/utils';
 import { CalendarHeader } from './header';
 import { DayHeader } from './day-header';
 import { useWeeklyDrag } from './use-weekly-drag';
 import { getSlotId, isDateDisabled } from './utils';
+import { useWeeklyCalendar } from './use-weekly-calendar';
 
 interface WeeklyCalendarProps {
   className?: string;
-  date?: Date;
-  onDateChange?: (date: Date) => void;
+  currentDate?: Date;
+  onCurrentDateChange?: (date: Date) => void;
   startHour?: number;
   endHour?: number;
   minDate?: Date;
   maxDate?: Date;
-  selectedSlots?: string[];
-  onSlotsChange?: (slots: string[]) => void;
+  value?: string[];
+  onChange?: (slots: string[]) => void;
   readOnly?: boolean;
 }
 
 export function WeeklyCalendar({
   className,
-  date,
-  onDateChange,
+  currentDate: date,
+  onCurrentDateChange: onDateChange,
   startHour = 9,
   endHour = 18,
   minDate,
   maxDate,
-  selectedSlots = [],
-  onSlotsChange,
+  value: selectedSlots = [],
+  onChange: onSlotsChange,
   readOnly = false,
 }: WeeklyCalendarProps) {
-  const [internalDate, setInternalDate] = React.useState(new Date());
-  const currentDate = date || internalDate;
+  const {
+    currentDate,
+    weekDays,
+    hours,
+    canPrev,
+    canNext,
+    goToPrev,
+    goToNext,
+    goToToday,
+  } = useWeeklyCalendar({ date, onDateChange, startHour, endHour, minDate, maxDate });
 
-  // 날짜 계산
-  const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
-  const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
-  const canGoPrev = !minDate || isAfter(weekStart, startOfWeek(minDate, { weekStartsOn: 0 }));
-  const canGoNext = !maxDate || isBefore(weekEnd, endOfWeek(maxDate, { weekStartsOn: 0 }));
-
-  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-
-  // 커스텀 훅 호출
   const { containerRef, handlers } = useWeeklyDrag({ selectedSlots, onSlotsChange, readOnly });
-
-  const handleDateChange = (newDate: Date) => (onDateChange ? onDateChange(newDate) : setInternalDate(newDate));
 
   return (
     <div className={cn('flex flex-col h-full bg-background border rounded-lg overflow-hidden select-none', className)}>
       <CalendarHeader
         currentDate={currentDate}
-        canPrev={canGoPrev}
-        canNext={canGoNext}
-        onPrev={() => canGoPrev && handleDateChange(subWeeks(currentDate, 1))}
-        onNext={() => canGoNext && handleDateChange(addWeeks(currentDate, 1))}
-        onToday={() => handleDateChange(new Date())}
+        canPrev={canPrev}
+        canNext={canNext}
+        onPrev={goToPrev}
+        onNext={goToNext}
+        onToday={goToToday}
       />
 
       <DayHeader weekDays={weekDays} minDate={minDate} maxDate={maxDate} />
@@ -69,7 +64,6 @@ export function WeeklyCalendar({
         <div className="grid grid-cols-8 divide-x divide-y" onTouchMove={handlers.onTouchMove}>
           {hours.map((hour) => (
             <React.Fragment key={hour}>
-              {/* 왼쪽 시간 라벨 */}
               <div
                 className="col-span-1 py-3 pr-2 text-xs text-right text-muted-foreground font-medium border-b-0 h-16 sticky left-0 bg-background/95 z-10"
                 onTouchStart={(e) => e.stopPropagation()}
@@ -78,7 +72,6 @@ export function WeeklyCalendar({
                 {`${hour}:00`}
               </div>
 
-              {/* 시간별 슬롯들 */}
               {weekDays.map((day) => {
                 const slotId = getSlotId(day, hour);
                 const disabled = isDateDisabled(day, minDate, maxDate);
@@ -109,5 +102,3 @@ export function WeeklyCalendar({
     </div>
   );
 }
-
-

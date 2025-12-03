@@ -1,35 +1,64 @@
 "use client";
 
 import * as React from "react";
-import { useMonthlyCalendar, CalendarViewProps } from "./use-monthly-calendar";
-import { CalendarHeader } from "./calendar-header";
-import { CalendarGrid } from "./calendar-grid";
+import { useMonthlyCalendar } from "./use-monthly-calendar";
+import { useMonthlyDrag } from "./use-monthly-drag";
+import { CalendarHeader } from "./header";
+import { CalendarGrid } from "./grid";
+
+export interface MonthlyCalendarProps {
+  value?: Date[];
+  onChange?: (dates: Date[]) => void;
+  minDate?: Date;
+  maxDate?: Date;
+  currentDate?: Date;
+  onCurrentDateChange?: (date: Date) => void;
+}
 
 export function MonthlyCalendar({ 
-  selectedDates, 
-  onSelectDates,
+  value: selectedDates,
+  onChange: onSelectDates,
   minDate,
-  maxDate 
-}: CalendarViewProps) {
+  maxDate,
+  currentDate,
+  onCurrentDateChange,
+}: MonthlyCalendarProps) {
   const { 
-    currentMonth, 
-    calendarDays, 
-    nextMonth, 
-    prevMonth, 
-    getDayProps, 
-    canGoPrev, 
-    canGoNext,
-    dragHandlers
-  } = useMonthlyCalendar({ selectedDates, onSelectDates, minDate, maxDate });
+    currentDate: calendarDate,
+    calendarDays,
+    goToNext,
+    goToPrev,
+    goToToday,
+    getDayProps,
+    canPrev,
+    canNext,
+    isDateDisabled,
+    isSelected,
+  } = useMonthlyCalendar({
+    selectedDates,
+    onSelectDates,
+    minDate,
+    maxDate,
+    currentDate,
+    onCurrentDateChange
+  });
+
+  const dragHandlers = useMonthlyDrag({
+    selectedDates: selectedDates || [],
+    onSelectDates,
+    isDateDisabled,
+    isSelected,
+  });
 
   return (
     <div className="w-full max-w-md mx-auto p-4 bg-card border rounded-xl shadow-sm select-none">
       <CalendarHeader 
-        currentMonth={currentMonth} 
-        onPrevMonth={prevMonth} 
-        onNextMonth={nextMonth} 
-        canGoPrev={canGoPrev} 
-        canGoNext={canGoNext} 
+        currentDate={calendarDate}
+        onPrev={goToPrev}
+        onNext={goToNext}
+        onToday={goToToday}
+        canPrev={canPrev}
+        canNext={canNext}
       />
       
       <CalendarGrid 
