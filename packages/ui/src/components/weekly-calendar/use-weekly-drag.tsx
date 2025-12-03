@@ -2,12 +2,12 @@
 import { useRef, useEffect, useCallback } from 'react';
 
 interface UseWeeklyDragProps {
-  selectedSlots: string[];
-  onSlotsChange?: (slots: string[]) => void;
+  value: string[];
+  onChange?: (slots: string[]) => void;
   readOnly?: boolean;
 }
 
-export function useWeeklyDrag({ selectedSlots, onSlotsChange, readOnly }: UseWeeklyDragProps) {
+export function useWeeklyDrag({ value: selectedSlots, onChange: onSlotsChange, readOnly }: UseWeeklyDragProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const dragState = useRef<{
