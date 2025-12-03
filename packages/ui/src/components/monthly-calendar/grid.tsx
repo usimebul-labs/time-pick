@@ -1,33 +1,32 @@
-"use client";
+'use client';
 
-import { useRef } from "react";
-import { cn } from "../../lib/utils"; // 요청하신 경로
-import type { useMonthlyCalendar } from "./use-monthly-calendar";
+import { useRef } from 'react';
+import { cn } from '../../lib/utils'; // 요청하신 경로
+import type { useMonthlyCalendar } from './use-monthly-calendar';
+import { useMonthlyDrag } from './use-monthly-drag';
 
 type CalendarLogic = ReturnType<typeof useMonthlyCalendar>;
+type DragHandler = ReturnType<typeof useMonthlyDrag>;
 
 interface CalendarGridProps {
   calendarDays: Date[];
-  getDayProps: CalendarLogic["getDayProps"];
-  dragHandlers: CalendarLogic["dragHandlers"];
+  getDayProps: CalendarLogic['getDayProps'];
+  dragHandlers: DragHandler;
 }
 
 export function CalendarGrid({ calendarDays, getDayProps, dragHandlers }: CalendarGridProps) {
-  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // --- Mobile Touch Logic (elementFromPoint) ---
-  const handleTouchMove = (e: React.TouchEvent) => {    
+  const { onDragStart, onDragOver, onDragEnd } = dragHandlers;
+
+  const handleTouchMove = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     const target = document.elementFromPoint(touch!.clientX, touch!.clientY);
-    
-    // 버튼 내부의 span이나 다른 요소를 찍어도 부모 button을 찾도록 closest 사용 권장
-    // 여기서는 data-date가 button에 있으므로 target에서 바로 확인
-    const dateAttr = target?.getAttribute("data-date") || target?.closest("button")?.getAttribute("data-date");
-    
-    if (dateAttr) {
-      dragHandlers.onDragOver(new Date(dateAttr));
-    }
+
+    // 버튼 내부의 span이나 다른 요소를 찍어도 부모 button을 찾도록 closest 사용
+    const dateAttr = target?.getAttribute('data-date') || target?.closest('button')?.getAttribute('data-date');
+    if (dateAttr) onDragOver(new Date(dateAttr));
   };
 
   return (
@@ -40,12 +39,12 @@ export function CalendarGrid({ calendarDays, getDayProps, dragHandlers }: Calend
         ))}
       </div>
 
-      <div 
+      <div
         ref={containerRef}
         className="grid grid-cols-7 gap-1 auto-rows-fr touch-none"
-        onMouseLeave={dragHandlers.onDragEnd}
-        onMouseUp={dragHandlers.onDragEnd}
-        onTouchEnd={dragHandlers.onDragEnd}
+        onMouseLeave={onDragEnd}
+        onMouseUp={onDragEnd}
+        onTouchEnd={onDragEnd}
         onTouchMove={handleTouchMove}
       >
         {calendarDays.map((day) => {
@@ -57,40 +56,21 @@ export function CalendarGrid({ calendarDays, getDayProps, dragHandlers }: Calend
               type="button"
               data-date={day.toISOString()}
               disabled={isDisabled}
-              
-              // Mouse Interactions
-              onPointerDown={() => dragHandlers.onDragStart(day)}
-              onMouseEnter={() => dragHandlers.onDragOver(day)}
-              
-              
+              onPointerDown={() => onDragStart(day)}
+              onMouseEnter={() => onDragOver(day)}
               className={cn(
-                "h-10 w-full rounded-md flex items-center justify-center text-sm relative transition-all duration-200",
-                
-                // Disabled State
-                isDisabled && "opacity-20 cursor-not-allowed text-muted-foreground line-through decoration-slate-400",
-
-                // Active State
+                'h-10 w-full rounded-md flex items-center justify-center text-sm relative transition-all duration-200',
+                isDisabled && 'opacity-20 cursor-not-allowed text-muted-foreground line-through decoration-slate-400',
                 !isDisabled && [
-                  !isCurrentMonth && "text-muted-foreground/30",
-                  isCurrentMonth && "text-foreground",
-                  
-                  // Hover Effect (Desktop)
-                  "hover:bg-accent hover:text-accent-foreground",
-
-                  // Selected State
-                  isSelected && "bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90 hover:text-primary-foreground",
-                  
-                  // Today Indicator (if not selected)
-                  isToday && !isSelected && "bg-accent/50 text-accent-foreground font-semibold ring-1 ring-inset ring-accent-foreground/20"
-                ]
+                  !isCurrentMonth && 'text-muted-foreground/30',
+                  isCurrentMonth && 'text-foreground',
+                  'hover:bg-accent hover:text-accent-foreground',
+                  isSelected && 'bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90 hover:text-primary-foreground',
+                  isToday && !isSelected && 'bg-accent/50 text-accent-foreground font-semibold ring-1 ring-inset ring-accent-foreground/20',
+                ],
               )}
             >
               {day.getDate()}
-              
-              {/* Selected Indicator (Optional Checkmark or Dot) */}
-              {isSelected && (
-                <span className="absolute bottom-1 w-1 h-1 bg-primary-foreground rounded-full opacity-70" />
-              )}
             </button>
           );
         })}

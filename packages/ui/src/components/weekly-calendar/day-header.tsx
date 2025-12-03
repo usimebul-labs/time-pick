@@ -12,7 +12,7 @@ interface DayHeaderProps {
 
 export function DayHeader({ weekDays, minDate, maxDate }: DayHeaderProps) {
   return (
-    <div className="grid grid-cols-8 border-b divide-x bg-muted/30 flex-shrink-0">
+    <div className="grid grid-cols-8 border-b divide-x bg-muted/30 shrink-0">
       <div className="col-span-1 py-2 text-center text-xs text-muted-foreground font-medium">시간</div>
       {weekDays.map((day) => {
         const disabled = isDateDisabled(day, minDate, maxDate);
@@ -22,7 +22,7 @@ export function DayHeader({ weekDays, minDate, maxDate }: DayHeaderProps) {
             <span
               className={cn(
                 'text-sm font-bold w-7 h-7 flex items-center justify-center rounded-full',
-                isToday(day) ? 'bg-primary text-primary-foreground' : 'text-foreground'
+                isToday(day) ? 'bg-primary text-primary-foreground' : 'text-foreground',
               )}
             >
               {format(day, 'd')}

@@ -9,51 +9,38 @@ import {
 
 export type CalendarViewProps = {
   selectedDates?: Date[];
-  onSelectDates?: (dates: Date[]) => void;
   minDate?: Date;
   maxDate?: Date;
-  currentDate?: Date;
-  onCurrentDateChange?: (date: Date) => void;
 };
 
-export function useMonthlyCalendar({
-  selectedDates = [],
-  onSelectDates,
-  minDate,
-  maxDate,
-  currentDate: date,
-  onCurrentDateChange: onDateChange,
-}: CalendarViewProps) {
-  const [internalDate, setInternalDate] = useState(date || selectedDates[0] || new Date());
-  const currentDate = date || internalDate;
+export function useMonthlyCalendar({ selectedDates = [], minDate, maxDate }: CalendarViewProps) {
+  const [calendarDate, setCalendarDate] = useState(selectedDates[0] || new Date());
 
   const handleDateChange = (newDate: Date) => {
-    if (onDateChange) {
-      onDateChange(newDate);
-    } else {
-      setInternalDate(newDate);
-    }
+    setCalendarDate(newDate);
   };
 
   const isDateDisabled = useCallback((date: Date) => {
     if (minDate && isBefore(date, startOfDay(minDate))) return true;
     if (maxDate && isAfter(date, endOfDay(maxDate))) return true;
+
     return false;
   }, [minDate, maxDate]);
 
   const isSelected = useCallback((date: Date) => {
-    return selectedDates.some(d => isSameDay(d, date));
+    return selectedDates.some(selectedDate => isSameDay(selectedDate, date));
   }, [selectedDates]);
 
-  const canPrev = !minDate || isAfter(startOfMonth(currentDate), startOfMonth(minDate));
-  const canNext = !maxDate || isBefore(startOfMonth(currentDate), startOfMonth(maxDate));
+  const canPrev = !minDate || isAfter(startOfMonth(calendarDate), startOfMonth(minDate));
+  const canNext = !maxDate || isBefore(startOfMonth(calendarDate), startOfMonth(maxDate));
 
-  const goToNext = () => canNext && handleDateChange(addMonths(currentDate, 1));
-  const goToPrev = () => canPrev && handleDateChange(subMonths(currentDate, 1));
+  const goToNext = () => canNext && handleDateChange(addMonths(calendarDate, 1));
+  const goToPrev = () => canPrev && handleDateChange(subMonths(calendarDate, 1));
   const goToToday = () => handleDateChange(new Date());
 
-  const monthStart = startOfMonth(currentDate);
+  const monthStart = startOfMonth(calendarDate);
   const monthEnd = endOfMonth(monthStart);
+
   const calendarDays = eachDayOfInterval({
     start: startOfWeek(monthStart),
     end: endOfWeek(monthEnd),
@@ -68,7 +55,7 @@ export function useMonthlyCalendar({
   });
 
   return {
-    currentDate,
+    calendarDate,
     calendarDays,
     goToNext,
     goToPrev,

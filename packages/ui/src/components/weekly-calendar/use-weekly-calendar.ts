@@ -20,28 +20,16 @@ export type WeeklyCalendarProps = {
   maxDate?: Date;
 };
 
-export function useWeeklyCalendar({
-  date,
-  onDateChange,
-  startHour = 9,
-  endHour = 18,
-  minDate,
-  maxDate,
-}: WeeklyCalendarProps) {
+export function useWeeklyCalendar({ date, onDateChange, startHour = 9, endHour = 18, minDate, maxDate }: WeeklyCalendarProps) {
   const [internalDate, setInternalDate] = useState(new Date());
   const currentDate = date || internalDate;
 
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
-  const canPrev =
-    !minDate || isAfter(weekStart, startOfWeek(minDate, { weekStartsOn: 0 }));
-  const canNext =
-    !maxDate || isBefore(weekEnd, endOfWeek(maxDate, { weekStartsOn: 0 }));
+  const canPrev = !minDate || isAfter(weekStart, startOfWeek(minDate, { weekStartsOn: 0 }));
+  const canNext = !maxDate || isBefore(weekEnd, endOfWeek(maxDate, { weekStartsOn: 0 }));
 
-  const hours = Array.from(
-    { length: endHour - startHour + 1 },
-    (_, i) => startHour + i
-  );
+  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   const handleDateChange = (newDate: Date) =>
