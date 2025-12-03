@@ -16,7 +16,6 @@ interface CalendarGridProps {
 
 export function CalendarGrid({ calendarDays, getDayProps, dragHandlers }: CalendarGridProps) {
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const { onDragStart, onDragOver, onDragEnd } = dragHandlers;
 
@@ -40,7 +39,6 @@ export function CalendarGrid({ calendarDays, getDayProps, dragHandlers }: Calend
       </div>
 
       <div
-        ref={containerRef}
         className="grid grid-cols-7 gap-1 auto-rows-fr touch-none"
         onMouseLeave={onDragEnd}
         onMouseUp={onDragEnd}
@@ -48,7 +46,7 @@ export function CalendarGrid({ calendarDays, getDayProps, dragHandlers }: Calend
         onTouchMove={handleTouchMove}
       >
         {calendarDays.map((day) => {
-          const { isCurrentMonth, isSelected, isToday, isDisabled } = getDayProps(day);
+          const { date, isCurrentMonth, isSelected, isToday, isDisabled } = getDayProps(day);
 
           return (
             <button
@@ -70,7 +68,7 @@ export function CalendarGrid({ calendarDays, getDayProps, dragHandlers }: Calend
                 ],
               )}
             >
-              {day.getDate()}
+              {date}
             </button>
           );
         })}

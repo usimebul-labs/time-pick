@@ -11,8 +11,6 @@ export interface MonthlyCalendarProps {
   onSelectDates?: (dates: Date[]) => void;
   minDate?: Date;
   maxDate?: Date;
-  currentDate?: Date;
-  onCurrentDateChange?: (date: Date) => void;
 }
 
 export function MonthlyCalendar({ selectedDates, onSelectDates, minDate, maxDate }: MonthlyCalendarProps) {

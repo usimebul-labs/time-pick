@@ -14,7 +14,7 @@ export type CalendarViewProps = {
 };
 
 export function useMonthlyCalendar({ selectedDates = [], minDate, maxDate }: CalendarViewProps) {
-  const [calendarDate, setCalendarDate] = useState(selectedDates[0] || new Date());
+  const [calendarDate, setCalendarDate] = useState(new Date());
 
   const handleDateChange = (newDate: Date) => {
     setCalendarDate(newDate);
@@ -47,7 +47,7 @@ export function useMonthlyCalendar({ selectedDates = [], minDate, maxDate }: Cal
   });
 
   const getDayProps = (day: Date) => ({
-    date: day,
+    date: day.getDate(),
     isCurrentMonth: isSameMonth(day, monthStart),
     isToday: isToday(day),
     isDisabled: isDateDisabled(day),

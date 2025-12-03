@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   addDays,
   addWeeks,
@@ -9,46 +9,69 @@ import {
   endOfWeek,
   isAfter,
   isBefore,
+  startOfDay,
+  endOfDay,
+  isSameDay,
+  isSameMinute,
 } from "date-fns";
 
 export type WeeklyCalendarProps = {
-  date?: Date;
-  onDateChange?: (date: Date) => void;
+  selectedDates: Date[];
   startHour?: number;
   endHour?: number;
   minDate?: Date;
   maxDate?: Date;
 };
 
-export function useWeeklyCalendar({ date, onDateChange, startHour = 9, endHour = 18, minDate, maxDate }: WeeklyCalendarProps) {
-  const [internalDate, setInternalDate] = useState(new Date());
-  const currentDate = date || internalDate;
+export function useWeeklyCalendar({ selectedDates, startHour = 9, endHour = 18, minDate, maxDate }: WeeklyCalendarProps) {
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const handleDateChange = (newDate: Date) => setCalendarDate(newDate);
 
-  const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
-  const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
+  const isDateDisabled = useCallback((date: Date) => {
+    if (minDate && isBefore(date, startOfDay(minDate))) return true;
+    if (maxDate && isAfter(date, endOfDay(maxDate))) return true;
+
+    return false;
+  }, [minDate, maxDate]);
+
+  const isSelected = useCallback((date: Date) => {
+    return selectedDates.some(d => isSameMinute(d, date));
+  }, [selectedDates]);
+
+  const weekStart = startOfWeek(calendarDate, { weekStartsOn: 0 });
+  const weekEnd = endOfWeek(calendarDate, { weekStartsOn: 0 });
   const canPrev = !minDate || isAfter(weekStart, startOfWeek(minDate, { weekStartsOn: 0 }));
   const canNext = !maxDate || isBefore(weekEnd, endOfWeek(maxDate, { weekStartsOn: 0 }));
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const calendarDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-  const handleDateChange = (newDate: Date) =>
-    onDateChange ? onDateChange(newDate) : setInternalDate(newDate);
-
-  const goToPrev = () =>
-    canPrev && handleDateChange(subWeeks(currentDate, 1));
-  const goToNext = () =>
-    canNext && handleDateChange(addWeeks(currentDate, 1));
+  const goToPrev = () => canPrev && handleDateChange(subWeeks(calendarDate, 1));
+  const goToNext = () => canNext && handleDateChange(addWeeks(calendarDate, 1));
   const goToToday = () => handleDateChange(new Date());
 
+  const getDayProps = (day: Date, hour: number) => {
+    const datetime = new Date(day)
+    datetime.setHours(hour, 0, 0, 0);
+
+    return ({
+      datetime,
+      isDisabled: isDateDisabled(datetime),
+      isSelected: isSelected(datetime),
+    })
+  };
+
   return {
-    currentDate,
-    weekDays,
+    calendarDate,
+    calendarDays,
     hours,
-    canPrev,
-    canNext,
     goToPrev,
     goToNext,
     goToToday,
+    canPrev,
+    canNext,
+    isDateDisabled,
+    isSelected,
+    getDayProps
   };
 }
