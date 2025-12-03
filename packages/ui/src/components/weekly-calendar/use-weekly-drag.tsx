@@ -46,7 +46,7 @@ export function useWeeklyDrag({ selectedSlots, onSlotsChange, readOnly }: UseWee
     handleSlotAction(slotId);
   };
 
-  const onPointerDown = (e: React.TouchEvent, slotId: string, disabled: boolean) => {
+  const onPointerDown = (e: React.PointerEvent, slotId: string, disabled: boolean) => {
     if (disabled || readOnly) return;
     dragState.current.isDragging = true;
     dragState.current.lastSlotId = null;
@@ -59,7 +59,7 @@ export function useWeeklyDrag({ selectedSlots, onSlotsChange, readOnly }: UseWee
     if (e.cancelable) e.preventDefault();
 
     const touch = e.touches[0];
-    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    const element = document.elementFromPoint(touch!.clientX, touch!.clientY);
     const slotElement = element?.closest('[data-slot-id]') as HTMLElement;
 
     if (slotElement?.dataset.slotId) {

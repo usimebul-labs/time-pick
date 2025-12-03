@@ -19,7 +19,7 @@ export function CalendarGrid({ calendarDays, getDayProps, dragHandlers }: Calend
   // --- Mobile Touch Logic (elementFromPoint) ---
   const handleTouchMove = (e: React.TouchEvent) => {    
     const touch = e.touches[0];
-    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    const target = document.elementFromPoint(touch!.clientX, touch!.clientY);
     
     // 버튼 내부의 span이나 다른 요소를 찍어도 부모 button을 찾도록 closest 사용 권장
     // 여기서는 data-date가 button에 있으므로 target에서 바로 확인
