@@ -1,135 +1,116 @@
-# Turborepo starter
+제시해주신 요구사항을 완벽하게 반영하여, **모임 일정 조율 서비스 (가칭: TimePick)** 기획서와 바이브 코딩(AI 보조 코딩)을 위한 단계별 투두리스트를 작성해 드립니다.
 
-This Turborepo starter is maintained by the Turborepo core team.
+---
 
-## Using this example
+# 📅 프로젝트 기획서: TimePick (타임픽)
 
-Run the following command:
+## 1. 프로젝트 개요
+*   **목적:** 불필요한 연락 없이 링크 하나로 그룹의 최적 모임 날짜 및 시간을 선정하는 스케줄링 서비스
+*   **핵심 가치:** 직관적인 UI(드래그 앤 드롭), 게스트/회원 간의 유연한 사용성, 시각적인 일정 조율(히트맵)
 
-```sh
-npx create-turbo@latest
-```
+## 2. 사용자 분류 및 권한
+### A. 게스트 (비회원)
+*   별도 가입 없이 이름만 입력하여 일정 참여 가능.
+*   **식별 및 수정:** `캘린더ID` + `게스트명` + `랜덤 5자리 숫자(PIN)`로 식별.
+*   수정을 원할 경우 최초 부여된 5자리 숫자를 입력해야 함.
 
-## What's inside?
+### B. 회원 (로그인 유저)
+*   이메일 또는 소셜(구글, 카카오 등) 로그인.
+*   **기능:** 참여한 캘린더 목록 관리(대시보드), 외부 캘린더(Google, iCloud) 일정 가져오기(동기화), 확정된 일정 내 캘린더로 내보내기.
 
-This Turborepo includes the following packages/apps:
+## 3. 핵심 기능 명세
 
-### Apps and Packages
+### 3.1 캘린더 생성 (호스트)
+*   **UI 모드 선택:**
+    1.  **날짜+시간 정하기 (주간 뷰):** 구체적인 시간 조율 필요 시.
+    2.  **날짜만 정하기 (월간 뷰):** 여행, 종일 행사 등 날짜만 중요할 시.
+*   **설정 옵션:**
+    *   기간 설정 (시작일 ~ 종료일)
+    *   시간 범위 설정 (예: 09:00 ~ 22:00) *주간 뷰일 경우*
+    *   제외할 요일 설정 (예: 주말 제외)
+    *   캘린더 제목 및 설명
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### 3.2 일정 입력 (참여자)
+*   **입력 방식:**
+    *   **클릭:** 개별 셀 선택/해제.
+    *   **드래그:** 마우스(PC) 또는 터치(모바일)로 연속된 셀 선택.
+*   **편의 기능 (일괄 선택):**
+    *   **주간 뷰:** "이 시간대 모두 선택" (예: 월~금 19시는 모두 가능).
+    *   **월간 뷰:** "매주 X요일 모두 선택" (예: 기간 내 모든 토요일 선택).
+    *   **초기화:** 선택한 일정 전체 리셋.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### 3.3 시각화 및 정보 확인
+*   **히트맵(Heatmap) 로직:**
+    *   참여 인원 수에 따라 셀의 투명도(Opacity) 조절.
+    *   *기획 의도 반영:* 모두 참여 가능할수록 진한 색(불투명), 참여자가 적을수록 연한 색(투명).
+    *   공식: `Opacity = 해당 시간 참여자 수 / 전체 참여자 수`
+*   **뷰 모드 토글:**
+    *   **내 일정 보기:** 내가 선택한 셀만 활성화 + 테두리 강조(Border Highlight).
+    *   **그룹 일정 보기 (히트맵):** 전체 인원의 가능 여부를 색상 농도로 확인.
+    *   *토글 스위치로 ON/OFF 가능.*
+*   **상세 확인:**
+    *   **PC:** 셀 호버(Hover) 시 참여 가능한 멤버 이름 리스트 표시.
+    *   **Mobile:** 셀 롱프레스(Long Press) 시 툴팁 또는 모달로 참여자 목록 표시.
 
-### Utilities
+### 3.4 외부 연동 (회원 전용)
+*   **불러오기:** 구글/iCloud 캘린더 연동 시, 이미 일정이 있는 시간대는 자동으로 '불가능' 처리하거나 시각적으로 표시.
+*   **내보내기:** 최종 확정된 약속을 내 캘린더(Google Calendar 등)에 이벤트로 등록.
 
-This Turborepo has some additional tools already setup for you:
+---
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+# 🚀 바이브 코딩(Vibe Coding)을 위한 단계별 투두리스트
 
-### Build
+AI 코딩 툴(Cursor, Copilot 등)을 사용하여 빠르게 개발하기 위한 프롬프트 단위의 작업 순서입니다.
 
-To build all apps and packages, run the following command:
+## Phase 1: 프로젝트 세팅 및 UI 스켈레톤
+- [ ] **Next.js + TypeScript 프로젝트 생성:** Tailwind CSS, Shadcn/UI(또는 유사 라이브러리) 설치.
+- [ ] **라우팅 구조 설계:**
+    - `/`: 랜딩 페이지 (캘린더 생성 버튼)
+    - `/create`: 캘린더 생성 설정 페이지
+    - `/meet/[id]`: 캘린더 공유 및 일정 입력 페이지
+    - `/login`: 로그인 페이지
+    - `/dashboard`: 내 캘린더 목록 (회원용)
+- [ ] **기본 레이아웃 구성:** 헤더(로그인/로고), 메인 영역, 반응형 컨테이너 설정.
 
-```
-cd my-turborepo
+## Phase 2: 캘린더 생성 로직 구현
+- [ ] **설정 폼 개발:** 캘린더 제목, 모드(날짜/시간), 날짜 범위(Date Range Picker), 시간 범위, 제외 요일 입력 폼 구현.
+- [ ] **데이터 모델링 (Prisma/Supabase 등):** `Calendar` 테이블 생성 (id, title, mode, dateRange, timeRange, hostId 등).
+- [ ] **생성 API 구현:** 폼 데이터를 받아 DB에 저장하고 고유 URL ID를 반환하는 로직 작성.
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+## Phase 3: 캘린더 그리드 및 인터랙션 (핵심)
+- [ ] **월간 뷰(Month View) 구현:** 설정된 기간에 맞춰 달력 렌더링.
+- [ ] **주간 뷰(Week/Time View) 구현:** 설정된 날짜와 시간 범위에 맞춰 타임테이블 그리드 렌더링.
+- [ ] **드래그 앤 셀렉트(Drag & Select) 기능:**
+    - 마우스 다운 -> 무브 -> 업 이벤트를 감지하여 그리드 셀의 상태(Selected/Unselected) 변경.
+    - 모바일 터치 이벤트 대응.
+- [ ] **일괄 선택 기능:**
+    - 특정 요일 헤더 클릭 시 해당 요일 전체 선택.
+    - 특정 시간 행 헤더 클릭 시 해당 시간 전체 선택.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+## Phase 4: 사용자(게스트/회원) 및 데이터 저장
+- [ ] **게스트 로그인 모달:** 캘린더 진입 시 이름 입력 모달 띄우기. (로컬 스토리지에 임시 저장).
+- [ ] **게스트 수정 로직:** `게스트명` + `PIN(5자리)` 생성 및 검증 로직 구현.
+- [ ] **일정 저장 API:**
+    - `Availability` 테이블 생성 (calendarId, userId, selectedSlots JSON or Array).
+    - 사용자가 선택 후 '저장' 또는 실시간으로 DB에 업데이트.
+- [ ] **소셜 로그인 연동 (NextAuth):** 구글 로그인 붙이기.
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## Phase 5: 데이터 시각화 (히트맵) & 뷰 모드
+- [ ] **데이터 합산 로직:** 해당 캘린더의 모든 `Availability` 데이터를 가져와 시간 슬롯별 카운트 계산.
+- [ ] **히트맵 스타일링:** 계산된 카운트/전체인원 비율에 따라 배경색 Opacity 적용 (Tailwind 동적 클래스 활용).
+- [ ] **토글 기능 구현:** "내 일정 보기" vs "전체 결과 보기" 상태(State) 관리 및 UI 분기 처리.
+    - 내 일정 보기 활성화 시: 내가 선택한 슬롯에 `Border` 강조.
+- [ ] **호버/롱프레스 인터랙션:**
+    - Tooltip 컴포넌트 추가.
+    - 특정 슬롯에 마우스 오버 시 해당 슬롯을 선택한 유저 이름 필터링하여 표시.
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+## Phase 6: 외부 연동 및 마무리 (Advanced)
+- [ ] **구글 캘린더 API 연동 (Read):** 로그인한 유저의 이벤트를 가져와 그리드 위에 "이미 일정 있음"으로 표시 (Overlay).
+- [ ] **구글 캘린더 내보내기 (Write):** 최종 날짜 확정 시 버튼 클릭으로 .ics 파일 다운로드 또는 API로 이벤트 생성.
+- [ ] **공유하기 기능:** 클립보드에 링크 복사 기능.
+- [ ] **최종 UI/UX 폴리싱:** 모바일 반응형 디테일 수정, 로딩 스피너 추가, 에러 처리.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+---
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+**Tip for Vibe Coding:**
+이 투두리스트를 순서대로 AI에게 입력하면서 "Phase 3의 주간 뷰 그리드를 만들 건데, CSS Grid를 사용하고 모바일에서도 터치 드래그가 가능하게 코드를 짜줘"와 같이 구체적으로 요청하면 효율적으로 개발할 수 있습니다.
