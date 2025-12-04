@@ -10,6 +10,7 @@ import ConfirmScheduleActivity from "./activities/ConfirmScheduleActivity";
 import ConfirmedActivity from "./activities/ConfirmedActivity";
 import LoginActivity from "./activities/LoginActivity";
 import DashboardActivity from "./activities/DashboardActivity";
+import AuthErrorActivity from "./activities/AuthErrorActivity";
 
 export const { Stack, useFlow } = stackflow({
   transitionDuration: 350,
@@ -23,8 +24,9 @@ export const { Stack, useFlow } = stackflow({
     ConfirmedActivity,
     LoginActivity,
     DashboardActivity,
+    AuthErrorActivity,
   },
-  
+
   plugins: [
     basicRendererPlugin(),
     historySyncPlugin({
@@ -38,6 +40,7 @@ export const { Stack, useFlow } = stackflow({
         ConfirmedActivity: "/schedule/:id/confirmed",
         LoginActivity: "/login",
         DashboardActivity: "/dashboard",
+        AuthErrorActivity: "/auth/auth-code-error",
       },
       fallbackActivity: () => "MainActivity",
     }),

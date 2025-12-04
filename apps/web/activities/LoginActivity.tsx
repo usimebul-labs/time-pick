@@ -1,12 +1,13 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { SocialLoginButton } from "@repo/ui";
-import { supabase } from "../lib/supabase";
+import { createClient } from "../lib/supabase/client";
 import { useState } from "react";
 
 type LoginActivity = {};
 
 export default function LoginActivity({ }: LoginActivity) {
   const [loading, setLoading] = useState(false);
+  const supabase = createClient();
 
   const handleGoogleLogin = async () => {
     try {
@@ -14,7 +15,7 @@ export default function LoginActivity({ }: LoginActivity) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`, // Assuming standard callback, or handle client-side
+          redirectTo: `${window.location.origin}/api/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -22,15 +23,6 @@ export default function LoginActivity({ }: LoginActivity) {
         },
       });
       if (error) throw error;
-
-      // Note: Actual redirection happens here, so subsequent code might not run immediately 
-      // until the user returns. The API call to /api/login should ideally happen 
-      // in a callback page or useEffect after checking session.
-      // For this implementation, we'll assume the client-side flow or a separate callback handler.
-      // However, to strictly follow the plan "Call /api/login after successful authentication",
-      // we usually do this in an AuthProvider or a callback route.
-      // Given the constraints, I'll add a simple session check effect or assume this button triggers the flow.
-
     } catch (error) {
       console.error("Error logging in:", error);
       alert("로그인 중 오류가 발생했습니다.");
