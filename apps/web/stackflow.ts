@@ -2,14 +2,14 @@ import { stackflow } from "@stackflow/react";
 import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
 import { historySyncPlugin } from "@stackflow/plugin-history-sync";
 import MainActivity from "./activities/MainActivity";
-import NewScheduleActivity from "./activities/NewScheduleActivity";
-import ShareLinkActivity from "./activities/ShareLinkActivity";
-import JoinScheduleActivity from "./activities/JoinScheduleActivity";
-import ScheduleResultActivity from "./activities/ScheduleResultActivity";
-import ConfirmScheduleActivity from "./activities/ConfirmScheduleActivity";
-import ConfirmedActivity from "./activities/ConfirmedActivity";
-import LoginActivity from "./activities/LoginActivity";
-import DashboardActivity from "./activities/DashboardActivity";
+import NewScheduleActivity from "./activities/new/NewScheduleActivity";
+import ShareLinkActivity from "./activities/new/ShareLinkActivity";
+import JoinScheduleActivity from "./activities/schedule/JoinScheduleActivity";
+import ScheduleResultActivity from "./activities/schedule/ScheduleResultActivity";
+import ConfirmScheduleActivity from "./activities/schedule/ConfirmScheduleActivity";
+import ConfirmedActivity from "./activities/schedule/ConfirmedActivity";
+import LoginActivity from "./activities/login/LoginActivity";
+import DashboardActivity from "./activities/dashboard/DashboardActivity";
 
 export const { Stack, useFlow } = stackflow({
   transitionDuration: 350,
