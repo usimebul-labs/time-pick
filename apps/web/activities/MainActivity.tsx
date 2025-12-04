@@ -1,6 +1,6 @@
 import { ActivityComponentType } from '@stackflow/react';
 import { AppScreen } from '@stackflow/plugin-basic-ui';
-import { MonthlyCalendar, WeeklyCalendar } from '@repo/ui';
+import { Calendar, MonthlyCalendar, WeeklyCalendar } from '@repo/ui';
 import { useState } from 'react';
 
 const MainActivity: ActivityComponentType = () => {
@@ -19,7 +19,8 @@ const MainActivity: ActivityComponentType = () => {
 
         <div className="max-w-5xl mx-auto w-full h-[600px] border shadow-sm rounded-xl bg-background">
           {/* <MonthlyCalendar minDate={today} maxDate={twoWeeksLater} selectedDates={selectedDates} onSelectDates={setSelectedDates} /> */}
-          <WeeklyCalendar minDate={today} maxDate={twoWeeksLater} selectedDates={selectedDates} onSelectDates={setSelectedDates} />
+          {/* <WeeklyCalendar minDate={today} maxDate={twoWeeksLater} selectedDates={selectedDates} onSelectDates={setSelectedDates} /> */}
+          <Calendar type="monthly" minDate={today} maxDate={twoWeeksLater} selectedDates={selectedDates} onSelectDates={setSelectedDates} />
         </div>
 
         {/* 디버깅용 (선택된 데이터 확인) */}
