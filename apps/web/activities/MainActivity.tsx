@@ -1,13 +1,13 @@
-import { ActivityComponentType } from '@stackflow/react';
+import { Calendar } from '@repo/ui';
 import { AppScreen } from '@stackflow/plugin-basic-ui';
-import { Calendar, MonthlyCalendar, WeeklyCalendar } from '@repo/ui';
+import { ActivityComponentType } from '@stackflow/react';
 import { useState } from 'react';
 
 const MainActivity: ActivityComponentType = () => {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const today = new Date();
   const twoWeeksLater = new Date();
-  twoWeeksLater.setDate(today.getDate() + 14);
+  twoWeeksLater.setDate(today.getDate() + 90);
 
   return (
     <AppScreen>
@@ -18,9 +18,7 @@ const MainActivity: ActivityComponentType = () => {
         </div>
 
         <div className="max-w-5xl mx-auto w-full h-[600px] border shadow-sm rounded-xl bg-background">
-          {/* <MonthlyCalendar minDate={today} maxDate={twoWeeksLater} selectedDates={selectedDates} onSelectDates={setSelectedDates} /> */}
-          {/* <WeeklyCalendar minDate={today} maxDate={twoWeeksLater} selectedDates={selectedDates} onSelectDates={setSelectedDates} /> */}
-          <Calendar type="monthly" minDate={today} maxDate={twoWeeksLater} selectedDates={selectedDates} onSelectDates={setSelectedDates} />
+          <Calendar type="weekly" minDate={today} maxDate={twoWeeksLater} selectedDates={selectedDates} onSelectDates={setSelectedDates} />
         </div>
 
         {/* 디버깅용 (선택된 데이터 확인) */}
