@@ -1,28 +1,50 @@
-import { Calendar } from '@repo/ui';
 import { AppScreen } from '@stackflow/plugin-basic-ui';
 import { ActivityComponentType } from '@stackflow/react';
-import { useState } from 'react';
+import { useFlow } from '../stackflow';
 
 const MainActivity: ActivityComponentType = () => {
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const today = new Date();
-  const twoWeeksLater = new Date();
-  twoWeeksLater.setDate(today.getDate() + 90);
+  const { push } = useFlow();
+
+  const onClick = (activityName: any) => {
+    push(activityName, {
+      id: "123",
+    });
+  };
 
   return (
     <AppScreen>
-      <div className="p-8 h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col gap-4">
-        <div className="flex justify-between items-center max-w-5xl mx-auto w-full">
-          <h1 className="text-2xl font-bold">가능한 시간을 선택해주세요</h1>
-          <div className="text-sm text-muted-foreground">{selectedDates.length}개의 시간대 선택됨</div>
-        </div>
+      <div className="flex flex-col flex-1">
+        <div className="flex-1 p-4">
+          <h1 className="text-2xl font-bold">TimePick</h1>
+          <p className="mt-2">"언제 볼까?"라는 말 대신 링크 하나로. 그룹 스케줄링의 끝판왕.</p>
 
-        <div className="max-w-5xl mx-auto w-full h-[600px] border shadow-sm rounded-xl bg-background">
-          <Calendar type="weekly" minDate={today} maxDate={twoWeeksLater} selectedDates={selectedDates} onSelectDates={setSelectedDates} />
+          <div className="grid grid-cols-2 gap-4 mt-8">
+            <button onClick={() => onClick("NewScheduleActivity")} className="p-4 bg-blue-500 text-white rounded">
+              새로운 약속 생성
+            </button>
+            <button onClick={() => onClick("ShareLinkActivity")} className="p-4 bg-gray-200 rounded">
+              공유 페이지 (생성 후)
+            </button>
+            <button onClick={() => onClick("JoinScheduleActivity")} className="p-4 bg-gray-200 rounded">
+              일정 참여
+            </button>
+            <button onClick={() => onClick("ScheduleResultActivity")} className="p-4 bg-gray-200 rounded">
+              결과 확인
+            </button>
+            <button onClick={() => onClick("ConfirmScheduleActivity")} className="p-4 bg-gray-200 rounded">
+              최종 확정 (호스트)
+            </button>
+            <button onClick={() => onClick("ConfirmedActivity")} className="p-4 bg-gray-200 rounded">
+              확정된 약속 상세
+            </button>
+            <button onClick={() => onClick("LoginActivity")} className="p-4 bg-gray-200 rounded">
+              로그인
+            </button>
+            <button onClick={() => onClick("DashboardActivity")} className="p-4 bg-gray-200 rounded">
+              대시보드 (로그인 후)
+            </button>
+          </div>
         </div>
-
-        {/* 디버깅용 (선택된 데이터 확인) */}
-        <pre className="max-w-5xl mx-auto w-full text-xs bg-black text-white p-4 rounded mt-4">{JSON.stringify(selectedDates, null, 2)}</pre>
       </div>
     </AppScreen>
   );
