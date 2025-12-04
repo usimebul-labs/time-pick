@@ -95,3 +95,19 @@
     *   일정이 확정된 결과 페이지 하단에 모임 맥락에 맞는 광고 배너 노출 (예: 맛집 추천, 공간 대여, 배달 쿠폰).
 *   **OG Tag 동적 생성:**
     *   링크 공유 시 미리보기 이미지에 "현재 3/5명 참여 완료", "Best: 금요일 7시" 등의 실시간 정보를 텍스트로 합성하여 노출 (참여 유도).
+
+## 6. 웹 페이지 화면 기획
+
+### 페이지 목록 및 경로 설계 (Stackflow 기준)
+
+| 페이지 명 | Activity Name | 경로 (Route) | 설명 |
+|---|---|---|---|
+| 메인 페이지 | `MainActivity` | `/` | 서비스 소개 및 새로운 약속 생성 진입점 |
+| 약속 생성 | `NewScheduleActivity` | `/new` | 호스트가 약속의 이름, 기간, 시간대 등 기본 정보 설정 |
+| 링크 공유 | `ShareLinkActivity` | `/new/share` | 생성된 참여용/관리용 링크 확인 및 공유 |
+| 일정 참여 | `JoinScheduleActivity` | `/schedule/:id` | 참여자가 닉네임/PIN 입력 후, 가능한 시간 선택 |
+| 결과 확인 | `ScheduleResultActivity` | `/schedule/:id/results` | 전체 참여 현황 히트맵 및 Best 3 추천 시간 확인 |
+| 최종 확정 (호스트) | `ConfirmScheduleActivity`| `/schedule/:id/confirm` | 호스트가 추천 시간 중 하나를 선택하고 장소/메모 추가 |
+| 확정된 약속 | `ConfirmedActivity` | `/schedule/:id/confirmed`| 확정된 약속의 최종 정보 확인 및 공유 (텍스트, 이미지 등) |
+| 로그인 | `LoginActivity` | `/login` | 소셜 로그인 (구글, 카카오) |
+| 대시보드 | `DashboardActivity` | `/dashboard` | 로그인 사용자의 약속 목록 (내가 만든 방 / 참여한 방) |
