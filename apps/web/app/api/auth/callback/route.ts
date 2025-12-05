@@ -8,9 +8,12 @@ export async function GET(request: Request) {
     const next = searchParams.get('next') ?? '/dashboard'
     if (code) {
         const supabase = await createClient()
+
+        // Debug logging
+        console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL)
+
         const { error } = await supabase.auth.exchangeCodeForSession(code)
 
-        console.log("Auth callback error:", error)
         if (!error) {
             const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
             const isLocalEnv = process.env.NODE_ENV === 'development'
@@ -24,9 +27,14 @@ export async function GET(request: Request) {
             }
         } else {
             console.error('Auth error:', error)
+            let errorMessage = error.message
+            if (errorMessage === 'fetch failed') {
+                errorMessage = `Fetch failed. Check server logs. URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL}`
+            }
+            return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${encodeURIComponent(errorMessage)}`)
         }
     }
 
     // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+    return NextResponse.redirect(`${origin}/auth/auth-code-error?error=No%20code%20provided`)
 }

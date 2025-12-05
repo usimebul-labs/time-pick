@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from 'react';
+
 import localFont from 'next/font/local';
 import '@repo/ui/globals.css'; // UI 패키지의 전역 스타일 (CSS 변수 포함)
 import './globals.css';
@@ -15,10 +17,16 @@ const geistMono = localFont({
 });
 
 export default function RootLayout() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Stack />
+        {mounted ? <Stack /> : null}
       </body>
     </html>
   );

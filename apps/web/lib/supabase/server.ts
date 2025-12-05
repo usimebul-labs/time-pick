@@ -2,6 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export async function createClient() {
+    // Bypass SSL verification for corporate proxy (SELF_SIGNED_CERT_IN_CHAIN)
+    if (process.env.NODE_ENV === 'development') {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+    }
+
     const cookieStore = await cookies()
 
     return createServerClient(

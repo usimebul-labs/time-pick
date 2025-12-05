@@ -3,6 +3,12 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
     console.log('Middleware request URL:', request.url);
+
+    // Bypass SSL verification for corporate proxy (SELF_SIGNED_CERT_IN_CHAIN)
+    if (process.env.NODE_ENV === 'development') {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+    }
+
     let supabaseResponse = NextResponse.next({
         request,
     })
