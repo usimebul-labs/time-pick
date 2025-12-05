@@ -8,10 +8,11 @@ export interface MonthlyCalendarProps {
   minDate?: Date;
   maxDate?: Date;
   calendarDate: Date;
+  enabledDays?: string[];
 }
 
-export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, minDate, maxDate }: MonthlyCalendarProps) {
-  const { days, isDisabled, isSelected, isCurrentMonth } = useCalendar({ type: 'monthly', calendarDate, selectedDates, minDate, maxDate });
+export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, minDate, maxDate, enabledDays }: MonthlyCalendarProps) {
+  const { days, isDisabled, isSelected, isCurrentMonth } = useCalendar({ type: 'monthly', calendarDate, selectedDates, minDate, maxDate, enabledDays });
 
   return (
     <div className="flex flex-col gap-2 select-none">

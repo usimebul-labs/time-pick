@@ -12,9 +12,10 @@ export interface CalendarProps {
   startHour?: number;
   endHour?: number;
   type: 'monthly' | 'weekly';
+  enabledDays?: string[];
 }
 
-export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate, startHour, endHour }: CalendarProps) {
+export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate, startHour, endHour, enabledDays }: CalendarProps) {
   const { calendarDate, canNext, canPrev, goToNext, goToPrev, goToToday } = useCalendarHeader({ type, minDate, maxDate });
 
   return (
@@ -29,9 +30,10 @@ export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate,
           maxDate={maxDate}
           startHour={startHour}
           endHour={endHour}
+          enabledDays={enabledDays}
         />
       ) : (
-        <MonthlyCalendar calendarDate={calendarDate} selectedDates={selectedDates} onSelectDates={onSelectDates} minDate={minDate} maxDate={maxDate} />
+        <MonthlyCalendar calendarDate={calendarDate} selectedDates={selectedDates} onSelectDates={onSelectDates} minDate={minDate} maxDate={maxDate} enabledDays={enabledDays} />
       )}
     </div>
   );

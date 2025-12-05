@@ -11,6 +11,8 @@ import ConfirmedActivity from "./activities/ConfirmedActivity";
 import LoginActivity from "./activities/LoginActivity";
 import DashboardActivity from "./activities/DashboardActivity";
 import AuthErrorActivity from "./activities/AuthErrorActivity";
+import { CalendarTestActivity } from "./activities/CalendarTestActivity";
+
 
 export const { Stack, useFlow } = stackflow({
   transitionDuration: 350,
@@ -25,6 +27,7 @@ export const { Stack, useFlow } = stackflow({
     LoginActivity,
     DashboardActivity,
     AuthErrorActivity,
+    CalendarTestActivity,
   },
 
   plugins: [
@@ -41,6 +44,7 @@ export const { Stack, useFlow } = stackflow({
         LoginActivity: "/login",
         DashboardActivity: "/dashboard",
         AuthErrorActivity: "/auth/auth-code-error",
+        CalendarTestActivity: "/calendar-test",
       },
       fallbackActivity: () => "MainActivity",
     }),

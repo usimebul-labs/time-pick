@@ -8,8 +8,8 @@ export interface WeeklyCalendarProps extends MonthlyCalendarProps {
   endHour?: number;
 }
 
-export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, maxDate, minDate, startHour, endHour }: WeeklyCalendarProps) {
-  const { days, hours, isDisabled, isSelected } = useCalendar({ type: 'weekly', calendarDate, selectedDates, startHour, endHour, minDate, maxDate });
+export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, maxDate, minDate, startHour, endHour, enabledDays }: WeeklyCalendarProps) {
+  const { days, hours, isDisabled, isSelected } = useCalendar({ type: 'weekly', calendarDate, selectedDates, startHour, endHour, minDate, maxDate, enabledDays });
 
   return (
     <>
