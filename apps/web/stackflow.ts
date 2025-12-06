@@ -38,12 +38,12 @@ export const { Stack, useFlow } = stackflow({
     historySyncPlugin({
       routes: {
         MainActivity: "/app",
-        NewScheduleActivity: "/app/new",
-        ShareLinkActivity: "/app/new/share",
-        JoinScheduleActivity: "/app/schedule/:id",
-        ScheduleResultActivity: "/app/schedule/:id/results",
-        ConfirmScheduleActivity: "/app/schedule/:id/confirm",
-        ConfirmedActivity: "/app/schedule/:id/confirmed",
+        NewScheduleActivity: "/app/calendar/new",
+        ShareLinkActivity: "/app/calendar/share",
+        JoinScheduleActivity: "/app/calendar/:id",
+        ScheduleResultActivity: "/app/calendar/:id/results",
+        ConfirmScheduleActivity: "/app/calendar/:id/confirm",
+        ConfirmedActivity: "/app/calendar/:id/confirmed",
         LoginActivity: "/app/login",
         DashboardActivity: "/app/dashboard",
         AuthErrorActivity: "/app/auth/auth-code-error",
