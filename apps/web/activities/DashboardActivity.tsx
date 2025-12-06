@@ -77,7 +77,7 @@ export default function DashboardActivity({ }: DashboardActivity) {
   };
 
   const handleCreateSchedule = () => {
-    push("NewScheduleActivity", {});
+    push("CreateCalendarActivity", {});
   };
 
   const handleManage = (id: string) => {

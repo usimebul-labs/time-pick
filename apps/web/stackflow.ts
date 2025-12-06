@@ -2,7 +2,7 @@ import { stackflow } from "@stackflow/react";
 import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
 import { historySyncPlugin } from "@stackflow/plugin-history-sync";
 import MainActivity from "./activities/MainActivity";
-import NewScheduleActivity from "./activities/NewScheduleActivity";
+import CreateCalendarActivity from "./activities/CreateCalendarActivity";
 import ShareLinkActivity from "./activities/ShareLinkActivity";
 import JoinScheduleActivity from "./activities/JoinScheduleActivity";
 import ScheduleResultActivity from "./activities/ScheduleResultActivity";
@@ -19,7 +19,7 @@ export const { Stack, useFlow } = stackflow({
   transitionDuration: 350,
   activities: {
     MainActivity,
-    NewScheduleActivity,
+    CreateCalendarActivity,
     ShareLinkActivity,
     JoinScheduleActivity,
     ScheduleResultActivity,
@@ -38,7 +38,7 @@ export const { Stack, useFlow } = stackflow({
     historySyncPlugin({
       routes: {
         MainActivity: "/app",
-        NewScheduleActivity: "/app/calendar/new",
+        CreateCalendarActivity: "/app/calendar/new",
         ShareLinkActivity: "/app/calendar/share",
         JoinScheduleActivity: "/app/calendar/:id",
         ScheduleResultActivity: "/app/calendar/:id/results",
