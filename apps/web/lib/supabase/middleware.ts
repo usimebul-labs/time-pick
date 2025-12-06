@@ -44,7 +44,7 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
-    const protectedRoutes = ['/dashboard']
+    const protectedRoutes = ['/app/dashboard']
     const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))
     const isLoginPage = request.nextUrl.pathname.startsWith('/login')
 
@@ -58,7 +58,7 @@ export async function updateSession(request: NextRequest) {
     if (user && isLoginPage) {
         // user is logged in, redirect to dashboard
         const url = request.nextUrl.clone()
-        url.pathname = '/dashboard'
+        url.pathname = '/app/dashboard'
         return NextResponse.redirect(url)
     }
 

@@ -9,9 +9,11 @@ interface WeeklyGridProps {
   days: Date[];
   isDisabled: (date: Date) => boolean;
   isSelected: (date: Date) => boolean;
+  heatmapData?: Record<string, { count: number; participants: any[] }>;
+  totalParticipants?: number;
 }
 
-export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled, isSelected }: WeeklyGridProps) {
+export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled, isSelected, heatmapData, totalParticipants }: WeeklyGridProps) {
   const { onDragStart, onDragOver, onDragEnd, onTouchMove } = useCalendarDrag({ selectedDates, onSelectDates, isDisabled, isSelected });
 
   return (
@@ -46,12 +48,21 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
                       selected && 'bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90 hover:text-primary-foreground',
                     ],
                   )}
-                />
+                >
+                  {heatmapData && totalParticipants && heatmapData[datetime.toISOString()] && (
+                    <div
+                      className="absolute inset-x-0 bottom-0 top-0 bg-primary/80 z-0"
+                      style={{
+                        opacity: Math.min(Math.max(heatmapData[datetime.toISOString()].count / totalParticipants, 0), 1),
+                      }}
+                    />
+                  )}
+                </div>
               );
             })}
           </React.Fragment>
         ))}
       </div>
-    </div>
+    </div >
   );
 }

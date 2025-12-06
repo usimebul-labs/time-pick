@@ -9,9 +9,11 @@ interface MonthlyGridProps {
   isDisabled: (date: Date) => boolean;
   isSelected: (date: Date) => boolean;
   isCurrentMonth: (date: Date) => boolean;
+  heatmapData?: Record<string, { count: number; participants: any[] }>;
+  totalParticipants?: number;
 }
 
-export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSelected, isCurrentMonth }: MonthlyGridProps) {
+export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSelected, isCurrentMonth, heatmapData, totalParticipants }: MonthlyGridProps) {
   const { onDragStart, onDragOver, onDragEnd, onTouchMove } = useCalendarDrag({ selectedDates, onSelectDates, isDisabled, isSelected });
 
   return (
@@ -48,7 +50,15 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
                 ],
               )}
             >
-              {day.toISOString().slice(8, 10)}
+              {heatmapData && totalParticipants && heatmapData[day.toISOString()] && (
+                <div
+                  className="absolute inset-x-0 bottom-0 top-0 bg-primary/80 rounded-md z-0"
+                  style={{
+                    opacity: Math.min(Math.max(heatmapData[day.toISOString()].count / totalParticipants, 0), 1),
+                  }}
+                />
+              )}
+              <span className="z-10 relative">{day.toISOString().slice(8, 10)}</span>
             </button>
           );
         })}

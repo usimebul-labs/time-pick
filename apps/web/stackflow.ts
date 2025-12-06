@@ -12,7 +12,8 @@ import LoginActivity from "./activities/LoginActivity";
 import DashboardActivity from "./activities/DashboardActivity";
 import AuthErrorActivity from "./activities/AuthErrorActivity";
 import { CalendarTestActivity } from "./activities/CalendarTestActivity";
-
+import HeatmapTestActivity from "./activities/HeatmapTestActivity";
+import LandingActivity from "./activities/LandingActivity";
 
 export const { Stack, useFlow } = stackflow({
   transitionDuration: 350,
@@ -28,6 +29,8 @@ export const { Stack, useFlow } = stackflow({
     DashboardActivity,
     AuthErrorActivity,
     CalendarTestActivity,
+    HeatmapTestActivity,
+    LandingActivity,
   },
 
   plugins: [
@@ -45,9 +48,11 @@ export const { Stack, useFlow } = stackflow({
         DashboardActivity: "/app/dashboard",
         AuthErrorActivity: "/app/auth/auth-code-error",
         CalendarTestActivity: "/app/calendar-test",
+        HeatmapTestActivity: "/app/heatmap-test",
+        LandingActivity: "/",
       },
-      fallbackActivity: () => "MainActivity",
+      fallbackActivity: () => "LandingActivity",
     }),
   ],
-  initialActivity: () => "MainActivity",
+  initialActivity: () => "LandingActivity",
 });

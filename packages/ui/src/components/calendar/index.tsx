@@ -15,9 +15,11 @@ export interface CalendarProps {
   endHour?: number;
   type: 'monthly' | 'weekly';
   enabledDays?: string[];
+  heatmapData?: Record<string, { count: number; participants: any[] }>;
+  totalParticipants?: number;
 }
 
-export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate, startHour, endHour, enabledDays }: CalendarProps) {
+export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate, startHour, endHour, enabledDays, heatmapData, totalParticipants }: CalendarProps) {
   const { calendarDate, canNext, canPrev, goToNext, goToPrev, goToToday } = useCalendarHeader({ type, minDate, maxDate });
 
   return (
@@ -33,9 +35,20 @@ export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate,
           startHour={startHour}
           endHour={endHour}
           enabledDays={enabledDays}
+          heatmapData={heatmapData}
+          totalParticipants={totalParticipants}
         />
       ) : (
-        <MonthlyCalendar calendarDate={calendarDate} selectedDates={selectedDates} onSelectDates={onSelectDates} minDate={minDate} maxDate={maxDate} enabledDays={enabledDays} />
+        <MonthlyCalendar
+          calendarDate={calendarDate}
+          selectedDates={selectedDates}
+          onSelectDates={onSelectDates}
+          minDate={minDate}
+          maxDate={maxDate}
+          enabledDays={enabledDays}
+          heatmapData={heatmapData}
+          totalParticipants={totalParticipants}
+        />
       )}
     </div>
   );

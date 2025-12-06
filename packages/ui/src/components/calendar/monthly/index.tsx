@@ -11,9 +11,11 @@ export interface MonthlyCalendarProps {
   maxDate?: Date;
   calendarDate: Date;
   enabledDays?: string[];
+  heatmapData?: Record<string, { count: number; participants: any[] }>;
+  totalParticipants?: number;
 }
 
-export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, minDate, maxDate, enabledDays }: MonthlyCalendarProps) {
+export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, minDate, maxDate, enabledDays, heatmapData, totalParticipants }: MonthlyCalendarProps) {
   const { days, isDisabled, isSelected, isCurrentMonth } = useCalendar({ type: 'monthly', calendarDate, selectedDates, minDate, maxDate, enabledDays });
 
   return (
@@ -26,6 +28,8 @@ export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, mi
         isDisabled={isDisabled}
         isSelected={isSelected}
         isCurrentMonth={isCurrentMonth}
+        heatmapData={heatmapData}
+        totalParticipants={totalParticipants}
       />
     </div>
   );

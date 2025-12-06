@@ -5,7 +5,7 @@ import { Section } from "./section"
 
 interface HeroProps {
     title: string
-    subtitle: string
+    subtitle: string | React.ReactNode
     ctaText: string
     ctaLink: string
     image?: React.ReactNode
@@ -16,10 +16,10 @@ export function Hero({ title, subtitle, ctaText, ctaLink, image }: HeroProps) {
         <Section className="pt-20 md:pt-32 pb-16 md:pb-24">
             <div className="flex flex-col items-center text-center space-y-8">
                 <div className="space-y-4 max-w-3xl">
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl xl:text-6xl/none">
+                    <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl/none">
                         {title}
                     </h1>
-                    <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                    <p className="mx-auto max-w-[700px] text-muted-foreground text-sm sm:text-base md:text-xl">
                         {subtitle}
                     </p>
                 </div>
