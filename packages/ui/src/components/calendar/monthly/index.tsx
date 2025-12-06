@@ -1,3 +1,5 @@
+"use client";
+
 import { useCalendar } from '../hook/use-calendar';
 import { MonthGrid } from './month-grid';
 import { WeekHeader } from './week-header';

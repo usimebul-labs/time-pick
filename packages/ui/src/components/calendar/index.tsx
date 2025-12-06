@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from '../../lib/utils';
 import { MonthlyCalendar } from './monthly';
 import { CalendarHeader } from './header';

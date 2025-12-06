@@ -1,3 +1,5 @@
+"use client";
+
 import { useCalendar } from '../hook/use-calendar';
 import { MonthlyCalendarProps } from '../monthly';
 import { DayHeader } from './day-header';

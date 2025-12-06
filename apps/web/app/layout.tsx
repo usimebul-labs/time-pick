@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import localFont from 'next/font/local';
 import '@repo/ui/globals.css'; // UI 패키지의 전역 스타일 (CSS 변수 포함)
 import './globals.css';
-import { Stack } from '../stackflow';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -16,7 +15,11 @@ const geistMono = localFont({
   variable: '--font-geist-mono',
 });
 
-export default function RootLayout() {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -26,7 +29,7 @@ export default function RootLayout() {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {mounted ? <Stack /> : null}
+        {children}
       </body>
     </html>
   );
