@@ -12,9 +12,10 @@ export type CreateCalendarState = {
         startDate?: string[];
         endDate?: string[];
     };
+    eventId?: string;
 };
 
-export async function createCalendar(prevState: CreateCalendarState, formData: FormData) {
+export async function createCalendar(prevState: CreateCalendarState, formData: FormData): Promise<CreateCalendarState> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -81,7 +82,8 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
 
         const excludedDays = allDays
             .filter(day => !enabledDays.includes(day))
-            .map(day => dayMap[day]);
+            .map(day => dayMap[day])
+            .filter((d): d is number => d !== undefined);
 
         // 5. Host ID logic
         // We need to map Supabase User ID to our Profile ID if possible, 
