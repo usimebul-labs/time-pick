@@ -1,26 +1,38 @@
 "use client";
 
 import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { useActionState, useEffect, useState } from "react";
 import { useFlow } from "../stackflow";
-import { useState, useEffect } from "react";
-// import { format } from "date-fns"; // No longer needed for native inputs if we use strings
+
+import { createCalendar, CreateCalendarState } from "@/app/actions/calendar";
 import {
   Button,
-  Input,
-  Label,
-  Textarea,
   Card,
   CardContent,
+  Input,
+  Label,
   RadioGroup,
   RadioGroupItem,
-  // DatePicker, // Removing usage
+  Textarea,
 } from "@repo/ui";
-import { Calendar as CalendarIcon, Clock, Check } from "lucide-react";
+import { Calendar as CalendarIcon, Clock } from "lucide-react";
 
 type CreateCalendarActivity = {};
 
+const initialState: CreateCalendarState = { message: "", error: "" };
+
 export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
   const { pop } = useFlow();
+  const [state, formAction] = useActionState(createCalendar, initialState);
+
+  useEffect(() => {
+    if (state.message === "Success") {
+      alert("캘린더가 생성되었습니다!");
+      pop();
+    } else if (state.error) {
+      alert(state.error);
+    }
+  }, [state, pop]);
 
   // Helper date functions
   const formatDate = (d: Date) => {
@@ -92,36 +104,17 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
     if (!newEndDate) return;
 
     // Smart Deadline Logic
-    // If newEndDate > deadline (meaning the day of newEndDate is AFTER the day of deadline)
     if (!deadline) {
       setDeadline(`${newEndDate}T23:59`);
       return;
     }
 
-    // Comparison
-    // Native string "YYYY-MM-DD" + "T23:59:59"
     const endTimestamp = new Date(`${newEndDate}T23:59:59`).getTime();
     const deadlineTimestamp = new Date(deadline).getTime();
 
     if (endTimestamp > deadlineTimestamp) {
       setDeadline(`${newEndDate}T23:59`);
     }
-  };
-
-  const handleCreate = () => {
-    console.log({
-      title,
-      description,
-      scheduleType,
-      startDate,
-      endDate,
-      startHour: scheduleType === 'datetime' ? startHour : null,
-      endHour: scheduleType === 'datetime' ? endHour : null,
-      enabledDays,
-      deadline,
-    });
-    alert("일정이 생성되었습니다! (Mock)");
-    pop();
   };
 
   return (
@@ -133,22 +126,29 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
         },
       }}
     >
-      <div className="flex flex-col h-full bg-gray-50">
+      <form action={formAction} className="flex flex-col h-full bg-gray-50">
+        {/* Hidden Inputs for state values */}
+        <input type="hidden" name="scheduleType" value={scheduleType} />
+        <input type="hidden" name="enabledDays" value={JSON.stringify(enabledDays)} />
+
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           {/* Basic Info */}
           <section className="space-y-4">
             <div>
               <Label className="text-base mb-1.5 block">일정 제목</Label>
               <Input
+                name="title"
                 placeholder="예: 팀 주간 회의, 점심 약속"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="bg-white"
+                required
               />
             </div>
             <div>
               <Label className="text-base mb-1.5 block">설명 (선택)</Label>
               <Textarea
+                name="description"
                 placeholder="일정에 대한 간단한 설명을 적어주세요."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -180,7 +180,7 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
             </Card>
           </section>
 
-          {/* Date Range (Reverted to Native Input) */}
+          {/* Date Range */}
           <section>
             <Label className="text-base mb-2 flex items-center gap-2">
               <CalendarIcon className="w-4 h-4 text-primary" />
@@ -194,8 +194,10 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
                   </Label>
                   <Input
                     type="date"
+                    name="startDate"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
+                    required
                   />
                 </div>
                 <div>
@@ -204,8 +206,10 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
                   </Label>
                   <Input
                     type="date"
+                    name="endDate"
                     value={endDate}
                     onChange={(e) => handleEndDateChange(e.target.value)}
+                    required
                   />
                 </div>
               </CardContent>
@@ -230,6 +234,7 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
                     </Label>
                     <Input
                       type="number"
+                      name="startHour"
                       min={0}
                       max={23}
                       value={startHour}
@@ -242,6 +247,7 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
                     </Label>
                     <Input
                       type="number"
+                      name="endHour"
                       min={0}
                       max={23}
                       value={endHour}
@@ -258,9 +264,9 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
             <div className="flex items-center justify-between mb-2">
               <Label className="text-base block">가능 요일</Label>
               <div className="flex gap-1 text-xs">
-                <button onClick={() => selectDays("all")} className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">전체</button>
-                <button onClick={() => selectDays("weekday")} className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">평일</button>
-                <button onClick={() => selectDays("weekend")} className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">주말</button>
+                <button type="button" onClick={() => selectDays("all")} className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">전체</button>
+                <button type="button" onClick={() => selectDays("weekday")} className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">평일</button>
+                <button type="button" onClick={() => selectDays("weekend")} className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">주말</button>
               </div>
             </div>
             <Card className="border-none shadow-sm">
@@ -297,6 +303,7 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
               <CardContent className="p-4">
                 <Input
                   type="datetime-local"
+                  name="deadline"
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
                 />
@@ -310,14 +317,14 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
 
         <div className="p-4 bg-white border-t safe-area-bottom">
           <Button
+            type="submit"
             className="w-full text-lg h-12"
-            onClick={handleCreate}
             disabled={!title || !startDate || !endDate}
           >
             일정 생성하기
           </Button>
         </div>
-      </div>
+      </form>
     </AppScreen>
   );
 }
