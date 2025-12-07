@@ -301,3 +301,104 @@ export async function getEventWithParticipation(eventId: string): Promise<{
         return { event: null, participation: null, error: "상세 정보를 불러오는 중 오류가 발생했습니다." };
     }
 }
+
+export async function joinSchedule(
+    eventId: string,
+    selectedSlots: string[], // ISO strings
+    guestInfo?: { name: string; pin?: string }
+): Promise<{ success: boolean; error?: string }> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    try {
+        let participantId: string;
+
+        if (user) {
+            // 1. User is logged in
+            // Find or create participant linked to user
+            const existing = await prisma.participant.findUnique({
+                where: {
+                    eventId_userId: {
+                        eventId,
+                        userId: user.id
+                    }
+                }
+            });
+
+            if (existing) {
+                participantId = existing.id;
+            } else {
+                // Ensure profile exists (should already exist if logged in, but safe to upsert)
+                // Actually, if we just use user.id, we rely on profile existing or foreign key might fail if we enforce it.
+                // In createCalendar we upserted profile. Let's do it here too to be safe.
+                await prisma.profile.upsert({
+                    where: { id: user.id },
+                    update: {},
+                    create: {
+                        id: user.id,
+                        email: user.email,
+                        fullName: user.user_metadata.full_name,
+                        avatarUrl: user.user_metadata.avatar_url
+                    }
+                });
+
+                const newParticipant = await prisma.participant.create({
+                    data: {
+                        eventId,
+                        userId: user.id,
+                        name: user.user_metadata.full_name || "익명",
+                    }
+                });
+                participantId = newParticipant.id;
+            }
+        } else {
+            // 2. Guest User
+            if (!guestInfo || !guestInfo.name) {
+                return { success: false, error: "게스트 이름이 필요합니다." };
+            }
+
+            // Create guest participant
+            // Note: Guest participants might be duplicates if we don't have a way to identify them.
+            // For now, we always create a new guest participant or we could check name+pin?
+            // Let's assume for now guests are unique per session or we just create new.
+            // But if they want to edit? We need a way to find them.
+            // For MVP, simple create.
+            const newParticipant = await prisma.participant.create({
+                data: {
+                    eventId,
+                    name: guestInfo.name,
+                    guestPin: guestInfo.pin
+                }
+            });
+            participantId = newParticipant.id;
+        }
+
+        // 3. Save Availability
+        // Transaction to replace all availabilities
+        await prisma.$transaction(async (tx) => {
+            // Delete existing
+            await tx.availability.deleteMany({
+                where: { participantId }
+            });
+
+            // Create new
+            if (selectedSlots.length > 0) {
+                await tx.availability.createMany({
+                    data: selectedSlots.map(slot => ({
+                        eventId,
+                        participantId,
+                        slot: new Date(slot)
+                    }))
+                });
+            }
+        });
+
+        revalidatePath('/app/dashboard');
+        revalidatePath(`/app/calendar/${eventId}`);
+        return { success: true };
+
+    } catch (e) {
+        console.error("Error joining schedule:", e);
+        return { success: false, error: "일정 등록 중 오류가 발생했습니다." };
+    }
+}
