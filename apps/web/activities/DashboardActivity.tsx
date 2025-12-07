@@ -59,13 +59,18 @@ export default function DashboardActivity({ }: DashboardActivity) {
   };
 
   const handleManage = (id: string) => {
-    // console.log("Manage schedule", id);
-    // push("ScheduleResultActivity", { schedule_id: id }); 
+    // Navigate to result/management page
+    push("ScheduleResultActivity", { id });
   };
 
   const handleConfirm = (id: string) => {
-    // console.log("Confirm schedule", id);
-    // push("ConfirmScheduleActivity", { schedule_id: id });
+    // Navigate to confirm page
+    push("ConfirmScheduleActivity", { id });
+  };
+
+  const handleCardClick = (id: string) => {
+    // Navigate to JoinScheduleActivity (Calendar Screen)
+    push("JoinScheduleActivity", { id });
   };
 
   const getUserName = (user: User | null) => {
@@ -137,7 +142,11 @@ export default function DashboardActivity({ }: DashboardActivity) {
             <div className="space-y-3">
               {mySchedules.length > 0 ? (
                 mySchedules.map((schedule) => (
-                  <Card key={schedule.id} className="overflow-hidden border-none shadow-md">
+                  <Card
+                    key={schedule.id}
+                    className="overflow-hidden border-none shadow-md cursor-pointer transition-colors hover:bg-gray-50"
+                    onClick={() => handleCardClick(schedule.id)}
+                  >
                     <CardHeader className="pb-3 bg-white">
                       <div className="flex justify-between items-start">
                         <div>
@@ -153,10 +162,10 @@ export default function DashboardActivity({ }: DashboardActivity) {
                       </div>
                     </CardHeader>
                     <CardFooter className="bg-gray-50 p-2 grid grid-cols-2 gap-2 border-t">
-                      <Button variant="outline" size="sm" className="w-full text-xs h-9 bg-white hover:bg-gray-100" onClick={() => handleManage(schedule.id)}>
+                      <Button variant="outline" size="sm" className="w-full text-xs h-9 bg-white hover:bg-gray-100" onClick={(e) => { e.stopPropagation(); handleManage(schedule.id); }}>
                         <Settings className="w-3 h-3 mr-1.5" /> 관리하기
                       </Button>
-                      <Button size="sm" className="w-full text-xs h-9" onClick={() => handleConfirm(schedule.id)}>
+                      <Button size="sm" className="w-full text-xs h-9" onClick={(e) => { e.stopPropagation(); handleConfirm(schedule.id); }}>
                         <CheckCircle className="w-3 h-3 mr-1.5" /> 확정하기
                       </Button>
                     </CardFooter>
@@ -182,7 +191,11 @@ export default function DashboardActivity({ }: DashboardActivity) {
             <div className="space-y-3">
               {joinedSchedules.length > 0 ? (
                 joinedSchedules.map((schedule) => (
-                  <Card key={schedule.id} className="border-none shadow-sm bg-white">
+                  <Card
+                    key={schedule.id}
+                    className="border-none shadow-sm bg-white cursor-pointer transition-colors hover:bg-gray-50"
+                    onClick={() => handleCardClick(schedule.id)}
+                  >
                     <CardHeader className="p-4">
                       <div className="flex justify-between items-center">
                         <div>

@@ -1,8 +1,6 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 
-type ConfirmedActivity = {};
-
-export default function ConfirmedActivity({}: ConfirmedActivity) {
+export default function ConfirmedActivity({ params: { id } }: { params: { id: string } }) {
   return (
     <AppScreen>
       <div className="flex flex-col flex-1">

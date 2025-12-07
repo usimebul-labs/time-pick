@@ -15,24 +15,27 @@ import { CalendarTestActivity } from "./activities/CalendarTestActivity";
 import HeatmapTestActivity from "./activities/HeatmapTestActivity";
 import LandingActivity from "./activities/LandingActivity";
 
-export const { Stack, useFlow } = stackflow({
-  transitionDuration: 350,
-  activities: {
-    MainActivity,
-    CreateCalendarActivity,
-    ShareLinkActivity,
-    JoinScheduleActivity,
-    ScheduleResultActivity,
-    ConfirmScheduleActivity,
-    ConfirmedActivity,
-    LoginActivity,
-    DashboardActivity,
-    AuthErrorActivity,
-    CalendarTestActivity,
-    HeatmapTestActivity,
-    LandingActivity,
-  },
+const activities = {
+  MainActivity,
+  CreateCalendarActivity,
+  ShareLinkActivity,
+  JoinScheduleActivity,
+  ScheduleResultActivity,
+  ConfirmScheduleActivity,
+  ConfirmedActivity,
+  LoginActivity,
+  DashboardActivity,
+  AuthErrorActivity,
+  CalendarTestActivity,
+  HeatmapTestActivity,
+  LandingActivity,
+};
 
+export type Activities = typeof activities;
+
+const stack = stackflow({
+  transitionDuration: 350,
+  activities,
   plugins: [
     basicRendererPlugin(),
     historySyncPlugin({
@@ -56,3 +59,5 @@ export const { Stack, useFlow } = stackflow({
   ],
   initialActivity: () => "LandingActivity",
 });
+
+export const { Stack, useFlow } = stack;

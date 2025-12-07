@@ -1,8 +1,6 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 
-type ConfirmScheduleActivity = {};
-
-export default function ConfirmScheduleActivity({}: ConfirmScheduleActivity) {
+export default function ConfirmScheduleActivity({ params: { id } }: { params: { id: string } }) {
   return (
     <AppScreen>
       <div className="flex flex-col flex-1">

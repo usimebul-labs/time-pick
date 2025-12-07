@@ -168,12 +168,12 @@ export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
                   className="flex gap-6"
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="date" id="r-date" />
-                    <Label htmlFor="r-date" className="font-normal cursor-pointer">날짜만</Label>
+                    <RadioGroupItem value="monthly" id="r-monthly" />
+                    <Label htmlFor="r-monthly" className="font-normal cursor-pointer">날짜만</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="datetime" id="r-datetime" />
-                    <Label htmlFor="r-datetime" className="font-normal cursor-pointer">날짜 + 시간</Label>
+                    <RadioGroupItem value="weekly" id="r-weekly" />
+                    <Label htmlFor="r-weekly" className="font-normal cursor-pointer">주간</Label>
                   </div>
                 </RadioGroup>
               </CardContent>

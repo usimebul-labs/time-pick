@@ -114,7 +114,7 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
                 hostId,
                 title,
                 description,
-                eventType: scheduleType === 'date' ? 'date_only' : 'date_time',
+                type: scheduleType === 'date' ? 'monthly' : 'weekly',
                 startDate,
                 endDate,
                 startTime,
@@ -214,5 +214,90 @@ export async function getUserSchedules(): Promise<{
     } catch (e) {
         console.error("Error fetching schedules:", e);
         return { mySchedules: [], joinedSchedules: [], error: "일정을 불러오는 중 오류가 발생했습니다." };
+    }
+}
+
+export type EventDetail = {
+    id: string;
+    title: string;
+    description: string | null;
+    type: "monthly" | "weekly";
+    startDate: string;
+    endDate: string;
+    startTime: string | null;
+    endTime: string | null;
+    excludedDays: number[];
+    deadline: string | null;
+    hostId: string | null;
+    isConfirmed: boolean;
+};
+
+export type ParticipantDetail = {
+    id: string;
+    name: string;
+    availabilities: string[]; // Store slots as ISO strings
+};
+
+export async function getEventWithParticipation(eventId: string): Promise<{
+    event: EventDetail | null;
+    participation: ParticipantDetail | null;
+    error?: string;
+}> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    try {
+        const event = await prisma.event.findUnique({
+            where: { id: eventId }
+        });
+
+        if (!event) {
+            return { event: null, participation: null, error: "일정을 찾을 수 없습니다." };
+        }
+
+        let participation: ParticipantDetail | null = null;
+        if (user) {
+            const p = await prisma.participant.findUnique({
+                where: {
+                    eventId_userId: {
+                        eventId: eventId,
+                        userId: user.id
+                    }
+                },
+                include: {
+                    availabilities: true
+                }
+            });
+
+            if (p) {
+                participation = {
+                    id: p.id,
+                    name: p.name,
+                    availabilities: p.availabilities.map(a => a.slot.toISOString())
+                };
+            }
+        }
+
+        return {
+            event: {
+                id: event.id,
+                title: event.title,
+                description: event.description,
+                type: event.type,
+                startDate: event.startDate.toISOString().split('T')[0]!,
+                endDate: event.endDate.toISOString().split('T')[0]!,
+                startTime: event.startTime ? event.startTime.toISOString().split('T')[1]!.substring(0, 5) : null,
+                endTime: event.endTime ? event.endTime.toISOString().split('T')[1]!.substring(0, 5) : null,
+                excludedDays: event.excludedDays,
+                deadline: event.deadline ? event.deadline.toISOString() : null,
+                hostId: event.hostId,
+                isConfirmed: event.isConfirmed
+            },
+            participation,
+        };
+
+    } catch (e) {
+        console.error("Error fetching event details:", e);
+        return { event: null, participation: null, error: "상세 정보를 불러오는 중 오류가 발생했습니다." };
     }
 }

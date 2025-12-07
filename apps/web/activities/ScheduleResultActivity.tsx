@@ -1,8 +1,6 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 
-type ScheduleResultActivity = {};
-
-export default function ScheduleResultActivity({}: ScheduleResultActivity) {
+export default function ScheduleResultActivity({ params: { id } }: { params: { id: string } }) {
   return (
     <AppScreen>
       <div className="flex flex-col flex-1">
