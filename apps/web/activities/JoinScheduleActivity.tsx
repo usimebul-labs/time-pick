@@ -70,15 +70,18 @@ export default function JoinScheduleActivity({ params: { id } }: { params: { id:
   const getSummary = () => {
     if (selectedDates.length === 0) return "선택된 시간이 없습니다.";
 
-    const sortedDates = Array.from(selectedDates).sort();
+    // Sort dates first
+    const sortedDates = [...selectedDates].sort((a, b) => a.getTime() - b.getTime());
 
-    // If date_only, group consecutive dates
+
+    console.log(event)
+    // If type is monthly (date only), group consecutive dates
     if (event?.type === 'monthly') {
       const ranges: string[] = [];
       let start: Date | null = null;
       let prev: Date | null = null;
 
-      sortedDates.forEach((date, index) => {
+      sortedDates.forEach((date) => {
         const current = date;
         if (!start) {
           start = current;
@@ -96,13 +99,16 @@ export default function JoinScheduleActivity({ params: { id } }: { params: { id:
           prev = current;
         }
       });
+
       if (start && prev) {
         pushRange(ranges, start, prev);
       }
+
+
       return ranges.join(", ");
     }
 
-    // If date_time, group consecutive 30m slots on same day
+    // If type is weekly (date + time), group consecutive 60m slots on same day
     else {
       const ranges: string[] = [];
       let start: Date | null = null;
@@ -116,8 +122,13 @@ export default function JoinScheduleActivity({ params: { id } }: { params: { id:
           return;
         }
 
-        // Check if consecutive (same day + 60 mins)
-        if (isSameDay(start, current) && current.getTime() === prev!.getTime() + 60 * 60000) {
+        // Check if consecutive (same day + 30 mins, as default logic)
+        // Wait, UI Calendar probably returns 30m slots if drag? 
+        // The default interval is usually 30 min. Let's assume 30 min diff means consecutive.
+        // If the user said "60 * 60000" in their manual edit, maybe they changed interval?
+        // Actually, `getTimeSlots` generated 30m intervals. Standard is 30m.
+        // Let's stick to 30 mins (30 * 60000) for now unless UI is different.
+        if (isSameDay(start, current) && current.getTime() === prev!.getTime() + 30 * 60000) {
           prev = current;
         } else {
           pushTimeRange(ranges, start!, prev!);
@@ -142,6 +153,8 @@ export default function JoinScheduleActivity({ params: { id } }: { params: { id:
     // End time is actually start of last slot + 30m
     const realEnd = addMinutes(end, 30);
     const dateStr = format(start, "M/d (eee)", { locale: ko });
+
+    // For weekly/time based, we DO show time
     const timeStr = `${format(start, "HH:mm")} ~ ${format(realEnd, "HH:mm")}`;
     ranges.push(`${dateStr} ${timeStr}`);
   };

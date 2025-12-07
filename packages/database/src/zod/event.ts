@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Type } from "../../generated/prisma/client";
+import { EventType } from "../../generated/prisma/client";
 
 export const eventSchema = z.object({
   id: z.cuid(),
@@ -7,7 +7,7 @@ export const eventSchema = z.object({
   description: z.string().nullish(),
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
-  status: z.enum(Type),
+  type: z.enum(EventType),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

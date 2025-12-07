@@ -8,8 +8,8 @@ datasource db {
 }
 
 enum EventType {
-  date_only
-  date_time
+  monthly
+  weekly
 }
 
 model Profile {
@@ -28,7 +28,7 @@ model Event {
   hostId       String?   @map("host_id")
   title        String
   description  String?
-  eventType    EventType @default(date_time) @map("event_type")
+  type         EventType @default(monthly) @map("event_type")
   startDate    DateTime  @db.Date @map("start_date")
   endDate      DateTime  @db.Date @map("end_date")
   startTime    DateTime? @db.Time @map("start_time")
