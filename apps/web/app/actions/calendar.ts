@@ -111,7 +111,7 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
         // 6. Create Event
         const event = await prisma.event.create({
             data: {
-                hostId,
+                host: hostId ? { connect: { id: hostId } } : undefined,
                 title,
                 description,
                 type: scheduleType === 'date' ? 'monthly' : 'weekly',

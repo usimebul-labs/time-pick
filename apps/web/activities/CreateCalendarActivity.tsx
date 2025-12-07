@@ -22,17 +22,17 @@ type CreateCalendarActivity = {};
 const initialState: CreateCalendarState = { message: "", error: "" };
 
 export default function CreateCalendarActivity({ }: CreateCalendarActivity) {
-  const { pop } = useFlow();
+  const { pop, replace } = useFlow();
   const [state, formAction] = useActionState(createCalendar, initialState);
 
   useEffect(() => {
-    if (state.message === "Success") {
+    if (state.message === "Success" && state.eventId) {
       alert("캘린더가 생성되었습니다!");
-      pop();
+      replace("JoinScheduleActivity", { id: state.eventId });
     } else if (state.error) {
       alert(state.error);
     }
-  }, [state, pop]);
+  }, [state, pop, replace]);
 
   // Helper date functions
   const formatDate = (d: Date) => {

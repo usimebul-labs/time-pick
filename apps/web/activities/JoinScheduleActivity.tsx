@@ -46,24 +46,6 @@ export default function JoinScheduleActivity({ params: { id } }: { params: { id:
     return dates;
   };
 
-  // Helper to generate time slots for a day
-  const getTimeSlots = (date: Date, startTimeStr: string | null, endTimeStr: string | null) => {
-    if (!startTimeStr || !endTimeStr) return [];
-
-    const [startH, startM] = startTimeStr.split(':').map(Number);
-    const [endH, endM] = endTimeStr.split(':').map(Number);
-
-    let current = setMinutes(setHours(date, startH!), startM!);
-    const end = setMinutes(setHours(date, endH!), endM!);
-
-    const slots = [];
-    while (current < end) { // < because slot is start time of 30m block
-      slots.push(current);
-      current = addMinutes(current, 30);
-    }
-    return slots;
-  };
-
   const dates = event ? getDatesInRange(event.startDate, event.endDate).filter(d => !event.excludedDays.includes(getDay(d))) : [];
 
   // Summary Logic
@@ -122,13 +104,13 @@ export default function JoinScheduleActivity({ params: { id } }: { params: { id:
           return;
         }
 
-        // Check if consecutive (same day + 30 mins, as default logic)
+        // Check if consecutive (same day + 60 mins, as default logic)
         // Wait, UI Calendar probably returns 30m slots if drag? 
         // The default interval is usually 30 min. Let's assume 30 min diff means consecutive.
         // If the user said "60 * 60000" in their manual edit, maybe they changed interval?
         // Actually, `getTimeSlots` generated 30m intervals. Standard is 30m.
         // Let's stick to 30 mins (30 * 60000) for now unless UI is different.
-        if (isSameDay(start, current) && current.getTime() === prev!.getTime() + 30 * 60000) {
+        if (isSameDay(start, current) && current.getTime() === prev!.getTime() + 60 * 60000) {
           prev = current;
         } else {
           pushTimeRange(ranges, start!, prev!);
