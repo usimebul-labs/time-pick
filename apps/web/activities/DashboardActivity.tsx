@@ -1,5 +1,3 @@
-'use client'
-
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -10,65 +8,45 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardContent,
   CardFooter,
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@repo/ui";
 import { Plus, Settings, CheckCircle, Calendar, Users, LogOut } from "lucide-react";
+import { getUserSchedules, DashboardSchedule } from "@/app/actions/calendar";
 
 type DashboardActivity = {};
 
-// Mock data types
-interface Schedule {
-  id: string;
-  title: string;
-  deadline: string; // ISO date string or display string for simplicity
-  participantCount: number;
-}
-
-const MOCK_MY_SCHEDULES: Schedule[] = [
-  {
-    id: "1",
-    title: "팀 주간 회의",
-    deadline: "2024-03-20",
-    participantCount: 4,
-  },
-  {
-    id: "2",
-    title: "프로젝트 킥오프",
-    deadline: "2024-03-25",
-    participantCount: 6,
-  },
-];
-
-const MOCK_JOINED_SCHEDULES: Schedule[] = [
-  {
-    id: "3",
-    title: "디자인 리뷰",
-    deadline: "2024-03-22",
-    participantCount: 3,
-  },
-  {
-    id: "4",
-    title: "점심 약속",
-    deadline: "2024-03-21",
-    participantCount: 2,
-  },
-];
-
 export default function DashboardActivity({ }: DashboardActivity) {
   const [user, setUser] = useState<User | null>(null);
+  const [mySchedules, setMySchedules] = useState<DashboardSchedule[]>([]);
+  const [joinedSchedules, setJoinedSchedules] = useState<DashboardSchedule[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const supabase = createClient();
   const { push } = useFlow();
 
   useEffect(() => {
-    const getUser = async () => {
+    const init = async () => {
+      // 1. Get User
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+
+      // 2. Get Schedules
+      if (user) {
+        const { mySchedules, joinedSchedules, error } = await getUserSchedules();
+        if (error) {
+          console.error(error);
+          // Handle error UI if needed
+        } else {
+          setMySchedules(mySchedules);
+          setJoinedSchedules(joinedSchedules);
+        }
+      }
+      setLoading(false);
     };
-    getUser();
+    init();
   }, []);
 
   const handleSignOut = async () => {
@@ -82,19 +60,16 @@ export default function DashboardActivity({ }: DashboardActivity) {
 
   const handleManage = (id: string) => {
     // console.log("Manage schedule", id);
-    // push("ScheduleResultActivity", { schedule_id: id }); // Example path
+    // push("ScheduleResultActivity", { schedule_id: id }); 
   };
 
   const handleConfirm = (id: string) => {
     // console.log("Confirm schedule", id);
-    // push("ConfirmScheduleActivity", { schedule_id: id }); // Example path
+    // push("ConfirmScheduleActivity", { schedule_id: id });
   };
 
   const getUserName = (user: User | null) => {
     if (!user) return "게스트";
-    // First try user_metadata.full_name or name
-    // Then try email username part
-    // Finally default to "사용자"
     const meta = user.user_metadata;
     if (meta?.full_name) return meta.full_name;
     if (meta?.name) return meta.name;
@@ -111,6 +86,16 @@ export default function DashboardActivity({ }: DashboardActivity) {
   const userName = getUserName(user);
   const userAvatarUrl = getUserAvatar(user);
 
+  if (loading) {
+    // Simple loading state
+    return (
+      <AppScreen>
+        <div className="flex items-center justify-center min-h-screen bg-gray-50">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </AppScreen>
+    );
+  }
 
   return (
     <AppScreen>
@@ -150,15 +135,15 @@ export default function DashboardActivity({ }: DashboardActivity) {
             </div>
 
             <div className="space-y-3">
-              {MOCK_MY_SCHEDULES.length > 0 ? (
-                MOCK_MY_SCHEDULES.map((schedule) => (
+              {mySchedules.length > 0 ? (
+                mySchedules.map((schedule) => (
                   <Card key={schedule.id} className="overflow-hidden border-none shadow-md">
                     <CardHeader className="pb-3 bg-white">
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-base mb-1">{schedule.title}</CardTitle>
                           <div className="text-xs text-gray-500 flex items-center gap-1">
-                            마감: {schedule.deadline}
+                            {schedule.deadline ? `마감: ${schedule.deadline}` : "마감일 없음"}
                           </div>
                         </div>
                         <div className="flex items-center bg-gray-100 px-2 py-1 rounded text-xs font-medium text-gray-600">
@@ -195,14 +180,16 @@ export default function DashboardActivity({ }: DashboardActivity) {
             </div>
 
             <div className="space-y-3">
-              {MOCK_JOINED_SCHEDULES.length > 0 ? (
-                MOCK_JOINED_SCHEDULES.map((schedule) => (
+              {joinedSchedules.length > 0 ? (
+                joinedSchedules.map((schedule) => (
                   <Card key={schedule.id} className="border-none shadow-sm bg-white">
                     <CardHeader className="p-4">
                       <div className="flex justify-between items-center">
                         <div>
                           <h3 className="font-semibold text-sm mb-1">{schedule.title}</h3>
-                          <p className="text-xs text-gray-500">마감: {schedule.deadline}</p>
+                          <p className="text-xs text-gray-500">
+                            {schedule.deadline ? `마감: ${schedule.deadline}` : "마감일 없음"}
+                          </p>
                         </div>
                         <div className="flex flex-col items-end gap-1">
                           <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">

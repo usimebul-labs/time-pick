@@ -132,3 +132,87 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
         return { error: "일정 생성 중 오류가 발생했습니다." };
     }
 }
+
+export type DashboardSchedule = {
+    id: string;
+    title: string;
+    deadline: string | null;
+    participantCount: number;
+    isConfirmed: boolean;
+};
+
+export async function getUserSchedules(): Promise<{
+    mySchedules: DashboardSchedule[];
+    joinedSchedules: DashboardSchedule[];
+    error?: string;
+}> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { mySchedules: [], joinedSchedules: [] };
+    }
+
+    try {
+        // 1. Get My Schedules (Hosted by me)
+        // We need to find the profile ID first to be safe, 
+        // OR we just assume hostId is the user.id since we force that in createCalendar.
+        // Let's use user.id directly for hostId based on createCalendar logic.
+
+        const myEvents = await prisma.event.findMany({
+            where: {
+                hostId: user.id
+            },
+            include: {
+                _count: {
+                    select: { participants: true }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        const mySchedules: DashboardSchedule[] = myEvents.map(event => ({
+            id: event.id,
+            title: event.title,
+            deadline: (event.deadline ? event.deadline.toISOString().split('T')[0] : null) as string | null,
+            participantCount: event._count.participants,
+            isConfirmed: event.isConfirmed
+        }));
+
+        // 2. Get Joined Schedules
+        // Where I am a participant
+        const participations = await prisma.participant.findMany({
+            where: {
+                userId: user.id
+            },
+            include: {
+                event: {
+                    include: {
+                        _count: {
+                            select: { participants: true }
+                        }
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        const joinedSchedules: DashboardSchedule[] = participations.map(p => ({
+            id: p.event.id,
+            title: p.event.title,
+            deadline: (p.event.deadline ? p.event.deadline.toISOString().split('T')[0] : null) as string | null,
+            participantCount: p.event._count.participants,
+            isConfirmed: p.event.isConfirmed
+        }));
+
+        return { mySchedules, joinedSchedules };
+
+    } catch (e) {
+        console.error("Error fetching schedules:", e);
+        return { mySchedules: [], joinedSchedules: [], error: "일정을 불러오는 중 오류가 발생했습니다." };
+    }
+}
