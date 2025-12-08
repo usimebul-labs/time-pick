@@ -2,15 +2,17 @@
 
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { useEffect, useState, useMemo } from "react";
-import { getEventWithParticipation, EventDetail, ParticipantDetail } from "@/app/actions/calendar";
+import { getEventWithParticipation, EventDetail, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { Button, Calendar } from "@repo/ui";
 import { format, addDays, getDay, isSameDay, parseISO, startOfDay, addMinutes, setHours, setMinutes } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Check, Clock, Calendar as CalendarIcon, AlertCircle } from "lucide-react";
+import { Check, Clock, Calendar as CalendarIcon, AlertCircle, User } from "lucide-react";
 
 export default function Join({ params: { id } }: { params: { id: string } }) {
     const [event, setEvent] = useState<EventDetail | null>(null);
     const [participation, setParticipation] = useState<ParticipantDetail | null>(null);
+    const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
+    const [heatmapData, setHeatmapData] = useState<Record<string, { count: number; participants: string[] }>>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -19,13 +21,15 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
 
     useEffect(() => {
         const fetchEvent = async () => {
-            const { event, participation, error } = await getEventWithParticipation(id);
-            console.log(event, participation, error);
+            const { event, participation, participants, heatmapData, error } = await getEventWithParticipation(id);
+            console.log(event, participation, participants, heatmapData, error);
             if (error) {
                 setError(error);
             } else {
                 setEvent(event);
                 setParticipation(participation);
+                setParticipants(participants || []);
+                setHeatmapData(heatmapData || {});
                 if (participation?.availabilities) {
                     setSelectedDates(participation.availabilities.map((d) => parseISO(d)));
                 }
@@ -241,6 +245,33 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
                             </div>
                         )}
                     </div>
+
+                    {/* Participants */}
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex items-center text-xs font-medium text-gray-500 mb-2">
+                            <User className="w-3 h-3 mr-1.5" />
+                            <span>참여자 ({participants.length})</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {participants.length > 0 ? (
+                                participants.map((p) => (
+                                    <div key={p.id} className="flex items-center bg-gray-100 rounded-full px-2 py-1">
+                                        {/* Avatar or Icon */}
+                                        <div className="w-4 h-4 rounded-full bg-gray-300 flex items-center justify-center text-[10px] text-gray-600 mr-1.5 overflow-hidden">
+                                            {p.avatarUrl ? (
+                                                <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                p.name[0]
+                                            )}
+                                        </div>
+                                        <span className="text-xs text-gray-700">{p.name}</span>
+                                    </div>
+                                ))
+                            ) : (
+                                <span className="text-xs text-gray-400 pl-1">아직 참여자가 없습니다.</span>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Content - Scrollable */}
@@ -250,7 +281,13 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
                             ? "가능한 날짜를 선택해주세요"
                             : "가능한 시간을 선택해주세요 (드래그 가능 예정)"}
                     </h2>
-                    <Calendar {...event} selectedDates={selectedDates} onSelectDates={setSelectedDates} />
+                    <Calendar
+                        {...event}
+                        selectedDates={selectedDates}
+                        onSelectDates={setSelectedDates}
+                        // heatmapData={heatmapData}
+                        totalParticipants={participants.length}
+                    />
                 </div>
 
                 {/* Footer Summary */}
