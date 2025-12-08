@@ -1,10 +1,10 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
-import { useFlow } from "../stackflow";
+import { useFlow } from "../../../stackflow";
 import { useEffect, useState } from "react";
 
-type AuthErrorActivity = {};
+type ErrorProps = {};
 
-export default function AuthErrorActivity({ }: AuthErrorActivity) {
+export default function Error({ }: ErrorProps) {
     const { replace } = useFlow();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -28,7 +28,7 @@ export default function AuthErrorActivity({ }: AuthErrorActivity) {
                     </div>
                 )}
                 <button
-                    onClick={() => replace("LoginActivity", {})}
+                    onClick={() => replace("Login", {})}
                     className="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                 >
                     로그인 페이지로 돌아가기

@@ -50,11 +50,11 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
                 ],
               )}
             >
-              {heatmapData && totalParticipants && heatmapData[day.toISOString()] && (
+              {heatmapData && heatmapData[day.toISOString()] && totalParticipants && (
                 <div
                   className="absolute inset-x-0 bottom-0 top-0 bg-primary/80 rounded-md z-0"
                   style={{
-                    opacity: Math.min(Math.max(heatmapData[day.toISOString()].count / totalParticipants, 0), 1),
+                    opacity: Math.min(Math.max(heatmapData[day.toISOString()]!.count / totalParticipants, 0), 1),
                   }}
                 />
               )}

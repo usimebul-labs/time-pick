@@ -3,7 +3,7 @@ import { AppScreen } from '@stackflow/plugin-basic-ui';
 import { Calendar } from '@repo/ui';
 import { useState } from 'react';
 
-export const CalendarTestActivity: ActivityComponentType = () => {
+const CalendarTest: ActivityComponentType = () => {
     const today = new Date();
     const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     const formatDate = (date: Date) => {
@@ -156,3 +156,5 @@ export const CalendarTestActivity: ActivityComponentType = () => {
         </AppScreen>
     );
 };
+
+export default CalendarTest;

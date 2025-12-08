@@ -1,34 +1,34 @@
 import { stackflow } from "@stackflow/react";
 import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
 import { historySyncPlugin } from "@stackflow/plugin-history-sync";
-import MainActivity from "./activities/MainActivity";
-import CreateCalendarActivity from "./activities/CreateCalendarActivity";
-import ShareLinkActivity from "./activities/ShareLinkActivity";
-import JoinScheduleActivity from "./activities/JoinScheduleActivity";
-import ScheduleResultActivity from "./activities/ScheduleResultActivity";
-import ConfirmScheduleActivity from "./activities/ConfirmScheduleActivity";
-import ConfirmedActivity from "./activities/ConfirmedActivity";
-import LoginActivity from "./activities/LoginActivity";
-import DashboardActivity from "./activities/DashboardActivity";
-import AuthErrorActivity from "./activities/AuthErrorActivity";
-import { CalendarTestActivity } from "./activities/CalendarTestActivity";
-import HeatmapTestActivity from "./activities/HeatmapTestActivity";
-import LandingActivity from "./activities/LandingActivity";
+import Landing from "./activities/Landing";
+import Main from "./activities/app/Main";
+import Dashboard from "./activities/app/Dashboard";
+import Login from "./activities/app/Login";
+import Error from "./activities/app/auth/Error";
+import CalendarTest from "./activities/app/CalendarTest";
+import HeatmapTest from "./activities/app/HeatmapTest";
+import Create from "./activities/app/calendar/Create";
+import Share from "./activities/app/calendar/Share";
+import Join from "./activities/app/calendar/Join";
+import Result from "./activities/app/calendar/Result";
+import Confirm from "./activities/app/calendar/Confirm";
+import Confirmed from "./activities/app/calendar/Confirmed";
 
 const activities = {
-  MainActivity,
-  CreateCalendarActivity,
-  ShareLinkActivity,
-  JoinScheduleActivity,
-  ScheduleResultActivity,
-  ConfirmScheduleActivity,
-  ConfirmedActivity,
-  LoginActivity,
-  DashboardActivity,
-  AuthErrorActivity,
-  CalendarTestActivity,
-  HeatmapTestActivity,
-  LandingActivity,
+  Landing,
+  Main,
+  Dashboard,
+  Login,
+  Error,
+  CalendarTest,
+  HeatmapTest,
+  Create,
+  Share,
+  Join,
+  Result,
+  Confirm,
+  Confirmed,
 };
 
 export type Activities = typeof activities;
@@ -40,24 +40,24 @@ const stack = stackflow({
     basicRendererPlugin(),
     historySyncPlugin({
       routes: {
-        MainActivity: "/app",
-        CreateCalendarActivity: "/app/calendar/new",
-        ShareLinkActivity: "/app/calendar/share",
-        JoinScheduleActivity: "/app/calendar/:id",
-        ScheduleResultActivity: "/app/calendar/:id/results",
-        ConfirmScheduleActivity: "/app/calendar/:id/confirm",
-        ConfirmedActivity: "/app/calendar/:id/confirmed",
-        LoginActivity: "/app/login",
-        DashboardActivity: "/app/dashboard",
-        AuthErrorActivity: "/app/auth/auth-code-error",
-        CalendarTestActivity: "/app/calendar-test",
-        HeatmapTestActivity: "/app/heatmap-test",
-        LandingActivity: "/",
+        Landing: "/",
+        Main: "/app",
+        Dashboard: "/app/dashboard",
+        Login: "/app/login",
+        Error: "/app/auth/auth-code-error",
+        CalendarTest: "/app/calendar-test",
+        HeatmapTest: "/app/heatmap-test",
+        Create: "/app/calendar/new",
+        Share: "/app/calendar/share",
+        Join: "/app/calendar/:id",
+        Result: "/app/calendar/:id/results",
+        Confirm: "/app/calendar/:id/confirm",
+        Confirmed: "/app/calendar/:id/confirmed",
       },
-      fallbackActivity: () => "LandingActivity",
+      fallbackActivity: () => "Landing",
     }),
   ],
-  initialActivity: () => "LandingActivity",
+  initialActivity: () => "Landing",
 });
 
 export const { Stack, useFlow } = stack;

@@ -53,7 +53,7 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
                     <div
                       className="absolute inset-x-0 bottom-0 top-0 bg-primary/80 z-0"
                       style={{
-                        opacity: Math.min(Math.max(heatmapData[datetime.toISOString()].count / totalParticipants, 0), 1),
+                        opacity: Math.min(Math.max(heatmapData[datetime.toISOString()]!.count / totalParticipants, 0), 1),
                       }}
                     />
                   )}

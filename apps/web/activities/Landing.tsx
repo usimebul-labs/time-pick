@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import { useFlow } from "../stackflow";
 
-const LandingActivity: ActivityComponentType = () => {
+const Landing: ActivityComponentType = () => {
     const [user, setUser] = useState<any>(null);
     const { push } = useFlow();
 
@@ -18,18 +18,18 @@ const LandingActivity: ActivityComponentType = () => {
     }, []);
 
     const handleLoginClick = () => {
-        push("LoginActivity", {});
+        push("Login", {});
     };
 
     const handleDashboardClick = () => {
-        push("DashboardActivity", {});
+        push("Dashboard", {});
     };
 
     const handleStartClick = () => {
         if (user) {
-            push("DashboardActivity", {});
+            push("Dashboard", {});
         } else {
-            push("LoginActivity", {});
+            push("Login", {});
         }
     };
 
@@ -173,4 +173,4 @@ const LandingActivity: ActivityComponentType = () => {
     );
 };
 
-export default LandingActivity;
+export default Landing;

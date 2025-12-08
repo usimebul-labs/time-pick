@@ -4,7 +4,7 @@ import { Calendar } from "@repo/ui";
 import { addDays, setHours, startOfToday } from "date-fns";
 import { useState } from "react";
 
-const HeatmapTestActivity: ActivityComponentType = () => {
+const HeatmapTest: ActivityComponentType = () => {
     const today = startOfToday();
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
 
@@ -57,4 +57,4 @@ const HeatmapTestActivity: ActivityComponentType = () => {
     );
 };
 
-export default HeatmapTestActivity;
+export default HeatmapTest;
