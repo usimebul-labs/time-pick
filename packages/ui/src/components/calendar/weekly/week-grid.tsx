@@ -1,6 +1,8 @@
 import React, { use } from 'react';
 import { useCalendarDrag } from '../hook/use-calendar-drag';
 import { cn } from '../../../lib/utils';
+import { CalendarParticipant } from '../index';
+import { parseISO } from 'date-fns';
 
 interface WeeklyGridProps {
   selectedDates: Date[];
@@ -9,11 +11,10 @@ interface WeeklyGridProps {
   days: Date[];
   isDisabled: (date: Date) => boolean;
   isSelected: (date: Date) => boolean;
-  heatmapData?: Record<string, { count: number; participants: any[] }>;
-  totalParticipants?: number;
+  participants?: CalendarParticipant[];
 }
 
-export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled, isSelected, heatmapData, totalParticipants }: WeeklyGridProps) {
+export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled, isSelected, participants = [] }: WeeklyGridProps) {
   const { onDragStart, onDragOver, onDragEnd, onTouchMove } = useCalendarDrag({ selectedDates, onSelectDates, isDisabled, isSelected });
 
   return (
@@ -31,6 +32,15 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
               const disabled = isDisabled(day);
               const selected = isSelected(datetime);
 
+              // Calculate participants for this slot
+              const slotIso = datetime.toISOString();
+              const slotParticipants = participants.filter(p =>
+                p.availabilities.includes(slotIso)
+              );
+              const count = slotParticipants.length;
+              const total = participants.length;
+              const ratio = total > 0 ? count / total : 0;
+
               return (
                 <div
                   key={datetime.toISOString()}
@@ -41,7 +51,7 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
                   }}
                   onMouseEnter={() => onDragOver(datetime)}
                   className={cn(
-                    'col-span-1 h-16 border-b relative transition-colors duration-75',
+                    'col-span-1 h-16 border-b relative transition-colors duration-75 flex items-end justify-center pb-1',
                     disabled && 'bg-gray-50 cursor-not-allowed text-muted-foreground line-through decoration-slate-400',
                     !disabled && [
                       'hover:bg-accent hover:text-accent-foreground',
@@ -49,13 +59,17 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
                     ],
                   )}
                 >
-                  {heatmapData && totalParticipants && heatmapData[datetime.toISOString()] && (
-                    <div
-                      className="absolute inset-x-0 bottom-0 top-0 bg-primary/80 z-0"
-                      style={{
-                        opacity: Math.min(Math.max(heatmapData[datetime.toISOString()]!.count / totalParticipants, 0), 1),
-                      }}
-                    />
+                  {/* Participant Count Text */}
+                  {!disabled && total > 0 && count > 0 && (
+                    <span
+                      className={cn(
+                        "text-[10px] font-medium z-10 select-none pointer-events-none",
+                        selected ? "text-primary-foreground/80" : "text-primary"
+                      )}
+                      style={{ opacity: Math.max(ratio, 0.3) }}
+                    >
+                      {count}/{total}
+                    </span>
                   )}
                 </div>
               );

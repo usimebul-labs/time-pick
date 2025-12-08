@@ -1,6 +1,7 @@
-import { isToday } from 'date-fns';
+import { isToday, isSameDay, parseISO } from 'date-fns';
 import { useCalendarDrag } from '../hook/use-calendar-drag';
 import { cn } from '../../../lib/utils';
+import { CalendarParticipant } from '../index';
 
 interface MonthlyGridProps {
   selectedDates: Date[];
@@ -9,11 +10,10 @@ interface MonthlyGridProps {
   isDisabled: (date: Date) => boolean;
   isSelected: (date: Date) => boolean;
   isCurrentMonth: (date: Date) => boolean;
-  heatmapData?: Record<string, { count: number; participants: any[] }>;
-  totalParticipants?: number;
+  participants?: CalendarParticipant[];
 }
 
-export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSelected, isCurrentMonth, heatmapData, totalParticipants }: MonthlyGridProps) {
+export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSelected, isCurrentMonth, participants = [] }: MonthlyGridProps) {
   const { onDragStart, onDragOver, onDragEnd, onTouchMove } = useCalendarDrag({ selectedDates, onSelectDates, isDisabled, isSelected });
 
   return (
@@ -30,6 +30,14 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
           const selected = isSelected(day);
           const currentMonth = isCurrentMonth(day);
 
+          // Calculate participants for this day
+          const dayParticipants = participants.filter(p =>
+            p.availabilities.some(a => isSameDay(parseISO(a), day))
+          );
+          const count = dayParticipants.length;
+          const total = participants.length;
+          const ratio = total > 0 ? count / total : 0;
+
           return (
             <button
               key={day.toISOString()}
@@ -39,7 +47,7 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
               onPointerDown={() => onDragStart(day)}
               onMouseEnter={() => onDragOver(day)}
               className={cn(
-                'h-10 w-full rounded-md flex items-center justify-center text-sm relative transition-all duration-200',
+                'h-10 w-full rounded-md flex flex-col items-center justify-center text-sm relative transition-all duration-200',
                 disabled && 'opacity-20 cursor-not-allowed text-muted-foreground line-through decoration-slate-400',
                 !disabled && [
                   !currentMonth && 'text-muted-foreground/30',
@@ -50,15 +58,20 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
                 ],
               )}
             >
-              {heatmapData && heatmapData[day.toISOString()] && totalParticipants && (
-                <div
-                  className="absolute inset-x-0 bottom-0 top-0 bg-primary/80 rounded-md z-0"
-                  style={{
-                    opacity: Math.min(Math.max(heatmapData[day.toISOString()]!.count / totalParticipants, 0), 1),
-                  }}
-                />
+              <span className={cn("z-10 relative leading-none", count > 0 && "mb-1")}>{day.getDate()}</span>
+
+              {/* Participant Count Text - Bottom Center */}
+              {!disabled && total > 0 && count > 0 && (
+                <span
+                  className={cn(
+                    "absolute bottom-0.5 w-full text-center text-[9px] font-medium z-10",
+                    selected ? "text-primary-foreground/80" : "text-primary"
+                  )}
+                  style={{ opacity: Math.max(ratio, 0.3) }}
+                >
+                  {count}/{total}
+                </span>
               )}
-              <span className="z-10 relative">{day.toISOString().slice(8, 10)}</span>
             </button>
           );
         })}

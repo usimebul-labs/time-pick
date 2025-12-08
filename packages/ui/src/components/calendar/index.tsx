@@ -6,6 +6,13 @@ import { CalendarHeader } from './header';
 import { useCalendarHeader } from './hook/use-calendar-header';
 import { WeeklyCalendar } from './weekly';
 
+export interface CalendarParticipant {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  availabilities: string[];
+}
+
 export interface CalendarProps {
   selectedDates: Date[];
   onSelectDates: (dates: Date[]) => void;
@@ -15,11 +22,10 @@ export interface CalendarProps {
   endHour?: number;
   type: 'monthly' | 'weekly';
   enabledDays?: string[];
-  heatmapData?: Record<string, { count: number; participants: any[] }>;
-  totalParticipants?: number;
+  participants?: CalendarParticipant[];
 }
 
-export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate, startHour, endHour, enabledDays, heatmapData, totalParticipants }: CalendarProps) {
+export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate, startHour, endHour, enabledDays, participants = [] }: CalendarProps) {
   const { calendarDate, canNext, canPrev, goToNext, goToPrev, goToToday } = useCalendarHeader({ type, minDate, maxDate });
 
   return (
@@ -35,8 +41,7 @@ export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate,
           startHour={startHour}
           endHour={endHour}
           enabledDays={enabledDays}
-          heatmapData={heatmapData}
-          totalParticipants={totalParticipants}
+          participants={participants}
         />
       ) : (
         <MonthlyCalendar
@@ -46,8 +51,7 @@ export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate,
           minDate={minDate}
           maxDate={maxDate}
           enabledDays={enabledDays}
-          heatmapData={heatmapData}
-          totalParticipants={totalParticipants}
+          participants={participants}
         />
       )}
     </div>

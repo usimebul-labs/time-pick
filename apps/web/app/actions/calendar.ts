@@ -243,13 +243,13 @@ export type ParticipantSummary = {
     name: string;
     avatarUrl: string | null;
     isGuest: boolean;
+    availabilities: string[];
 };
 
 export async function getEventWithParticipation(eventId: string): Promise<{
     event: EventDetail | null;
     participation: ParticipantDetail | null;
     participants: ParticipantSummary[];
-    heatmapData?: Record<string, { count: number; participants: string[] }>;
     error?: string;
 }> {
     const supabase = await createClient();
@@ -289,32 +289,19 @@ export async function getEventWithParticipation(eventId: string): Promise<{
 
         const allParticipants = await prisma.participant.findMany({
             where: { eventId: eventId },
-            include: { user: true }
+            include: {
+                user: true,
+                availabilities: true
+            }
         });
 
         const participants: ParticipantSummary[] = allParticipants.map(p => ({
             id: p.id,
             name: p.name,
             avatarUrl: p.user?.avatarUrl || null,
-            isGuest: !p.userId
+            isGuest: !p.userId,
+            availabilities: p.availabilities.map(a => a.slot.toISOString())
         }));
-
-        // Heatmap Aggregation
-        const allAvailabilities = await prisma.availability.findMany({
-            where: { eventId: eventId },
-            select: { slot: true, participantId: true }
-        });
-
-        const heatmapData: Record<string, { count: number; participants: string[] }> = {};
-
-        allAvailabilities.forEach(a => {
-            const key = a.slot.toISOString();
-            if (!heatmapData[key]) {
-                heatmapData[key] = { count: 0, participants: [] };
-            }
-            heatmapData[key]!.count += 1;
-            heatmapData[key]!.participants.push(a.participantId);
-        });
 
         return {
             event: {
@@ -332,13 +319,12 @@ export async function getEventWithParticipation(eventId: string): Promise<{
                 isConfirmed: event.isConfirmed
             },
             participation,
-            participants,
-            heatmapData
+            participants
         };
 
     } catch (e) {
         console.error("Error fetching event details:", e);
-        return { event: null, participation: null, participants: [], heatmapData: {}, error: "상세 정보를 불러오는 중 오류가 발생했습니다." };
+        return { event: null, participation: null, participants: [], error: "상세 정보를 불러오는 중 오류가 발생했습니다." };
     }
 }
 

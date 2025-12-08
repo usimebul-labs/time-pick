@@ -4,6 +4,8 @@ import { useCalendar } from '../hook/use-calendar';
 import { MonthGrid } from './month-grid';
 import { WeekHeader } from './week-header';
 
+import { CalendarParticipant } from '../index';
+
 export interface MonthlyCalendarProps {
   selectedDates: Date[];
   onSelectDates: (dates: Date[]) => void;
@@ -11,11 +13,10 @@ export interface MonthlyCalendarProps {
   maxDate?: Date;
   calendarDate: Date;
   enabledDays?: string[];
-  heatmapData?: Record<string, { count: number; participants: any[] }>;
-  totalParticipants?: number;
+  participants?: CalendarParticipant[];
 }
 
-export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, minDate, maxDate, enabledDays, heatmapData, totalParticipants }: MonthlyCalendarProps) {
+export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, minDate, maxDate, enabledDays, participants = [] }: MonthlyCalendarProps) {
   const { days, isDisabled, isSelected, isCurrentMonth } = useCalendar({ type: 'monthly', calendarDate, selectedDates, minDate, maxDate, enabledDays });
 
   return (
@@ -28,8 +29,7 @@ export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, mi
         isDisabled={isDisabled}
         isSelected={isSelected}
         isCurrentMonth={isCurrentMonth}
-        heatmapData={heatmapData}
-        totalParticipants={totalParticipants}
+        participants={participants}
       />
     </div>
   );

@@ -12,7 +12,6 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
     const [event, setEvent] = useState<EventDetail | null>(null);
     const [participation, setParticipation] = useState<ParticipantDetail | null>(null);
     const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
-    const [heatmapData, setHeatmapData] = useState<Record<string, { count: number; participants: string[] }>>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -21,15 +20,14 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
 
     useEffect(() => {
         const fetchEvent = async () => {
-            const { event, participation, participants, heatmapData, error } = await getEventWithParticipation(id);
-            console.log(event, participation, participants, heatmapData, error);
+            const { event, participation, participants, error } = await getEventWithParticipation(id);
+            console.log(event, participation, participants, error);
             if (error) {
                 setError(error);
             } else {
                 setEvent(event);
                 setParticipation(participation);
                 setParticipants(participants || []);
-                setHeatmapData(heatmapData || {});
                 if (participation?.availabilities) {
                     setSelectedDates(participation.availabilities.map((d) => parseISO(d)));
                 }
@@ -285,8 +283,7 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
                         {...event}
                         selectedDates={selectedDates}
                         onSelectDates={setSelectedDates}
-                        // heatmapData={heatmapData}
-                        totalParticipants={participants.length}
+                        participants={participants}
                     />
                 </div>
 

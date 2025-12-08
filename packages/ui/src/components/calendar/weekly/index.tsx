@@ -5,14 +5,15 @@ import { MonthlyCalendarProps } from '../monthly';
 import { DayHeader } from './day-header';
 import { WeekGrid } from './week-grid';
 
+import { CalendarParticipant } from '../index';
+
 export interface WeeklyCalendarProps extends MonthlyCalendarProps {
   startHour?: number;
   endHour?: number;
-  heatmapData?: Record<string, { count: number; participants: any[] }>;
-  totalParticipants?: number;
+  participants?: CalendarParticipant[];
 }
 
-export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, maxDate, minDate, startHour, endHour, enabledDays, heatmapData, totalParticipants }: WeeklyCalendarProps) {
+export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, maxDate, minDate, startHour, endHour, enabledDays, participants = [] }: WeeklyCalendarProps) {
   const { days, hours, isDisabled, isSelected } = useCalendar({ type: 'weekly', calendarDate, selectedDates, startHour, endHour, minDate, maxDate, enabledDays });
 
   return (
@@ -25,8 +26,7 @@ export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, max
         hours={hours}
         isDisabled={isDisabled}
         isSelected={isSelected}
-        heatmapData={heatmapData}
-        totalParticipants={totalParticipants}
+        participants={participants}
       />
     </>
   );
