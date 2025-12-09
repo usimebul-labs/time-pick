@@ -379,7 +379,12 @@ export default function Dashboard({ }: DashboardProps) {
                         <Button
                             variant="outline"
                             className="w-full h-12 text-base justify-start px-4"
-                            onClick={() => menuScheduleId && handleManage(menuScheduleId)}
+                            onClick={() => {
+                                if (menuScheduleId) {
+                                    setMenuOpen(false);
+                                    push("Modify", { id: menuScheduleId });
+                                }
+                            }}
                         >
                             <Settings className="mr-3 h-5 w-5 text-gray-500" />
                             일정 수정하기

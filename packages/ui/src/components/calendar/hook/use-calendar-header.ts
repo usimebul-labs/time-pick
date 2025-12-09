@@ -4,17 +4,17 @@ import { useState } from "react";
 
 
 export interface CalendarHeaderProps {
-  minDate?: Date;
-  maxDate?: Date;
+  startDate?: Date;
+  endDate?: Date;
   type: 'monthly' | 'weekly';
 }
 
-export function useCalendarHeader({ minDate, maxDate, type }: CalendarHeaderProps) {
+export function useCalendarHeader({ startDate, endDate, type }: CalendarHeaderProps) {
   const [calendarDate, setCalendarDate] = useState(new Date());
   const handleDateChange = (newDate: Date) => setCalendarDate(newDate);
 
   const typeSpecificHook = type === "monthly" ? useMonthlyCalendarHeader : useWeeklyCalendarHeader;
-  const { canNext, canPrev, goToPrev, goToNext } = typeSpecificHook({ minDate, maxDate, calendarDate, handleDateChange });
+  const { canNext, canPrev, goToPrev, goToNext } = typeSpecificHook({ startDate, endDate, calendarDate, handleDateChange });
   const goToToday = () => handleDateChange(new Date());
 
   return { calendarDate, canNext, canPrev, goToPrev, goToNext, goToToday };
@@ -22,8 +22,8 @@ export function useCalendarHeader({ minDate, maxDate, type }: CalendarHeaderProp
 
 
 interface CalendarHeaderSubProps {
-  minDate?: Date;
-  maxDate?: Date;
+  startDate?: Date;
+  endDate?: Date;
   calendarDate: Date;
   handleDateChange: (newDate: Date) => void;
 }
@@ -35,20 +35,20 @@ interface CalendarHeaderSubReturn {
   goToNext: () => void;
 }
 
-function useMonthlyCalendarHeader({ minDate, maxDate, calendarDate, handleDateChange }: CalendarHeaderSubProps): CalendarHeaderSubReturn {
-  const canPrev = !minDate || isAfter(startOfMonth(calendarDate), startOfMonth(minDate));
-  const canNext = !maxDate || isBefore(startOfMonth(calendarDate), startOfMonth(maxDate));
+function useMonthlyCalendarHeader({ startDate, endDate, calendarDate, handleDateChange }: CalendarHeaderSubProps): CalendarHeaderSubReturn {
+  const canPrev = !startDate || isAfter(startOfMonth(calendarDate), startOfMonth(startDate));
+  const canNext = !endDate || isBefore(startOfMonth(calendarDate), startOfMonth(endDate));
   const goToNext = () => canNext && handleDateChange(addMonths(calendarDate, 1));
   const goToPrev = () => canPrev && handleDateChange(subMonths(calendarDate, 1));
   return { canPrev, canNext, goToPrev, goToNext };
 }
 
-function useWeeklyCalendarHeader({ minDate, maxDate, calendarDate, handleDateChange }: CalendarHeaderSubProps): CalendarHeaderSubReturn {
+function useWeeklyCalendarHeader({ startDate, endDate, calendarDate, handleDateChange }: CalendarHeaderSubProps): CalendarHeaderSubReturn {
   const weekStart = startOfWeek(calendarDate, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(calendarDate, { weekStartsOn: 0 });
 
-  const canPrev = !minDate || isAfter(weekStart, startOfWeek(minDate, { weekStartsOn: 0 }));
-  const canNext = !maxDate || isBefore(weekEnd, endOfWeek(maxDate, { weekStartsOn: 0 }));
+  const canPrev = !startDate || isAfter(weekStart, startOfWeek(startDate, { weekStartsOn: 0 }));
+  const canNext = !endDate || isBefore(weekEnd, endOfWeek(endDate, { weekStartsOn: 0 }));
 
   const goToPrev = () => canPrev && handleDateChange(subWeeks(calendarDate, 1));
   const goToNext = () => canNext && handleDateChange(addWeeks(calendarDate, 1));

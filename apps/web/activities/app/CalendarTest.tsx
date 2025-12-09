@@ -15,20 +15,30 @@ const CalendarTest: ActivityComponentType = () => {
 
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
     const [type, setType] = useState<'monthly' | 'weekly'>('monthly');
-    const [minDateStr, setMinDateStr] = useState<string>(formatDate(today));
-    const [maxDateStr, setMaxDateStr] = useState<string>(formatDate(lastDayOfMonth));
+    const [startDateStr, setStartDateStr] = useState<string>(formatDate(today));
+    const [endDateStr, setEndDateStr] = useState<string>(formatDate(lastDayOfMonth));
     const [startHour, setStartHour] = useState<number>(9);
     const [endHour, setEndHour] = useState<number>(18);
-    const [enabledDays, setEnabledDays] = useState<string[]>(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+    const [excludedDays, setExcludedDays] = useState<number[]>([]);
 
-    const minDate = minDateStr ? new Date(minDateStr) : undefined;
-    const maxDate = maxDateStr ? new Date(maxDateStr) : undefined;
+    const startDate = startDateStr ? new Date(startDateStr) : undefined;
+    const endDate = endDateStr ? new Date(endDateStr) : undefined;
 
-    const handleDayToggle = (day: string) => {
-        setEnabledDays(prev =>
-            prev.includes(day)
-                ? prev.filter(d => d !== day)
-                : [...prev, day]
+    const days = [
+        { id: 0, label: 'Sun' },
+        { id: 1, label: 'Mon' },
+        { id: 2, label: 'Tue' },
+        { id: 3, label: 'Wed' },
+        { id: 4, label: 'Thu' },
+        { id: 5, label: 'Fri' },
+        { id: 6, label: 'Sat' },
+    ];
+
+    const handleDayToggle = (dayId: number) => {
+        setExcludedDays(prev =>
+            prev.includes(dayId)
+                ? prev.filter(d => d !== dayId)
+                : [...prev, dayId]
         );
     };
 
@@ -61,16 +71,16 @@ const CalendarTest: ActivityComponentType = () => {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label className="font-semibold">Enabled Days</label>
+                        <label className="font-semibold">Excluded Days (Checked = Excluded)</label>
                         <div className="flex flex-wrap gap-4">
-                            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                                <label key={day} className="flex items-center gap-2">
+                            {days.map(day => (
+                                <label key={day.id} className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
-                                        checked={enabledDays.includes(day)}
-                                        onChange={() => handleDayToggle(day)}
+                                        checked={excludedDays.includes(day.id)}
+                                        onChange={() => handleDayToggle(day.id)}
                                     />
-                                    {day}
+                                    {day.label}
                                 </label>
                             ))}
                         </div>
@@ -78,21 +88,21 @@ const CalendarTest: ActivityComponentType = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
-                            <label className="font-semibold">Min Date</label>
+                            <label className="font-semibold">Start Date</label>
                             <input
                                 type="date"
                                 className="border p-2 rounded"
-                                value={minDateStr}
-                                onChange={(e) => setMinDateStr(e.target.value)}
+                                value={startDateStr}
+                                onChange={(e) => setStartDateStr(e.target.value)}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="font-semibold">Max Date</label>
+                            <label className="font-semibold">End Date</label>
                             <input
                                 type="date"
                                 className="border p-2 rounded"
-                                value={maxDateStr}
-                                onChange={(e) => setMaxDateStr(e.target.value)}
+                                value={endDateStr}
+                                onChange={(e) => setEndDateStr(e.target.value)}
                             />
                         </div>
                     </div>
@@ -130,11 +140,11 @@ const CalendarTest: ActivityComponentType = () => {
                         type={type}
                         selectedDates={selectedDates}
                         onSelectDates={setSelectedDates}
-                        minDate={minDate}
-                        maxDate={maxDate}
+                        startDate={startDate}
+                        endDate={endDate}
                         startHour={startHour}
                         endHour={endHour}
-                        enabledDays={enabledDays}
+                        excludedDays={excludedDays}
                     />
                 </div>
 

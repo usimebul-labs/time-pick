@@ -13,6 +13,7 @@ import Join from "./activities/app/calendar/Join";
 import Result from "./activities/app/calendar/Result";
 import Confirm from "./activities/app/calendar/Confirm";
 import Confirmed from "./activities/app/calendar/Confirmed";
+import Modify from "./activities/app/calendar/Modify";
 
 const activities = {
   Landing,
@@ -27,6 +28,7 @@ const activities = {
   Result,
   Confirm,
   Confirmed,
+  Modify,
 };
 
 export type Activities = typeof activities;
@@ -50,6 +52,7 @@ const stack = stackflow({
         Result: "/app/calendar/:id/results",
         Confirm: "/app/calendar/:id/confirm",
         Confirmed: "/app/calendar/:id/confirmed",
+        Modify: "/app/calendar/:id/modify",
       },
       fallbackActivity: () => "Landing",
     }),

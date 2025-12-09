@@ -7,14 +7,15 @@ import { WeekGrid } from './week-grid';
 
 import { CalendarParticipant } from '../index';
 
-export interface WeeklyCalendarProps extends MonthlyCalendarProps {
+export interface WeeklyCalendarProps extends Omit<MonthlyCalendarProps, 'calendarDate'> {
+  calendarDate: Date;
   startHour?: number;
   endHour?: number;
   participants?: CalendarParticipant[];
 }
 
-export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, maxDate, minDate, startHour, endHour, enabledDays, participants = [] }: WeeklyCalendarProps) {
-  const { days, hours, isDisabled, isSelected } = useCalendar({ type: 'weekly', calendarDate, selectedDates, startHour, endHour, minDate, maxDate, enabledDays });
+export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, endDate, startDate, startHour, endHour, excludedDays, participants = [] }: WeeklyCalendarProps) {
+  const { days, hours, isDisabled, isSelected } = useCalendar({ type: 'weekly', calendarDate, selectedDates, startHour, endHour, startDate, endDate, excludedDays });
 
   return (
     <>

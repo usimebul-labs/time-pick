@@ -19,17 +19,18 @@ export interface CalendarParticipant {
 export interface CalendarProps {
   selectedDates: Date[];
   onSelectDates: (dates: Date[]) => void;
-  minDate?: Date;
-  maxDate?: Date;
+  startDate?: Date;
+  endDate?: Date;
   startHour?: number;
   endHour?: number;
   type: 'monthly' | 'weekly';
-  enabledDays?: string[];
+  excludedDays?: number[];
   participants?: CalendarParticipant[];
 }
 
-export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate, startHour, endHour, enabledDays, participants = [] }: CalendarProps) {
-  const { calendarDate, canNext, canPrev, goToNext, goToPrev, goToToday } = useCalendarHeader({ type, minDate, maxDate });
+export function Calendar({ type, selectedDates, onSelectDates, startDate, endDate, startHour, endHour, excludedDays, participants = [] }: CalendarProps) {
+
+  const { calendarDate, canNext, canPrev, goToNext, goToPrev, goToToday } = useCalendarHeader({ type, startDate, endDate });
 
   return (
     <div className={cn('flex flex-col h-full bg-background border rounded-lg overflow-hidden select-none')}>
@@ -39,11 +40,11 @@ export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate,
           calendarDate={calendarDate}
           selectedDates={selectedDates}
           onSelectDates={onSelectDates}
-          minDate={minDate}
-          maxDate={maxDate}
+          startDate={startDate}
+          endDate={endDate}
           startHour={startHour}
           endHour={endHour}
-          enabledDays={enabledDays}
+          excludedDays={excludedDays}
           participants={participants}
         />
       ) : (
@@ -51,9 +52,9 @@ export function Calendar({ type, selectedDates, onSelectDates, minDate, maxDate,
           calendarDate={calendarDate}
           selectedDates={selectedDates}
           onSelectDates={onSelectDates}
-          minDate={minDate}
-          maxDate={maxDate}
-          enabledDays={enabledDays}
+          startDate={startDate}
+          endDate={endDate}
+          excludedDays={excludedDays}
           participants={participants}
         />
       )}

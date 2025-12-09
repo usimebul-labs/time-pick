@@ -9,15 +9,15 @@ import { CalendarParticipant } from '../index';
 export interface MonthlyCalendarProps {
   selectedDates: Date[];
   onSelectDates: (dates: Date[]) => void;
-  minDate?: Date;
-  maxDate?: Date;
+  startDate?: Date;
+  endDate?: Date;
   calendarDate: Date;
-  enabledDays?: string[];
+  excludedDays?: number[];
   participants?: CalendarParticipant[];
 }
 
-export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, minDate, maxDate, enabledDays, participants = [] }: MonthlyCalendarProps) {
-  const { days, isDisabled, isSelected, isCurrentMonth } = useCalendar({ type: 'monthly', calendarDate, selectedDates, minDate, maxDate, enabledDays });
+export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, startDate, endDate, excludedDays, participants = [] }: MonthlyCalendarProps) {
+  const { days, isDisabled, isSelected, isCurrentMonth } = useCalendar({ type: 'monthly', calendarDate, selectedDates, startDate, endDate, excludedDays });
 
   return (
     <div className="flex flex-col gap-2 select-none">

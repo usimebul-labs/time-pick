@@ -276,6 +276,8 @@ export type ParticipantSummary = {
     avatarUrl: string | null;
     isGuest: boolean;
     availabilities: string[];
+    email?: string | null;
+    createdAt: string;
 };
 
 export async function getEventWithParticipation(eventId: string, guestPin?: string): Promise<{
@@ -356,7 +358,9 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
             name: p.name,
             avatarUrl: p.user?.avatarUrl || null,
             isGuest: !p.userId,
-            availabilities: p.availabilities.map(a => a.slot.toISOString())
+            availabilities: p.availabilities.map(a => a.slot.toISOString()),
+            email: p.user?.email,
+            createdAt: p.createdAt.toISOString()
         }));
 
         return {
@@ -531,5 +535,202 @@ export async function loginGuestParticipant(eventId: string, pin: string): Promi
     } catch (e) {
         console.error("Error logging in guest:", e);
         return { success: false, error: "로그인 중 오류가 발생했습니다." };
+    }
+}
+
+export async function deleteParticipant(participantId: string): Promise<{ success: boolean; error?: string }> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { success: false, error: "로그인이 필요합니다." };
+    }
+
+    try {
+        const participant = await prisma.participant.findUnique({
+            where: { id: participantId },
+            include: { event: true }
+        });
+
+        if (!participant) {
+            return { success: false, error: "참여자를 찾을 수 없습니다." };
+        }
+
+        if (participant.event.hostId !== user.id) {
+            return { success: false, error: "권한이 없습니다." };
+        }
+
+        await prisma.participant.delete({
+            where: { id: participantId }
+        });
+
+        revalidatePath(`/app/calendar/${participant.eventId}`);
+        revalidatePath('/app/dashboard');
+        return { success: true };
+
+    } catch (e) {
+        console.error("Error deleting participant:", e);
+        return { success: false, error: "참여자 삭제 중 오류가 발생했습니다." };
+    }
+}
+
+export type UpdateEventState = {
+    success?: boolean;
+    error?: string;
+    conflictedParticipants?: { id: string; name: string }[];
+    requiresConfirmation?: boolean;
+};
+
+export async function updateEvent(
+    eventId: string,
+    formData: FormData,
+    confirmDelete: boolean = false
+): Promise<UpdateEventState> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { error: "로그인이 필요합니다." };
+    }
+
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+
+    const startDateStr = formData.get("startDate") as string;
+    const endDateStr = formData.get("endDate") as string;
+    const startHour = formData.get("startHour") ? Number(formData.get("startHour")) : null;
+    const endHour = formData.get("endHour") ? Number(formData.get("endHour")) : null;
+
+    const enabledDaysStr = formData.get("enabledDays") as string;
+    const deadlineStr = formData.get("deadline") as string;
+
+    if (!title || !startDateStr || !endDateStr) {
+        return { error: "필수 정보를 입력해주세요." };
+    }
+
+    try {
+        const oldEvent = await prisma.event.findUnique({
+            where: { id: eventId },
+            include: {
+                participants: {
+                    include: { availabilities: true }
+                }
+            }
+        });
+
+        if (!oldEvent) return { error: "일정을 찾을 수 없습니다." };
+        if (oldEvent.hostId !== user.id) return { error: "권한이 없습니다." };
+
+        const startDate = new Date(startDateStr);
+        const endDate = new Date(endDateStr);
+
+        let startTime: Date | null = null;
+        let endTime: Date | null = null;
+
+        if (oldEvent.type === 'weekly' && startHour !== null && endHour !== null) {
+            if (oldEvent.type === 'weekly') {
+                startTime = new Date();
+                startTime.setHours(startHour, 0, 0, 0);
+                endTime = new Date();
+                endTime.setHours(endHour, 0, 0, 0);
+            }
+        }
+
+        let deadline: Date | null = null;
+        if (deadlineStr) {
+            deadline = new Date(deadlineStr);
+        } else {
+            deadline = new Date(endDateStr);
+            deadline.setHours(23, 59, 59, 999);
+        }
+
+        const enabledDays = JSON.parse(enabledDaysStr) as string[];
+        const dayMap: Record<string, number> = {
+            "Sun": 0, "Mon": 1, "Tue": 2, "Wed": 3, "Thu": 4, "Fri": 5, "Sat": 6
+        };
+        const allDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const excludedDays = allDays
+            .filter(day => !enabledDays.includes(day))
+            .map(day => dayMap[day])
+            .filter((d): d is number => d !== undefined);
+
+        const conflictedParticipants = new Set<string>();
+
+        for (const p of oldEvent.participants) {
+            let isValid = true;
+            if (p.availabilities.length === 0) continue;
+
+            for (const a of p.availabilities) {
+                const slotDate = a.slot;
+
+                const sDate = new Date(startDateStr); sDate.setHours(0, 0, 0, 0);
+                const eDate = new Date(endDateStr); eDate.setHours(23, 59, 59, 999);
+                const checkDate = new Date(slotDate); checkDate.setHours(0, 0, 0, 0);
+
+                if (checkDate < sDate || checkDate > eDate) {
+                    isValid = false; break;
+                }
+
+                const day = slotDate.getDay();
+                if (excludedDays.includes(day)) {
+                    isValid = false; break;
+                }
+
+                if (oldEvent.type === 'weekly' && startHour !== null && endHour !== null) {
+                    const hour = slotDate.getHours();
+                    if (hour < startHour || hour >= endHour) {
+                        isValid = false; break;
+                    }
+                }
+            }
+
+            if (!isValid) {
+                conflictedParticipants.add(p.id);
+            }
+        }
+
+        const conflictedList = oldEvent.participants
+            .filter(p => conflictedParticipants.has(p.id))
+            .map(p => ({ id: p.id, name: p.name }));
+
+        if (conflictedList.length > 0 && !confirmDelete) {
+            return {
+                requiresConfirmation: true,
+                conflictedParticipants: conflictedList,
+                error: "일정 변경으로 인해 일부 참여자의 가능한 시간이 유효하지 않게 됩니다."
+            };
+        }
+
+        await prisma.$transaction(async (tx) => {
+            await tx.event.update({
+                where: { id: eventId },
+                data: {
+                    title,
+                    description,
+                    startDate,
+                    endDate,
+                    startTime,
+                    endTime,
+                    excludedDays,
+                    deadline
+                }
+            });
+
+            if (conflictedList.length > 0) {
+                await tx.availability.deleteMany({
+                    where: {
+                        participantId: { in: conflictedList.map(p => p.id) }
+                    }
+                });
+            }
+        });
+
+        revalidatePath(`/app/dashboard`);
+        revalidatePath(`/app/calendar/${eventId}`);
+        return { success: true };
+
+    } catch (e) {
+        console.error("Error updating event:", e);
+        return { error: "일정 수정 중 오류가 발생했습니다." };
     }
 }

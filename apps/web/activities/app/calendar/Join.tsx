@@ -52,21 +52,6 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
     }, [id, replace]);
 
 
-    // Helper to generate date range between start and end
-    const getDatesInRange = (startDate: string, endDate: string) => {
-        const start = parseISO(startDate);
-        const end = parseISO(endDate);
-        const dates = [];
-        let current = start;
-        while (current <= end) {
-            dates.push(current);
-            current = addDays(current, 1);
-        }
-        return dates;
-    };
-
-    const dates = event ? getDatesInRange(event.startDate, event.endDate).filter(d => !event.excludedDays.includes(getDay(d))) : [];
-
     // Summary Logic
     const getSummary = () => {
         if (selectedDates.length === 0) return "선택된 시간이 없습니다.";
@@ -281,7 +266,12 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
                             : "가능한 시간을 선택해주세요 (드래그 가능 예정)"}
                     </h2>
                     <Calendar
-                        {...event}
+                        type={event.type}
+                        startDate={new Date(event.startDate)}
+                        endDate={new Date(event.endDate)}
+                        excludedDays={event.excludedDays}
+                        startHour={event.startTime ? parseInt(event.startTime.split(':')[0]!) : undefined}
+                        endHour={event.endTime ? parseInt(event.endTime.split(':')[0]!) : undefined}
                         selectedDates={selectedDates}
                         onSelectDates={setSelectedDates}
                         participants={participants}
