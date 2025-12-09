@@ -13,8 +13,14 @@ import {
     AvatarFallback,
     AvatarImage,
     ShareCalendarDialog,
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+    SheetFooter,
 } from "@repo/ui";
-import { Plus, Settings, CheckCircle, Calendar, Users, LogOut, Share2 } from "lucide-react";
+import { Plus, Settings, CheckCircle, Calendar, Users, LogOut, Share2, MoreVertical } from "lucide-react";
 import { getUserSchedules, DashboardSchedule } from "@/app/actions/calendar";
 
 type DashboardProps = {};
@@ -28,6 +34,15 @@ export default function Dashboard({ }: DashboardProps) {
     // Share Dialog State
     const [shareDialogOpen, setShareDialogOpen] = useState(false);
     const [shareEventId, setShareEventId] = useState<string | null>(null);
+
+    // Menu Sheet State
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [menuScheduleId, setMenuScheduleId] = useState<string | null>(null);
+
+    // Participant Sheet State
+    const [participantSheetOpen, setParticipantSheetOpen] = useState(false);
+    const [selectedParticipants, setSelectedParticipants] = useState<{ name: string; avatarUrl: string | null; userId: string | null }[]>([]);
+    const [selectedParticipantCount, setSelectedParticipantCount] = useState(0);
 
     const supabase = createClient();
     const { push } = useFlow();
@@ -64,11 +79,13 @@ export default function Dashboard({ }: DashboardProps) {
     };
 
     const handleManage = (id: string) => {
+        setMenuOpen(false); // Close menu if open
         // Navigate to result/management page
         push("Result", { id });
     };
 
     const handleConfirm = (id: string) => {
+        setMenuOpen(false); // Close menu if open
         // Navigate to confirm page
         push("Confirm", { id });
     };
@@ -81,6 +98,38 @@ export default function Dashboard({ }: DashboardProps) {
     const handleShareClose = () => {
         setShareDialogOpen(false);
         setShareEventId(null);
+    };
+
+    const handleMenuOpen = (id: string) => {
+        setMenuScheduleId(id);
+        setMenuOpen(true);
+    };
+
+    const handleMenuClose = () => {
+        setMenuOpen(false);
+        setMenuScheduleId(null);
+    };
+
+    const handleParticipantClick = (participants: { name: string; avatarUrl: string | null; userId: string | null }[], count: number) => {
+        // Sort participants before showing
+        // Priority: 1. Me, 2. Social (userId exists), 3. Guest (userId null)
+        const sorted = [...participants].sort((a, b) => {
+            const isMeA = user && a.userId === user.id;
+            const isMeB = user && b.userId === user.id;
+            if (isMeA) return -1;
+            if (isMeB) return 1;
+
+            const isSocialA = !!a.userId;
+            const isSocialB = !!b.userId;
+            if (isSocialA && !isSocialB) return -1;
+            if (!isSocialA && isSocialB) return 1;
+
+            return 0; // Keep original order (createdAt) for same type
+        });
+
+        setSelectedParticipants(sorted);
+        setSelectedParticipantCount(count);
+        setParticipantSheetOpen(true);
     };
 
     const handleCardClick = (id: string) => {
@@ -107,15 +156,36 @@ export default function Dashboard({ }: DashboardProps) {
     const userAvatarUrl = getUserAvatar(user);
 
     // Facepile Component
-    const ParticipantFacepile = ({ participants, totalCount }: { participants: { name: string; avatarUrl: string | null }[], totalCount: number }) => {
+    const ParticipantFacepile = ({ participants, totalCount }: { participants: { name: string; avatarUrl: string | null; userId: string | null }[], totalCount: number }) => {
+        // Sort participants for display
+        const sortedParticipants = [...participants].sort((a, b) => {
+            const isMeA = user && a.userId === user.id;
+            const isMeB = user && b.userId === user.id;
+            if (isMeA) return -1;
+            if (isMeB) return 1;
+
+            const isSocialA = !!a.userId;
+            const isSocialB = !!b.userId;
+            if (isSocialA && !isSocialB) return -1;
+            if (!isSocialA && isSocialB) return 1;
+
+            return 0;
+        });
+
         const maxDisplay = 5;
         const showMore = totalCount > maxDisplay;
         const displayCount = showMore ? 3 : maxDisplay;
-        const displayParticipants = participants.slice(0, displayCount);
+        const displayParticipants = sortedParticipants.slice(0, displayCount);
         const extraCount = totalCount - 3; // If showing more, we show 3 avatars + 1 circle.
 
         return (
-            <div className="flex items-center -space-x-2">
+            <div
+                className="flex items-center -space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleParticipantClick(participants, totalCount);
+                }}
+            >
                 {displayParticipants.map((p, i) => (
                     <div key={i} className="relative w-6 h-6 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center overflow-hidden" title={p.name}>
                         {p.avatarUrl ? (
@@ -190,34 +260,41 @@ export default function Dashboard({ }: DashboardProps) {
                                         className="overflow-hidden border-none shadow-md cursor-pointer transition-colors hover:bg-gray-50"
                                         onClick={() => handleCardClick(schedule.id)}
                                     >
-                                        <CardHeader className="pb-3 bg-white">
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <CardTitle className="text-base mb-1">{schedule.title}</CardTitle>
-                                                    <div className="text-xs text-gray-500 flex items-center gap-1">
-                                                        {schedule.deadline ? `마감: ${schedule.deadline}` : "마감일 없음"}
-                                                    </div>
+                                        <CardHeader className="pb-4 bg-white">
+                                            <div className="flex justify-between items-center mb-3">
+                                                <CardTitle className="text-base">{schedule.title}</CardTitle>
+                                                <div className="flex items-center gap-1">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-gray-500 hover:text-gray-900"
+                                                        onClick={(e) => { e.stopPropagation(); handleShare(schedule.id); }}
+                                                    >
+                                                        <Share2 className="w-4 h-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-gray-500 hover:text-gray-900"
+                                                        onClick={(e) => { e.stopPropagation(); handleMenuOpen(schedule.id); }}
+                                                    >
+                                                        <MoreVertical className="w-4 h-4" />
+                                                    </Button>
                                                 </div>
-                                                <div className="flex items-center gap-2">
+                                            </div>
+                                            <div className="flex justify-between items-end">
+                                                <div className="flex items-center">
                                                     {schedule.participantCount > 0 ? (
                                                         <ParticipantFacepile participants={schedule.participants} totalCount={schedule.participantCount} />
                                                     ) : (
                                                         <div className="text-xs text-gray-400">참여자 없음</div>
                                                     )}
                                                 </div>
+                                                <div className="text-xs text-gray-500 flex items-center gap-1">
+                                                    {schedule.deadline ? `마감: ${schedule.deadline}` : "마감일 없음"}
+                                                </div>
                                             </div>
                                         </CardHeader>
-                                        <CardFooter className="bg-gray-50 p-2 grid grid-cols-3 gap-2 border-t">
-                                            <Button variant="outline" size="sm" className="w-full text-xs h-9 bg-white hover:bg-gray-100" onClick={(e) => { e.stopPropagation(); handleManage(schedule.id); }}>
-                                                <Settings className="w-3 h-3 mr-1.5" /> 관리
-                                            </Button>
-                                            <Button variant="outline" size="sm" className="w-full text-xs h-9 bg-white hover:bg-gray-100" onClick={(e) => { e.stopPropagation(); handleShare(schedule.id); }}>
-                                                <Share2 className="w-3 h-3 mr-1.5" /> 공유
-                                            </Button>
-                                            <Button size="sm" className="w-full text-xs h-9" onClick={(e) => { e.stopPropagation(); handleConfirm(schedule.id); }}>
-                                                <CheckCircle className="w-3 h-3 mr-1.5" /> 확정
-                                            </Button>
-                                        </CardFooter>
                                     </Card>
                                 ))
                             ) : (
@@ -289,6 +366,62 @@ export default function Dashboard({ }: DashboardProps) {
                 onClose={handleShareClose}
                 link={typeof window !== 'undefined' && shareEventId ? `${window.location.origin}/app/calendar/${shareEventId}` : ''}
             />
+
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetContent side="bottom" className="rounded-t-xl">
+                    <SheetHeader className="mb-4">
+                        <SheetTitle>일정 관리</SheetTitle>
+                        <SheetDescription>
+                            원하는 작업을 선택해주세요.
+                        </SheetDescription>
+                    </SheetHeader>
+                    <div className="flex flex-col gap-3 pb-6">
+                        <Button
+                            variant="outline"
+                            className="w-full h-12 text-base justify-start px-4"
+                            onClick={() => menuScheduleId && handleManage(menuScheduleId)}
+                        >
+                            <Settings className="mr-3 h-5 w-5 text-gray-500" />
+                            일정 수정하기
+                        </Button>
+                        <Button
+                            className="w-full h-12 text-base justify-start px-4 bg-indigo-600 hover:bg-indigo-700 text-white"
+                            onClick={() => menuScheduleId && handleConfirm(menuScheduleId)}
+                        >
+                            <CheckCircle className="mr-3 h-5 w-5" />
+                            일정 확정 하기
+                        </Button>
+                    </div>
+                </SheetContent>
+            </Sheet>
+
+            <Sheet open={participantSheetOpen} onOpenChange={setParticipantSheetOpen}>
+                <SheetContent side="bottom" className="rounded-t-xl h-[48vh]">
+                    <SheetHeader className="mb-4">
+                        <SheetTitle>참여자 목록 ({selectedParticipantCount}명)</SheetTitle>
+                    </SheetHeader>
+                    <div className="grid grid-cols-2 gap-2 overflow-y-auto h-full pb-6 content-start">
+                        {selectedParticipants.map((p, i) => (
+                            <div key={i} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-colors">
+                                <Avatar className="h-6 w-6">
+                                    <AvatarImage src={p.avatarUrl || ""} alt={p.name} />
+                                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                                        {p.name[0]}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                    <span className="font-medium text-sm truncate">
+                                        {p.name}
+                                    </span>
+                                    {user && p.userId === user.id && (
+                                        <span className="text-[10px] bg-primary/10 text-primary px-1.5 rounded-full flex-shrink-0">나</span>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </SheetContent>
+            </Sheet>
         </AppScreen>
     );
 }

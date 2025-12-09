@@ -142,6 +142,7 @@ export type DashboardSchedule = {
     participants: {
         name: string;
         avatarUrl: string | null;
+        userId: string | null;
     }[];
 };
 
@@ -168,7 +169,6 @@ export async function getUserSchedules(): Promise<{
                     select: { participants: true }
                 },
                 participants: {
-                    take: 5,
                     include: {
                         user: true
                     },
@@ -190,7 +190,8 @@ export async function getUserSchedules(): Promise<{
             isConfirmed: event.isConfirmed,
             participants: event.participants.map(p => ({
                 name: p.name,
-                avatarUrl: p.user?.avatarUrl || null
+                avatarUrl: p.user?.avatarUrl || null,
+                userId: p.userId
             }))
         }));
 
@@ -212,7 +213,6 @@ export async function getUserSchedules(): Promise<{
                             select: { participants: true }
                         },
                         participants: {
-                            take: 5,
                             include: {
                                 user: true
                             },
@@ -236,7 +236,8 @@ export async function getUserSchedules(): Promise<{
             isConfirmed: p.event.isConfirmed,
             participants: p.event.participants.map(ep => ({
                 name: ep.name,
-                avatarUrl: ep.user?.avatarUrl || null
+                avatarUrl: ep.user?.avatarUrl || null,
+                userId: ep.userId
             }))
         }));
 
