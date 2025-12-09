@@ -7,7 +7,6 @@ import Dashboard from "./activities/app/Dashboard";
 import Login from "./activities/app/Login";
 import Error from "./activities/app/auth/Error";
 import CalendarTest from "./activities/app/CalendarTest";
-import HeatmapTest from "./activities/app/HeatmapTest";
 import Create from "./activities/app/calendar/Create";
 import Share from "./activities/app/calendar/Share";
 import Join from "./activities/app/calendar/Join";
@@ -22,7 +21,6 @@ const activities = {
   Login,
   Error,
   CalendarTest,
-  HeatmapTest,
   Create,
   Share,
   Join,
@@ -46,7 +44,6 @@ const stack = stackflow({
         Login: "/app/login",
         Error: "/app/auth/auth-code-error",
         CalendarTest: "/app/calendar-test",
-        HeatmapTest: "/app/heatmap-test",
         Create: "/app/calendar/new",
         Share: "/app/calendar/share",
         Join: "/app/calendar/:id",

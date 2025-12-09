@@ -14,6 +14,7 @@ import {
     RadioGroup,
     RadioGroupItem,
     Textarea,
+    ShareCalendarDialog,
 } from "@repo/ui";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
 
@@ -25,14 +26,22 @@ export default function Create({ }: CreateProps) {
     const { pop, replace } = useFlow();
     const [state, formAction] = useActionState(createCalendar, initialState);
 
+    const [showShareDialog, setShowShareDialog] = useState(false);
+
     useEffect(() => {
         if (state.message === "Success" && state.eventId) {
-            alert("캘린더가 생성되었습니다!");
-            replace("Join", { id: state.eventId });
+            setShowShareDialog(true);
         } else if (state.error) {
             alert(state.error);
         }
-    }, [state, pop, replace]);
+    }, [state]);
+
+    const handleShareClose = () => {
+        setShowShareDialog(false);
+        if (state.eventId) {
+            replace("Join", { id: state.eventId });
+        }
+    };
 
     // Helper date functions
     const formatDate = (d: Date) => {
@@ -325,6 +334,13 @@ export default function Create({ }: CreateProps) {
                     </Button>
                 </div>
             </form>
+
+            <ShareCalendarDialog
+                isOpen={showShareDialog}
+                onClose={handleShareClose}
+                link={typeof window !== 'undefined' ? `${window.location.origin}/app/calendar/${state.eventId}` : ''}
+            />
         </AppScreen>
     );
+
 }

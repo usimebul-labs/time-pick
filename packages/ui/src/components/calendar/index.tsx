@@ -1,5 +1,8 @@
 "use client";
 
+export * from './share-calendar-dialog';
+
+
 import { cn } from '../../lib/utils';
 import { MonthlyCalendar } from './monthly';
 import { CalendarHeader } from './header';

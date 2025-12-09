@@ -246,10 +246,11 @@ export type ParticipantSummary = {
     availabilities: string[];
 };
 
-export async function getEventWithParticipation(eventId: string): Promise<{
+export async function getEventWithParticipation(eventId: string, guestPin?: string): Promise<{
     event: EventDetail | null;
     participation: ParticipantDetail | null;
     participants: ParticipantSummary[];
+    isLoggedIn: boolean;
     error?: string;
 }> {
     const supabase = await createClient();
@@ -261,10 +262,12 @@ export async function getEventWithParticipation(eventId: string): Promise<{
         });
 
         if (!event) {
-            return { event: null, participation: null, participants: [], error: "일정을 찾을 수 없습니다." };
+            return { event: null, participation: null, participants: [], isLoggedIn: !!user, error: "일정을 찾을 수 없습니다." };
         }
 
         let participation: ParticipantDetail | null = null;
+
+        // 1. Try User Login
         if (user) {
             const p = await prisma.participant.findUnique({
                 where: {
@@ -272,6 +275,27 @@ export async function getEventWithParticipation(eventId: string): Promise<{
                         eventId: eventId,
                         userId: user.id
                     }
+                },
+                include: {
+                    availabilities: true
+                }
+            });
+
+            if (p) {
+                participation = {
+                    id: p.id,
+                    name: p.name,
+                    availabilities: p.availabilities.map(a => a.slot.toISOString())
+                };
+            }
+        }
+
+        // 2. Try Guest Login (if not found as user)
+        if (!participation && guestPin) {
+            const p = await prisma.participant.findFirst({
+                where: {
+                    eventId: eventId,
+                    guestPin: guestPin
                 },
                 include: {
                     availabilities: true
@@ -319,12 +343,13 @@ export async function getEventWithParticipation(eventId: string): Promise<{
                 isConfirmed: event.isConfirmed
             },
             participation,
-            participants
+            participants,
+            isLoggedIn: !!user
         };
 
     } catch (e) {
         console.error("Error fetching event details:", e);
-        return { event: null, participation: null, participants: [], error: "상세 정보를 불러오는 중 오류가 발생했습니다." };
+        return { event: null, participation: null, participants: [], isLoggedIn: false, error: "상세 정보를 불러오는 중 오류가 발생했습니다." };
     }
 }
 
@@ -426,5 +451,45 @@ export async function joinSchedule(
     } catch (e) {
         console.error("Error joining schedule:", e);
         return { success: false, error: "일정 등록 중 오류가 발생했습니다." };
+    }
+}
+
+export async function createGuestParticipant(eventId: string, name: string): Promise<{ success: boolean; pin?: string; error?: string }> {
+    try {
+        // Generate 6-digit PIN
+        const pin = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await prisma.participant.create({
+            data: {
+                eventId,
+                name,
+                guestPin: pin
+            }
+        });
+
+        return { success: true, pin };
+    } catch (e) {
+        console.error("Error creating guest:", e);
+        return { success: false, error: "게스트 생성 중 오류가 발생했습니다." };
+    }
+}
+
+export async function loginGuestParticipant(eventId: string, pin: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const participant = await prisma.participant.findFirst({
+            where: {
+                eventId,
+                guestPin: pin
+            }
+        });
+
+        if (participant) {
+            return { success: true };
+        } else {
+            return { success: false, error: "잘못된 입장 코드입니다." };
+        }
+    } catch (e) {
+        console.error("Error logging in guest:", e);
+        return { success: false, error: "로그인 중 오류가 발생했습니다." };
     }
 }

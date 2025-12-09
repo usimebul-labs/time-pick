@@ -1,12 +1,13 @@
 'use client';
 
-import { AppScreen } from "@stackflow/plugin-basic-ui";
-import { useEffect, useState, useMemo } from "react";
-import { getEventWithParticipation, EventDetail, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
+import { EventDetail, getEventWithParticipation, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { Button, Calendar } from "@repo/ui";
-import { format, addDays, getDay, isSameDay, parseISO, startOfDay, addMinutes, setHours, setMinutes } from "date-fns";
+import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { addDays, addMinutes, format, getDay, isSameDay, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Check, Clock, Calendar as CalendarIcon, AlertCircle, User } from "lucide-react";
+import { AlertCircle, Calendar as CalendarIcon, Clock, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFlow } from "../../../stackflow";
 
 export default function Join({ params: { id } }: { params: { id: string } }) {
     const [event, setEvent] = useState<EventDetail | null>(null);
@@ -18,13 +19,26 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
     // Selected slots (ISO strings)
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
 
+    const { replace } = useFlow();
+
     useEffect(() => {
         const fetchEvent = async () => {
-            const { event, participation, participants, error } = await getEventWithParticipation(id);
+            // Get guest PIN
+            const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
+            const guestPin = guestSessions[id];
+
+            const { event, participation, participants, isLoggedIn, error } = await getEventWithParticipation(id, guestPin);
             console.log(event, participation, participants, error);
+
             if (error) {
                 setError(error);
             } else {
+                // Redirect if not logged in and not a guest (no participation)
+                if (!isLoggedIn && !participation) {
+                    replace("Login", { eventId: id });
+                    return;
+                }
+
                 setEvent(event);
                 setParticipation(participation);
                 setParticipants(participants || []);
@@ -35,7 +49,7 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
             setLoading(false);
         };
         fetchEvent();
-    }, [id]);
+    }, [id, replace]);
 
 
     // Helper to generate date range between start and end

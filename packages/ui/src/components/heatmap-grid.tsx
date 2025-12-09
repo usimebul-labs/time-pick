@@ -10,10 +10,10 @@ interface HeatmapGridProps {
 
 export function HeatmapGrid({ dates, hours, availability, onSlotClick }: HeatmapGridProps) {
   return (
-    <div 
+    <div
       className="grid gap-1 overflow-x-auto"
-      style={{ 
-        gridTemplateColumns: `auto repeat(${dates.length}, minmax(40px, 1fr))` 
+      style={{
+        gridTemplateColumns: `auto repeat(${dates.length}, minmax(40px, 1fr))`
       }}
     >
       {/* Time Labels Column */}
@@ -32,13 +32,13 @@ export function HeatmapGrid({ dates, hours, availability, onSlotClick }: Heatmap
           <div className="h-8 text-center text-sm font-medium">
             {date.getDate()}
           </div>
-          
+
           {/* Slots */}
           {hours.map((hour) => {
             // Construct key logic specific to your app
             const slotKey = `${date.toISOString().split('T')[0]}-${hour}`;
             const intensity = availability[slotKey] || 0; // 0 to 1 scale ideally
-            
+
             return (
               <button
                 key={hour}
