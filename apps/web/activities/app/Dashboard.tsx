@@ -12,8 +12,9 @@ import {
     Avatar,
     AvatarFallback,
     AvatarImage,
+    ShareCalendarDialog,
 } from "@repo/ui";
-import { Plus, Settings, CheckCircle, Calendar, Users, LogOut } from "lucide-react";
+import { Plus, Settings, CheckCircle, Calendar, Users, LogOut, Share2 } from "lucide-react";
 import { getUserSchedules, DashboardSchedule } from "@/app/actions/calendar";
 
 type DashboardProps = {};
@@ -23,6 +24,10 @@ export default function Dashboard({ }: DashboardProps) {
     const [mySchedules, setMySchedules] = useState<DashboardSchedule[]>([]);
     const [joinedSchedules, setJoinedSchedules] = useState<DashboardSchedule[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Share Dialog State
+    const [shareDialogOpen, setShareDialogOpen] = useState(false);
+    const [shareEventId, setShareEventId] = useState<string | null>(null);
 
     const supabase = createClient();
     const { push } = useFlow();
@@ -68,6 +73,16 @@ export default function Dashboard({ }: DashboardProps) {
         push("Confirm", { id });
     };
 
+    const handleShare = (id: string) => {
+        setShareEventId(id);
+        setShareDialogOpen(true);
+    };
+
+    const handleShareClose = () => {
+        setShareDialogOpen(false);
+        setShareEventId(null);
+    };
+
     const handleCardClick = (id: string) => {
         // Navigate to JoinScheduleActivity (Calendar Screen)
         push("Join", { id });
@@ -90,6 +105,34 @@ export default function Dashboard({ }: DashboardProps) {
 
     const userName = getUserName(user);
     const userAvatarUrl = getUserAvatar(user);
+
+    // Facepile Component
+    const ParticipantFacepile = ({ participants, totalCount }: { participants: { name: string; avatarUrl: string | null }[], totalCount: number }) => {
+        const maxDisplay = 5;
+        const showMore = totalCount > maxDisplay;
+        const displayCount = showMore ? 3 : maxDisplay;
+        const displayParticipants = participants.slice(0, displayCount);
+        const extraCount = totalCount - 3; // If showing more, we show 3 avatars + 1 circle.
+
+        return (
+            <div className="flex items-center -space-x-2">
+                {displayParticipants.map((p, i) => (
+                    <div key={i} className="relative w-6 h-6 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center overflow-hidden" title={p.name}>
+                        {p.avatarUrl ? (
+                            <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                            <span className="text-[10px] text-gray-600 font-medium">{p.name[0]}</span>
+                        )}
+                    </div>
+                ))}
+                {showMore && (
+                    <div className="relative w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center z-10">
+                        <span className="text-[10px] text-gray-600 font-medium">+{extraCount}</span>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     if (loading) {
         // Simple loading state
@@ -155,18 +198,24 @@ export default function Dashboard({ }: DashboardProps) {
                                                         {schedule.deadline ? `마감: ${schedule.deadline}` : "마감일 없음"}
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center bg-gray-100 px-2 py-1 rounded text-xs font-medium text-gray-600">
-                                                    <Users className="w-3 h-3 mr-1" />
-                                                    {schedule.participantCount}명
+                                                <div className="flex items-center gap-2">
+                                                    {schedule.participantCount > 0 ? (
+                                                        <ParticipantFacepile participants={schedule.participants} totalCount={schedule.participantCount} />
+                                                    ) : (
+                                                        <div className="text-xs text-gray-400">참여자 없음</div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </CardHeader>
-                                        <CardFooter className="bg-gray-50 p-2 grid grid-cols-2 gap-2 border-t">
+                                        <CardFooter className="bg-gray-50 p-2 grid grid-cols-3 gap-2 border-t">
                                             <Button variant="outline" size="sm" className="w-full text-xs h-9 bg-white hover:bg-gray-100" onClick={(e) => { e.stopPropagation(); handleManage(schedule.id); }}>
-                                                <Settings className="w-3 h-3 mr-1.5" /> 관리하기
+                                                <Settings className="w-3 h-3 mr-1.5" /> 관리
+                                            </Button>
+                                            <Button variant="outline" size="sm" className="w-full text-xs h-9 bg-white hover:bg-gray-100" onClick={(e) => { e.stopPropagation(); handleShare(schedule.id); }}>
+                                                <Share2 className="w-3 h-3 mr-1.5" /> 공유
                                             </Button>
                                             <Button size="sm" className="w-full text-xs h-9" onClick={(e) => { e.stopPropagation(); handleConfirm(schedule.id); }}>
-                                                <CheckCircle className="w-3 h-3 mr-1.5" /> 확정하기
+                                                <CheckCircle className="w-3 h-3 mr-1.5" /> 확정
                                             </Button>
                                         </CardFooter>
                                     </Card>
@@ -205,9 +254,11 @@ export default function Dashboard({ }: DashboardProps) {
                                                     </p>
                                                 </div>
                                                 <div className="flex flex-col items-end gap-1">
-                                                    <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
-                                                        {schedule.participantCount}명 참여 중
-                                                    </span>
+                                                    {schedule.participantCount > 0 ? (
+                                                        <ParticipantFacepile participants={schedule.participants} totalCount={schedule.participantCount} />
+                                                    ) : (
+                                                        <span className="text-xs text-gray-400">참여자 없음</span>
+                                                    )}
                                                 </div>
                                             </div>
                                         </CardHeader>
@@ -232,6 +283,12 @@ export default function Dashboard({ }: DashboardProps) {
                     </div>
                 </div>
             </div>
+
+            <ShareCalendarDialog
+                isOpen={shareDialogOpen}
+                onClose={handleShareClose}
+                link={typeof window !== 'undefined' && shareEventId ? `${window.location.origin}/app/calendar/${shareEventId}` : ''}
+            />
         </AppScreen>
     );
 }

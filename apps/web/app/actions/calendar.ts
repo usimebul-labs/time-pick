@@ -139,6 +139,10 @@ export type DashboardSchedule = {
     deadline: string | null;
     participantCount: number;
     isConfirmed: boolean;
+    participants: {
+        name: string;
+        avatarUrl: string | null;
+    }[];
 };
 
 export async function getUserSchedules(): Promise<{
@@ -155,10 +159,6 @@ export async function getUserSchedules(): Promise<{
 
     try {
         // 1. Get My Schedules (Hosted by me)
-        // We need to find the profile ID first to be safe, 
-        // OR we just assume hostId is the user.id since we force that in createCalendar.
-        // Let's use user.id directly for hostId based on createCalendar logic.
-
         const myEvents = await prisma.event.findMany({
             where: {
                 hostId: user.id
@@ -166,6 +166,15 @@ export async function getUserSchedules(): Promise<{
             include: {
                 _count: {
                     select: { participants: true }
+                },
+                participants: {
+                    take: 5,
+                    include: {
+                        user: true
+                    },
+                    orderBy: {
+                        createdAt: 'asc'
+                    }
                 }
             },
             orderBy: {
@@ -178,7 +187,11 @@ export async function getUserSchedules(): Promise<{
             title: event.title,
             deadline: (event.deadline ? event.deadline.toISOString().split('T')[0] : null) as string | null,
             participantCount: event._count.participants,
-            isConfirmed: event.isConfirmed
+            isConfirmed: event.isConfirmed,
+            participants: event.participants.map(p => ({
+                name: p.name,
+                avatarUrl: p.user?.avatarUrl || null
+            }))
         }));
 
         // 2. Get Joined Schedules
@@ -192,6 +205,15 @@ export async function getUserSchedules(): Promise<{
                     include: {
                         _count: {
                             select: { participants: true }
+                        },
+                        participants: {
+                            take: 5,
+                            include: {
+                                user: true
+                            },
+                            orderBy: {
+                                createdAt: 'asc'
+                            }
                         }
                     }
                 }
@@ -206,7 +228,11 @@ export async function getUserSchedules(): Promise<{
             title: p.event.title,
             deadline: (p.event.deadline ? p.event.deadline.toISOString().split('T')[0] : null) as string | null,
             participantCount: p.event._count.participants,
-            isConfirmed: p.event.isConfirmed
+            isConfirmed: p.event.isConfirmed,
+            participants: p.event.participants.map(ep => ({
+                name: ep.name,
+                avatarUrl: ep.user?.avatarUrl || null
+            }))
         }));
 
         return { mySchedules, joinedSchedules };
