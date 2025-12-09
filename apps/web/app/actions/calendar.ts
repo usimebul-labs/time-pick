@@ -195,10 +195,15 @@ export async function getUserSchedules(): Promise<{
         }));
 
         // 2. Get Joined Schedules
-        // Where I am a participant
+        // Where I am a participant BUT NOT the host
         const participations = await prisma.participant.findMany({
             where: {
-                userId: user.id
+                userId: user.id,
+                event: {
+                    hostId: {
+                        not: user.id
+                    }
+                }
             },
             include: {
                 event: {
