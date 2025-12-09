@@ -181,6 +181,10 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
 
     const handleComplete = async () => {
         try {
+            // Get guest PIN from localStorage
+            const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
+            const guestPin = guestSessions[id];
+
             // Determine if guest or user
             // We can check participation.userId or try to join.
             // Ideally we know if the user is logged in. 
@@ -188,34 +192,17 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
             // Or if we can't be sure, we might need a client-side check of auth state.
             // But getEventWithParticipation returns participation if they are the user.
 
-            let guestName = "";
-
-            // Basic guest check: If no previous participation and we don't know if logged in...
-            // Ideally we should pass 'isLoggedIn' from server or check supabase client.
-            // For MVP: If no participation, ask name. (This is weak, but fits "simple")
-            // Better: Try to join. If server says "needs name", prompt?
-            // Or just prompt if !participation
-
-            if (!participation) {
-                // This is a bit rough blindly assuming guest if no participation, 
-                // because a logged in user encountering for first time also has no participation.
-                // Real fix: Check auth state or try to use server action and handle error?
-                // Let's rely on the fact that if they are logged in, the server action knows.
-                // We can try sending without name. If it fails with "guest name required", then prompt.
+            if (!participation && !guestPin) {
+                // Should not happen due to redirect logic, but just in case
+                alert("로그인이 필요합니다.");
+                replace("Login", { eventId: id });
+                return;
             }
 
             // Let's try calling with just slots first
             const { joinSchedule } = await import("@/app/actions/calendar");
 
-            let result = await joinSchedule(event.id, selectedDates.map(d => d.toISOString()));
-
-            if (!result.success && result.error === "게스트 이름이 필요합니다.") {
-                // Prompt for name
-                const name = window.prompt("게스트 이름을 입력해주세요.");
-                if (!name) return;
-
-                result = await joinSchedule(event.id, selectedDates.map(d => d.toISOString()), { name });
-            }
+            let result = await joinSchedule(event.id, selectedDates.map(d => d.toISOString()), { pin: guestPin });
 
             if (result.success) {
                 alert("일정이 등록되었습니다.");

@@ -356,7 +356,7 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
 export async function joinSchedule(
     eventId: string,
     selectedSlots: string[], // ISO strings
-    guestInfo?: { name: string; pin?: string }
+    guestInfo?: { name?: string; pin?: string }
 ): Promise<{ success: boolean; error?: string }> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -379,9 +379,7 @@ export async function joinSchedule(
             if (existing) {
                 participantId = existing.id;
             } else {
-                // Ensure profile exists (should already exist if logged in, but safe to upsert)
-                // Actually, if we just use user.id, we rely on profile existing or foreign key might fail if we enforce it.
-                // In createCalendar we upserted profile. Let's do it here too to be safe.
+                // Ensure profile exists
                 await prisma.profile.upsert({
                     where: { id: user.id },
                     update: {},
@@ -404,24 +402,34 @@ export async function joinSchedule(
             }
         } else {
             // 2. Guest User
-            if (!guestInfo || !guestInfo.name) {
-                return { success: false, error: "게스트 이름이 필요합니다." };
-            }
+            if (guestInfo?.pin) {
+                // Try to find existing guest by PIN
+                const existing = await prisma.participant.findFirst({
+                    where: {
+                        eventId,
+                        guestPin: guestInfo.pin
+                    }
+                });
 
-            // Create guest participant
-            // Note: Guest participants might be duplicates if we don't have a way to identify them.
-            // For now, we always create a new guest participant or we could check name+pin?
-            // Let's assume for now guests are unique per session or we just create new.
-            // But if they want to edit? We need a way to find them.
-            // For MVP, simple create.
-            const newParticipant = await prisma.participant.create({
-                data: {
-                    eventId,
-                    name: guestInfo.name,
-                    guestPin: guestInfo.pin
+                if (existing) {
+                    participantId = existing.id;
+                } else {
+                    return { success: false, error: "유효하지 않은 게스트 PIN입니다." };
                 }
-            });
-            participantId = newParticipant.id;
+            } else if (guestInfo?.name) {
+                // Legacy support or if we want to allow name-only creation (though we force login now)
+                // Create new guest participant
+                const newParticipant = await prisma.participant.create({
+                    data: {
+                        eventId,
+                        name: guestInfo.name,
+                        guestPin: guestInfo.pin // Optional
+                    }
+                });
+                participantId = newParticipant.id;
+            } else {
+                return { success: false, error: "게스트 정보가 필요합니다." };
+            }
         }
 
         // 3. Save Availability
