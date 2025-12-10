@@ -191,8 +191,8 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
 
             if (result.success) {
                 alert("일정이 등록되었습니다.");
-                // Maybe navigate to confirmation or refresh
-                window.location.reload();
+                replace("Confirmed", { id: event.id });
+                // window.location.reload();
             } else {
                 alert(result.error);
             }
