@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useFlow } from "../../stackflow";
 import { createGuestParticipant, loginGuestParticipant } from "../../app/actions/calendar";
 
-export default function Login({ params: { eventId } }: { params: { eventId: string } }) {
+export default function Login({ params: { eventId } }: { params: { eventId?: string } }) {
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState<"social" | "guest">("social");
     const [guestMode, setGuestMode] = useState<"new" | "existing">("new");
