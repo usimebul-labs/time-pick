@@ -28,10 +28,8 @@ export const useLanding = () => {
     };
 
     const handleStartClick = () => {
-        push("Login", {});
+        push("Login", { next: "/app/calendar/new" });
     };
-
-
 
     return {
         user,
