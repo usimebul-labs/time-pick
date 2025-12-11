@@ -1,27 +1,25 @@
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { DashboardSchedule, getUserSchedules } from "@/app/actions/calendar";
 import { createClient } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { useFlow } from "../../stackflow";
 import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
     Button,
     Card,
     CardHeader,
     CardTitle,
-    CardFooter,
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
     ShareCalendarDialog,
     Sheet,
     SheetContent,
-    SheetHeader,
-    SheetTitle,
     SheetDescription,
-    SheetFooter,
+    SheetHeader,
+    SheetTitle
 } from "@repo/ui";
-import { Plus, Settings, CheckCircle, Calendar, Users, LogOut, Share2, MoreVertical } from "lucide-react";
-import { getUserSchedules, DashboardSchedule } from "@/app/actions/calendar";
+import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { User } from "@supabase/supabase-js";
+import { Calendar, CheckCircle, LogOut, MoreVertical, Plus, Settings, Share2, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFlow } from "../../stackflow";
 
 type DashboardProps = {};
 

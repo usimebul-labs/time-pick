@@ -1,12 +1,9 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { ActivityComponentType } from "@stackflow/react";
-import { useLanding } from "./hooks/useLanding";
+import { LandingFooter } from "./components/LandingFooter";
 import { LandingHeader } from "./components/LandingHeader";
 import { LandingHero } from "./components/LandingHero";
-import { LandingStats } from "./components/LandingStats";
-import { LandingFeatures } from "./components/LandingFeatures";
-import { LandingCTA } from "./components/LandingCTA";
-import { LandingFooter } from "./components/LandingFooter";
+import { useLanding } from "./hooks/useLanding";
 
 const Landing: ActivityComponentType = () => {
     const { user, handleLoginClick, handleDashboardClick, handleStartClick, handleLogoutClick } = useLanding();
@@ -17,17 +14,12 @@ const Landing: ActivityComponentType = () => {
                 <LandingHeader
                     user={user}
                     onLoginClick={handleLoginClick}
-                    onDashboardClick={handleDashboardClick}
                     onLogoutClick={handleLogoutClick}
                 />
 
                 <main className="flex-1">
-                    <LandingHero user={user} />
-                    {/* <LandingStats /> */}
-                    <LandingFeatures />
-                    <LandingCTA onStartClick={handleStartClick} />
+                    <LandingHero user={user} onStartClick={handleStartClick} onDashboardClick={handleDashboardClick} />
                 </main>
-
                 <LandingFooter />
             </div>
         </AppScreen>

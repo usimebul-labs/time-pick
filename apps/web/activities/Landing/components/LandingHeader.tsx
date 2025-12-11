@@ -1,13 +1,13 @@
 import { Button } from "@repo/ui";
+import { User } from "@supabase/supabase-js";
 
 interface LandingHeaderProps {
-    user: any;
+    user: User | null;
     onLoginClick: () => void;
     onLogoutClick: () => void;
-    onDashboardClick: () => void;
 }
 
-export const LandingHeader = ({ user, onLoginClick, onLogoutClick, onDashboardClick }: LandingHeaderProps) => {
+export const LandingHeader = ({ user, onLoginClick, onLogoutClick }: LandingHeaderProps) => {
     const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "사용자";
 
     return (

@@ -1,11 +1,15 @@
 import { Button, Section } from "@repo/ui";
-import Link from "next/link";
+
+
+import { User } from "@supabase/supabase-js";
 
 interface LandingHeroProps {
-    user: any;
+    user: User | null;
+    onStartClick: () => void;
+    onDashboardClick: () => void;
 }
 
-export const LandingHero = ({ user }: LandingHeroProps) => {
+export const LandingHero = ({ user, onStartClick, onDashboardClick }: LandingHeroProps) => {
     return (
         <Section className="pt-20 md:pt-32 pb-16 md:pb-24">
             <div className="flex flex-col items-center text-center space-y-8">
@@ -27,13 +31,11 @@ export const LandingHero = ({ user }: LandingHeroProps) => {
                     </div>
                 </div>
 
-                {user &&
-                    <div className="space-x-4">
-                        <Button asChild size="lg" className="h-12 px-8 text-base">
-                            <Link href={"/app/dashboard"}>대시보드로 이동</Link>
-                        </Button>
-                    </div>
-                }
+                <div className="space-x-4">
+                    {user ?
+                        <Button size="lg" className="h-12 px-8 text-base" onClick={onDashboardClick}>대시보드로 이동</Button> :
+                        <Button size="lg" className="h-12 px-8 text-base" onClick={onStartClick}>시작하기</Button>}
+                </div>
             </div>
         </Section >
 
