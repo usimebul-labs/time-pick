@@ -32,10 +32,26 @@ trigger: always_on
   2. If Section A (e.g., Social Login) changes, it should not affect Section B (e.g., Guest Form).
   3. Each sub-component should be self-contained in terms of its display logic.
 
+### D. File Structure & Co-location (Folder Encapsulation)
+- **Rule**: Refactor single-file components into a modular directory structure.
+- **Structure**:
+  - Create a folder named exactly after the component (e.g., `LoginPage/`).
+  - Rename the main component file to `index.tsx` and move it inside.
+  - Place the extracted custom hook and related sub-components within this folder.
+- **Example**:
+  ```text
+  /src/pages/LoginPage/
+  ├── index.tsx           (Main View)
+  ├── useLoginPage.ts     (Logic Hook)
+  └── components/         (Optional: Private sub-components)
+  ```
 
 ## 3. Refactoring Instructions for AI
 
-1.  **Analyze**: Identify `useState`, `useEffect`, and API calls in the target component.
-2.  **Separate**: Move all identified logic into a new file named `hooks/use[ComponentName].ts`.
-3.  **Clean Up**: Replace logic in the original component with the hook call.
-4.  **Simplify**: If the component renders conditional blocks (like Guest Login), ensure they are wrapped in clean `{ condition && <Component /> }` syntax.
+1.  **Restructure (Folder Creation)**: 
+    - Create a directory named `[ComponentName]`.
+    - Move the original `[ComponentName].tsx` into this directory and rename it to `index.tsx`.
+2.  **Analyze**: Identify `useState`, `useEffect`, and API calls in the `index.tsx`.
+3.  **Separate**: Move all identified logic into a new file named `[ComponentName]/use[ComponentName].ts`.
+4.  **Clean Up**: Replace logic in the `index.tsx` with the hook call.
+5.  **Simplify**: If the component renders conditional blocks (like Guest Login), ensure they are wrapped in clean `{ condition && <SubComponent /> }` syntax and place `SubComponent` within the same folder.
