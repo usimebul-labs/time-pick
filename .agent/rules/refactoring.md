@@ -10,15 +10,7 @@ trigger: always_on
 - **Scope**: Apply this strictly to Page components, especially for scenarios like the Login Page where UI varies slightly based on the entry path.
 
 ## 2. Core Principles
-
-### A. Single Component Strategy
-- **Rule**: Do not create separate Page components for slight UI variations (e.g., "Normal Login" vs. "Share Link Login").
-- **Implementation**:
-  - Use a **single component** (e.g., `LoginPage`).
-  - Distinguish modes using **URL Query Parameters** (e.g., `?mode=share`) or **Location State**.
-  - Use **Conditional Rendering** (`{condition && <Component />}`) to show/hide specific UI elements like the "Guest Login" form.
-
-### B. Logic Extraction (Custom Hooks)
+### A. Logic Extraction (Custom Hooks)
 - **Rule**: All state management, side effects, and data fetching must be extracted into a **Custom Hook**.
 - **Constraint**: The View Component must **NOT** contain:
   - `useEffect` or direct API calls.
@@ -26,16 +18,20 @@ trigger: always_on
   - State definitions (`useState`) other than simple UI toggles.
 - **Naming**: `use[PageName].ts` (e.g., `useLoginPage`).
 
-### C. Server Data Fetching
+### B. Server Data Fetching
 - **Rule**: Server data fetching must be handled inside the Custom Hook.
 - **Flow**:
   1. Hook parses URL parameters.
   2. `useEffect` inside the Hook calls the API.
   3. Hook exposes `data`, `isLoading`, and `error` states to the View.
 
-### D. JSX Atomization
-- **Rule**: If the JSX inside `return (...)` exceeds readable limits (e.g., > 50 lines), break it down into **Sub-components**.
-- **Example**: Extract `<SocialLoginSection />` or `<GuestLoginForm />` instead of writing raw HTML.
+### C. JSX Atomization
+- **Rule**: Decompose JSX into Sub-components when a UI section is visually distinct and has no functional coupling or direct dependency on other sibling sections.
+- **Criteria**: 
+  1. Focus on Logical Independence rather than line count.
+  2. If Section A (e.g., Social Login) changes, it should not affect Section B (e.g., Guest Form).
+  3. Each sub-component should be self-contained in terms of its display logic.
+
 
 ---
 

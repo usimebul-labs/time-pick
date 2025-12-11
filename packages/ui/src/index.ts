@@ -3,7 +3,6 @@ export * from "./components/button";
 export * from "./components/card";
 export * from "./components/avatar";
 export * from "./components/code";
-export * from "./components/hero";
 export * from "./components/section";
 export * from "./components/feature-card";
 export * from "./components/sheet";
