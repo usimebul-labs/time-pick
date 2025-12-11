@@ -115,9 +115,9 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
                     }
 
                     if (slotData[key]) {
-                        slotData[key].count += 1;
+                        slotData[key]!.count += 1;
                         if (isVip) {
-                            slotData[key].vipCount += 1;
+                            slotData[key]!.vipCount += 1;
                         }
                     }
                 });
