@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, Input, Label, Checkbox, Button, ShareCalendarDialog } from "@repo/ui";
+import { Card, CardContent, Input, Label, Checkbox, Button } from "@repo/ui";
 import { Clock, Check } from "lucide-react";
 import { useDeadline } from "../hooks/useDeadline";
 import CreateLayout from "./CreateLayout";
@@ -13,8 +13,6 @@ export default function CreateDeadline() {
         handleToggle,
         state,
         formAction,
-        showShareDialog,
-        handleShareClose,
     } = useDeadline();
 
     return (
@@ -57,7 +55,7 @@ export default function CreateDeadline() {
                 </Card>
             </section>
 
-            {/* Float Bottom Button */}
+            {/* float bottom button */}
             <div className="p-4 bg-white border-t safe-area-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
                 <form action={formAction} className="w-full">
                     {/* Hidden inputs to pass data to Server Action */}
@@ -87,16 +85,6 @@ export default function CreateDeadline() {
                     </Button>
                 </form>
             </div>
-
-            <ShareCalendarDialog
-                isOpen={showShareDialog}
-                onClose={handleShareClose}
-                link={
-                    typeof window !== "undefined"
-                        ? `${window.location.origin}/app/calendar/${state.eventId}`
-                        : ""
-                }
-            />
         </CreateLayout>
     );
 }

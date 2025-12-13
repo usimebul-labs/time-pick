@@ -1,16 +1,41 @@
+"use client";
+
 import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { useEffect, useState } from "react";
+import { ShareCalendarDialog } from "@repo/ui";
+import { useFlow } from "@/stackflow";
 
-type ShareProps = {};
+type ShareProps = {
+    params: {
+        id: string;
+    };
+};
 
-export default function Share({ }: ShareProps) {
+export default function Share({ params: { id } }: ShareProps) {
+    const { replace, pop } = useFlow();
+    const [link, setLink] = useState("");
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setLink(`${window.location.origin}/app/calendar/${id}`);
+        }
+    }, [id]);
+
+    const handleClose = () => {
+        // If we just created it, we probably want to go to the created calendar or dashboard?
+        // The dialog usually has "Confirm" or "Close". 
+        // Let's assume closing means "Done" -> Go to Join (which is the calendar view for participants/hosts)
+        replace("Join", { id }, { animate: false });
+    };
+
     return (
         <AppScreen>
-            <div className="flex flex-col flex-1">
-                <div className="flex-1 p-4">
-                    <h1 className="text-2xl font-bold">약속 생성 완료 및 공유 페이지</h1>
-                    <p className="mt-2">생성된 참여용 링크와 관리용 링크를 보여줍니다.</p>
-                </div>
-            </div>
+            {/* We reuse the dialog UI but present it as a full screen or just open the dialog immediately over a blank/loading bg */}
+            <ShareCalendarDialog
+                isOpen={true}
+                onClose={handleClose}
+                link={link}
+            />
         </AppScreen>
     );
 }

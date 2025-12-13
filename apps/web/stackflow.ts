@@ -76,7 +76,7 @@ const stack = stackflow({
           CreateExclusions: "/exclusions",
           CreateDeadline: "/deadline",
         }),
-        Share: "/app/calendar/share",
+        Share: "/app/calendar/share/:id",
         Join: "/app/calendar/:id",
         Result: "/app/calendar/:id/results",
         Confirm: "/app/calendar/:id/confirm",

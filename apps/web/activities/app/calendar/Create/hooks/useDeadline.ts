@@ -10,7 +10,6 @@ export function useDeadline() {
     const { data, updateData } = useCreateCalendarStore();
     const [isUnlimited, setIsUnlimited] = useState(!data.deadline);
     const [state, formAction] = useActionState(createCalendar, initialState);
-    const [showShareDialog, setShowShareDialog] = useState(false);
 
     const handleToggle = (checked: boolean) => {
         setIsUnlimited(checked);
@@ -37,18 +36,11 @@ export function useDeadline() {
     // Handle Submission Result
     useEffect(() => {
         if (state.message === "Success" && state.eventId) {
-            setShowShareDialog(true);
+            replace("Share", { id: state.eventId });
         } else if (state.error) {
             alert(state.error);
         }
-    }, [state]);
-
-    const handleShareClose = () => {
-        setShowShareDialog(false);
-        if (state.eventId) {
-            replace("Join", { id: state.eventId }, { animate: false });
-        }
-    };
+    }, [state, replace]);
 
     return {
         data,
@@ -57,7 +49,5 @@ export function useDeadline() {
         handleToggle,
         state,
         formAction,
-        showShareDialog,
-        handleShareClose,
     };
 }
