@@ -66,7 +66,7 @@ const stack = stackflow({
         Error: "/app/auth/auth-code-error",
         CalendarTest: "/app/calendar-test",
         ...groupRoutes("/app/calendar/new", {
-          CreateBasicInfo: "/",
+          CreateBasicInfo: "",
           CreateCalendarType: "/type",
           CreateDateRange: "/date",
           CreateExclusions: "/exclusions",

@@ -73,7 +73,7 @@ export default function Dashboard({ }: DashboardProps) {
     };
 
     const handleCreateSchedule = () => {
-        push("Create", {});
+        push("CreateBasicInfo", {});
     };
 
     const handleManage = (id: string) => {

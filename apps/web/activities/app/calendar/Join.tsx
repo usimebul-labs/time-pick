@@ -35,7 +35,7 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
             } else {
                 // Redirect if not logged in and not a guest (no participation)
                 if (!isLoggedIn && !participation) {
-                    replace("Login", { eventId: id });
+                    replace("Login", {});
                     return;
                 }
 
@@ -180,7 +180,7 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
             if (!participation && !guestPin) {
                 // Should not happen due to redirect logic, but just in case
                 alert("로그인이 필요합니다.");
-                replace("Login", { eventId: id });
+                replace("Login", {});
                 return;
             }
 
