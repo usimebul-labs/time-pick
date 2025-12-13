@@ -9,7 +9,7 @@ import Login from "./activities/app/Login";
 import Error from "./activities/app/auth/Error";
 import CalendarTest from "./activities/app/CalendarTest";
 import Share from "./activities/app/calendar/Share";
-import Join from "./activities/app/calendar/Join";
+import Select from "./activities/app/calendar/Select";
 import Result from "./activities/app/calendar/Result";
 import Confirm from "./activities/app/calendar/Confirm";
 import Confirmed from "./activities/app/calendar/Confirmed";
@@ -40,7 +40,7 @@ const activities = {
   Error,
   CalendarTest,
   Share,
-  Join,
+  Select,
   Result,
   Confirm,
   Confirmed,
@@ -80,7 +80,7 @@ const stack = stackflow({
         }),
         Share: "/app/calendar/share/:id",
         GuestLogin: "/app/calendar/:id/guest",
-        Join: "/app/calendar/:id",
+        Select: "/app/calendar/:id",
         Result: "/app/calendar/:id/results",
         Confirm: "/app/calendar/:id/confirm",
         Confirmed: "/app/calendar/:id/confirmed",

@@ -132,7 +132,7 @@ export default function Dashboard({ }: DashboardProps) {
 
     const handleCardClick = (id: string) => {
         // Navigate to JoinScheduleActivity (Calendar Screen)
-        push("Join", { id });
+        push("Select", { id });
     };
 
     const getUserName = (user: User | null) => {

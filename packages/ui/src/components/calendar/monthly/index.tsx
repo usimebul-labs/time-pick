@@ -14,9 +14,10 @@ export interface MonthlyCalendarProps {
   calendarDate: Date;
   excludedDays?: number[];
   participants?: CalendarParticipant[];
+  selectedParticipantIds?: string[];
 }
 
-export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, startDate, endDate, excludedDays, participants = [] }: MonthlyCalendarProps) {
+export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, startDate, endDate, excludedDays, participants = [], selectedParticipantIds = [] }: MonthlyCalendarProps) {
   const { days, isDisabled, isSelected, isCurrentMonth } = useCalendar({ type: 'monthly', calendarDate, selectedDates, startDate, endDate, excludedDays });
 
   return (
@@ -30,6 +31,7 @@ export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, st
         isSelected={isSelected}
         isCurrentMonth={isCurrentMonth}
         participants={participants}
+        selectedParticipantIds={selectedParticipantIds}
       />
     </div>
   );

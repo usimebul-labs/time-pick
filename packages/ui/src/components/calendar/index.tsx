@@ -26,9 +26,10 @@ export interface CalendarProps {
   type: 'monthly' | 'weekly';
   excludedDays?: number[];
   participants?: CalendarParticipant[];
+  selectedParticipantIds?: string[];
 }
 
-export function Calendar({ type, selectedDates, onSelectDates, startDate, endDate, startHour, endHour, excludedDays, participants = [] }: CalendarProps) {
+export function Calendar({ type, selectedDates, onSelectDates, startDate, endDate, startHour, endHour, excludedDays, participants = [], selectedParticipantIds = [] }: CalendarProps) {
 
   const { calendarDate, canNext, canPrev, goToNext, goToPrev, goToToday } = useCalendarHeader({ type, startDate, endDate });
 
@@ -46,6 +47,7 @@ export function Calendar({ type, selectedDates, onSelectDates, startDate, endDat
           endHour={endHour}
           excludedDays={excludedDays}
           participants={participants}
+          selectedParticipantIds={selectedParticipantIds}
         />
       ) : (
         <MonthlyCalendar
@@ -56,6 +58,7 @@ export function Calendar({ type, selectedDates, onSelectDates, startDate, endDat
           endDate={endDate}
           excludedDays={excludedDays}
           participants={participants}
+          selectedParticipantIds={selectedParticipantIds}
         />
       )}
     </div>

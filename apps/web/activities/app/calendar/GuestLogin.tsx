@@ -32,7 +32,7 @@ export default function GuestLogin({ params: { id } }: GuestLoginProps) {
                 localStorage.setItem("guest_sessions", JSON.stringify(sessions));
 
                 // Redirect back to Join
-                replace("Join", { id }, { animate: false });
+                replace("Select", { id }, { animate: false });
             } else {
                 alert(result.error || "게스트 등록 실패");
             }

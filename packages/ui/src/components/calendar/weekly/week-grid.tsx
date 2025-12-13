@@ -12,9 +12,10 @@ interface WeeklyGridProps {
   isDisabled: (date: Date) => boolean;
   isSelected: (date: Date) => boolean;
   participants?: CalendarParticipant[];
+  selectedParticipantIds?: string[];
 }
 
-export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled, isSelected, participants = [] }: WeeklyGridProps) {
+export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled, isSelected, participants = [], selectedParticipantIds = [] }: WeeklyGridProps) {
   const { onDragStart, onDragOver, onDragEnd, onTouchMove } = useCalendarDrag({ selectedDates, onSelectDates, isDisabled, isSelected });
 
   return (
@@ -41,6 +42,16 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
               const total = participants.length;
               const ratio = total > 0 ? count / total : 0;
 
+              // Highlight logic
+              let isHighlight = false;
+              if (selectedParticipantIds.length > 0) {
+                const selectedUsers = participants.filter(p => selectedParticipantIds.includes(p.id));
+                if (selectedUsers.length > 0) {
+                  // Check if ISO slot string exists in availabilities
+                  isHighlight = selectedUsers.every(p => p.availabilities.includes(slotIso));
+                }
+              }
+
               return (
                 <div
                   key={datetime.toISOString()}
@@ -56,6 +67,9 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
                     !disabled && [
                       'hover:bg-accent hover:text-accent-foreground',
                       selected && 'bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90 hover:text-primary-foreground',
+                      // Highlight if all selected participants (or all if none selected) are available
+                      isHighlight && 'ring-2 ring-inset ring-green-500/50',
+                      !selected && isHighlight && 'bg-green-50/50',
                     ],
                   )}
                 >

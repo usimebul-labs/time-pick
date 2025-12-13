@@ -12,9 +12,10 @@ export interface WeeklyCalendarProps extends Omit<MonthlyCalendarProps, 'calenda
   startHour?: number;
   endHour?: number;
   participants?: CalendarParticipant[];
+  selectedParticipantIds?: string[];
 }
 
-export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, endDate, startDate, startHour, endHour, excludedDays, participants = [] }: WeeklyCalendarProps) {
+export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, endDate, startDate, startHour, endHour, excludedDays, participants = [], selectedParticipantIds = [] }: WeeklyCalendarProps) {
   const { days, hours, isDisabled, isSelected } = useCalendar({ type: 'weekly', calendarDate, selectedDates, startHour, endHour, startDate, endDate, excludedDays });
 
   return (
@@ -28,6 +29,7 @@ export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, end
         isDisabled={isDisabled}
         isSelected={isSelected}
         participants={participants}
+        selectedParticipantIds={selectedParticipantIds}
       />
     </>
   );

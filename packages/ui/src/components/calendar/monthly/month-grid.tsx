@@ -11,9 +11,10 @@ interface MonthlyGridProps {
   isSelected: (date: Date) => boolean;
   isCurrentMonth: (date: Date) => boolean;
   participants?: CalendarParticipant[];
+  selectedParticipantIds?: string[];
 }
 
-export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSelected, isCurrentMonth, participants = [] }: MonthlyGridProps) {
+export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSelected, isCurrentMonth, participants = [], selectedParticipantIds = [] }: MonthlyGridProps) {
   const { onDragStart, onDragOver, onDragEnd, onTouchMove } = useCalendarDrag({ selectedDates, onSelectDates, isDisabled, isSelected });
 
   return (
@@ -38,6 +39,16 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
           const total = participants.length;
           const ratio = total > 0 ? count / total : 0;
 
+          // Highlight logic
+          let isHighlight = false;
+          if (selectedParticipantIds.length > 0) {
+            // If filtering: Highlight if ALL selected participants are available
+            const selectedUsers = participants.filter(p => selectedParticipantIds.includes(p.id));
+            if (selectedUsers.length > 0) {
+              isHighlight = selectedUsers.every(p => p.availabilities.some(a => isSameDay(parseISO(a), day)));
+            }
+          }
+
           return (
             <button
               key={day.toISOString()}
@@ -55,6 +66,9 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
                   'hover:bg-accent hover:text-accent-foreground',
                   selected && 'bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90 hover:text-primary-foreground',
                   isToday(day) && !selected && 'bg-accent/50 text-accent-foreground font-semibold ring-1 ring-inset ring-accent-foreground/20',
+                  // Highlight if all selected participants (or all if none selected) are available
+                  isHighlight && 'ring-2 ring-inset ring-green-500/50',
+                  !selected && isHighlight && 'bg-green-50/50',
                 ],
               )}
             >
@@ -76,6 +90,6 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
           );
         })}
       </div>
-    </div>
+    </div >
   );
 }

@@ -25,7 +25,7 @@ export default function Share({ params: { id } }: ShareProps) {
         // If we just created it, we probably want to go to the created calendar or dashboard?
         // The dialog usually has "Confirm" or "Close". 
         // Let's assume closing means "Done" -> Go to Join (which is the calendar view for participants/hosts)
-        replace("Join", { id }, { animate: false });
+        replace("Select", { id }, { animate: false });
     };
 
     return (
