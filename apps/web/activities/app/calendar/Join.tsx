@@ -35,7 +35,10 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
             } else {
                 // Redirect if not logged in and not a guest (no participation)
                 if (!isLoggedIn && !participation) {
-                    replace("Login", {});
+                    if (!isLoggedIn && !participation) {
+                        replace("GuestLogin", { id });
+                        return;
+                    }
                     return;
                 }
 
