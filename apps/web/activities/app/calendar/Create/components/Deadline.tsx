@@ -13,24 +13,29 @@ const initialState: CreateCalendarState = { message: "", error: "" };
 export default function CreateDeadline() {
     const { replace } = useFlow();
     const { data, updateData } = useCreateCalendarStore();
-    const [isEnabled, setIsEnabled] = useState(!!data.deadline);
+    const [isUnlimited, setIsUnlimited] = useState(!data.deadline);
     const [state, formAction] = useActionState(createCalendar, initialState);
     const [showShareDialog, setShowShareDialog] = useState(false);
 
     const handleToggle = (checked: boolean) => {
-        setIsEnabled(checked);
+        setIsUnlimited(checked);
         if (checked) {
+            updateData({ deadline: undefined });
+        } else {
             if (!data.deadline && data.endDate) {
                 updateData({ deadline: `${data.endDate}T23:59` });
+            } else if (!data.deadline) {
+                // Default to tomorrow if no end date
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                updateData({ deadline: tomorrow.toISOString().slice(0, 16) });
             }
-        } else {
-            updateData({ deadline: undefined });
         }
     };
 
     useEffect(() => {
-        if (data.deadline && !isEnabled) {
-            setIsEnabled(true);
+        if (data.deadline && isUnlimited) {
+            setIsUnlimited(false);
         }
     }, [data.deadline]);
 
@@ -52,39 +57,39 @@ export default function CreateDeadline() {
 
     return (
         <CreateLayout title="일정 만들기" step={5} totalSteps={5}>
-            <section className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <Label className="text-xl font-bold">응답 마감일 설정</Label>
-                    <div className="flex items-center gap-2">
-                        <Label htmlFor="deadline-toggle" className="text-sm text-gray-600">
-                            마감일 설정
+            <section className="space-y-2">
+                <div className="flex">
+                    <div className="flex items-center gap-2 ml-auto">
+                        <Label htmlFor="deadline-toggle" className="text-xs text-gray-500 cursor-pointer">
+                            마감 시간은 정하지 않을래요
                         </Label>
                         <Checkbox
                             id="deadline-toggle"
-                            checked={isEnabled}
+                            checked={isUnlimited}
                             onCheckedChange={handleToggle}
+                            className="w-5 h-5"
                         />
                     </div>
                 </div>
 
                 <Card
-                    className={`border-none shadow-sm transition-opacity ${isEnabled ? "opacity-100" : "opacity-30 pointer-events-none"
+                    className={`border-none shadow-sm transition-all duration-300 ${!isUnlimited ? "opacity-100 translate-y-0" : "opacity-30 pointer-events-none translate-y-2"
                         }`}
                 >
-                    <CardContent className="p-4 bg-gray-50">
-                        <Label className="text-base mb-2 flex items-center gap-2 text-gray-700">
+                    <CardContent className="p-4 bg-gray-50 rounded-xl">
+                        <Label className="text-base font-bold mb-2 flex items-center gap-2 text-gray-800">
                             <Clock className="w-4 h-4 text-primary" />
-                            마감 일시
+                            이 때까지 투표 받을게요
                         </Label>
                         <Input
                             type="datetime-local"
                             value={data.deadline || ""}
                             onChange={(e) => updateData({ deadline: e.target.value })}
-                            className="bg-white"
-                            disabled={!isEnabled}
+                            className="bg-white border-gray-200"
+                            disabled={isUnlimited}
                         />
-                        <p className="text-xs text-gray-400 mt-2">
-                            * 마감일이 지나면 새로운 참여자가 일정을 입력할 수 없습니다.
+                        <p className="text-xs text-gray-500 mt-2">
+                            마감 시간이 지나면 친구들이 더 이상 투표할 수 없어요.
                         </p>
                     </CardContent>
                 </Card>
@@ -116,8 +121,7 @@ export default function CreateDeadline() {
                     )}
 
                     <Button size="lg" type="submit" className="w-full text-base">
-                        <Check className="w-4 h-4 mr-2" />
-                        캘린더 만들기
+                        캘린더 만들고 초대하기
                     </Button>
                 </form>
             </div>

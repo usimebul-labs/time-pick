@@ -22,8 +22,8 @@ export default function CreateBasicInfo() {
         <CreateLayout title="일정 만들기" step={1} totalSteps={5}>
             <section className="space-y-6">
                 <div className="space-y-2">
-                    <Label className="text-lg font-semibold block">
-                        일정 제목 <span className="text-red-500">*</span>
+                    <Label className="text-base font-bold block">
+                        어떤 모임인가요? <span className="text-red-500">*</span>
                     </Label>
                     <Input
                         name="title"
@@ -36,7 +36,7 @@ export default function CreateBasicInfo() {
                     />
                 </div>
                 <div className="space-y-2">
-                    <Label className="text-lg font-semibold block">설명 (선택)</Label>
+                    <Label className="text-base font-bold block">메모 (선택)</Label>
                     <Textarea
                         name="description"
                         placeholder="일정에 대한 간단한 설명을 적어주세요."

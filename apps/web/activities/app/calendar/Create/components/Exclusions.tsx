@@ -66,36 +66,36 @@ export default function CreateExclusions() {
                 {/* Days of Week */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <Label className="text-lg font-bold">요일 설정</Label>
+                        <Label className="text-base font-bold">어떤 요일에 만날까요?</Label>
                         <div className="flex gap-1">
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => selectDays("all")}
-                                className="h-7 text-xs px-2"
+                                className="h-7 text-xs px-2 rounded-full"
                             >
-                                전체
+                                매일
                             </Button>
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => selectDays("weekday")}
-                                className="h-7 text-xs px-2"
+                                className="h-7 text-xs px-2 rounded-full"
                             >
-                                평일
+                                평일만
                             </Button>
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => selectDays("weekend")}
-                                className="h-7 text-xs px-2"
+                                className="h-7 text-xs px-2 rounded-full"
                             >
-                                주말
+                                주말만
                             </Button>
                         </div>
                     </div>
-                    <p className="text-sm text-gray-500">
-                        제외하고 싶은 요일을 선택 해제하세요.
+                    <p className="text-xs text-gray-500">
+                        만나기 힘든 요일은 선택을 해제해주세요.
                     </p>
                     <div className="flex flex-wrap gap-2">
                         {DAYS_OF_WEEK.map((day) => {
@@ -106,10 +106,10 @@ export default function CreateExclusions() {
                                     type="button"
                                     onClick={() => toggleDay(day.id)}
                                     className={`
-                                  w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all
+                                  w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all shadow-sm
                                   ${isSelected
-                                            ? "bg-primary text-primary-foreground shadow-md scale-100"
-                                            : "bg-gray-100 text-gray-300 scale-90"
+                                            ? "bg-primary text-primary-foreground scale-100 font-bold"
+                                            : "bg-gray-100 text-gray-400 scale-95"
                                         }
                                 `}
                                 >
@@ -121,21 +121,22 @@ export default function CreateExclusions() {
                 </div>
 
                 {/* Holidays */}
-                <div className="flex items-center justify-between py-2">
+                <div className="flex items-center justify-between py-2 border-t border-b border-gray-100">
                     <div>
-                        <Label className="text-lg font-bold block">공휴일 제외</Label>
-                        <p className="text-xs text-gray-500 mt-1">
-                            달력에 표시된 공휴일을 자동으로 제외합니다.
+                        <Label className="text-base font-semibold block mb-0.5">공휴일은 쉴까요?</Label>
+                        <p className="text-xs text-gray-500">
+                            달력의 빨간 날은 자동으로 제외해요.
                         </p>
                     </div>
                     <Checkbox
                         disabled // Not implemented yet logic-wise
+                        className="w-5 h-5"
                     />
                 </div>
 
                 {/* Specific Dates */}
                 <div className="space-y-3">
-                    <Label className="text-lg font-bold block">날짜 지정 제외</Label>
+                    <Label className="text-base font-bold block">이 날은 안 돼요 (선택)</Label>
                     <div className="flex gap-2">
                         <Input
                             type="date"
