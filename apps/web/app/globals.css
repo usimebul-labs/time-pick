@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @source "../../../packages/ui"; 
+@import "@stackflow/plugin-basic-ui/index.css"; 
 
 @import "@repo/ui/globals.css";
 @layer utilities {
