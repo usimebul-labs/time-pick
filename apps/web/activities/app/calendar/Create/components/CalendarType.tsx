@@ -2,17 +2,11 @@
 
 import { Label, RadioGroup, RadioGroupItem, Button } from "@repo/ui";
 import { CalendarDays, Clock, ArrowRight } from "lucide-react";
-import { useFlow } from "../../../../../stackflow";
-import { useCreateCalendarStore } from "../store";
+import { useCalendarType } from "../hooks/useCalendarType";
 import CreateLayout from "./CreateLayout";
 
 export default function CreateCalendarType() {
-    const { push } = useFlow();
-    const { data, updateData } = useCreateCalendarStore();
-
-    const handleNext = () => {
-        push("CreateDateRange", {});
-    };
+    const { data, updateData, handleNext } = useCalendarType();
 
     return (
         <CreateLayout title="일정 만들기" step={2} totalSteps={5}>

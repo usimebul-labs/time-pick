@@ -2,21 +2,11 @@
 
 import { Input, Label, Textarea, Button } from "@repo/ui";
 import { ArrowRight } from "lucide-react";
-import { useFlow } from "../../../../../stackflow";
-import { useCreateCalendarStore } from "../store";
+import { useBasicInfo } from "../hooks/useBasicInfo";
 import CreateLayout from "./CreateLayout";
 
 export default function CreateBasicInfo() {
-    const { push } = useFlow();
-    const { data, updateData } = useCreateCalendarStore();
-
-    const handleNext = () => {
-        if (!data.title) {
-            alert("일정 제목을 입력해주세요.");
-            return;
-        }
-        push("CreateCalendarType", {});
-    };
+    const { data, updateData, handleNext } = useBasicInfo();
 
     return (
         <CreateLayout title="일정 만들기" step={1} totalSteps={5}>

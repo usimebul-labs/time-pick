@@ -3,30 +3,17 @@
 import { Card, CardContent, Input, Label, Checkbox, Button } from "@repo/ui";
 import { CreateCalendarData } from "../types";
 import { CalendarIcon, Clock, ArrowRight } from "lucide-react";
-import { useState } from "react";
-import { useFlow } from "../../../../../stackflow";
-import { useCreateCalendarStore } from "../store";
+import { useDateRange } from "../hooks/useDateRange";
 import CreateLayout from "./CreateLayout";
 
 export default function CreateDateRange() {
-    const { push } = useFlow();
-    const { data, updateData } = useCreateCalendarStore();
-    const [isUndefined, setIsUndefined] = useState(false);
-
-    const handleUndefinedChange = (checked: boolean) => {
-        setIsUndefined(checked);
-        if (checked) {
-            // Optional: Set specific flag or just disable inputs visually
-        }
-    };
-
-    const handleNext = () => {
-        if (!isUndefined && (!data.startDate || !data.endDate)) {
-            alert("시작일과 종료일을 설정해주세요.");
-            return;
-        }
-        push("CreateExclusions", {});
-    };
+    const {
+        data,
+        updateData,
+        isUndefined,
+        handleUndefinedChange,
+        handleNext,
+    } = useDateRange();
 
     return (
         <CreateLayout title="일정 만들기" step={3} totalSteps={5}>
