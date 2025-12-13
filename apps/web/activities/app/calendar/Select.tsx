@@ -3,7 +3,7 @@
 import { EventDetail, getEventWithParticipation, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { Button, Calendar } from "@repo/ui";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
-import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { differenceInCalendarDays, format, parseISO, isSameDay } from "date-fns";
 import { AlertCircle, Calendar as CalendarIcon, Clock, User, AlignLeft, ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFlow } from "../../../stackflow";
@@ -145,6 +145,50 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
 
     const deadlineInfo = getDeadlineInfo();
 
+    const handleSelectHighlighted = () => {
+        if (selectedParticipantIds.length === 0) return;
+        const selectedUsers = participants.filter(p => selectedParticipantIds.includes(p.id));
+        if (selectedUsers.length === 0) return;
+
+        let additionalDates: Date[] = [];
+
+        if (event?.type === 'monthly') {
+            const baseUser = selectedUsers[0];
+            const candidateDays = baseUser?.availabilities.map(a => parseISO(a)) || [];
+
+            const commonDays = candidateDays.filter(candidateDay => {
+                return selectedUsers.every(user =>
+                    user.availabilities.some(a => isSameDay(parseISO(a), candidateDay))
+                );
+            });
+
+            additionalDates = commonDays;
+        } else {
+            const baseUser = selectedUsers[0];
+            const candidateSlots = baseUser?.availabilities || [];
+
+            const commonSlots = candidateSlots.filter(slot =>
+                selectedUsers.every(user => user.availabilities.includes(slot))
+            );
+
+            additionalDates = commonSlots.map(s => parseISO(s));
+        }
+
+        setSelectedDates(prev => {
+            const newSelection = [...prev];
+            additionalDates.forEach(newDate => {
+                const exists = event?.type === 'monthly'
+                    ? newSelection.some(d => isSameDay(d, newDate))
+                    : newSelection.some(d => d.toISOString() === newDate.toISOString());
+
+                if (!exists) {
+                    newSelection.push(newDate);
+                }
+            });
+            return newSelection;
+        });
+    };
+
     return (
         <AppScreen>
             <div className="flex flex-col h-full bg-white">
@@ -152,7 +196,7 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
                 <div className="flex-1 overflow-y-auto p-4 pb-32">
 
                     {/* 1. Calendar Zone (Top Priority) */}
-                    <div className="mb-8">
+                    <div>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-bold text-gray-800">
                                 {event.type === 'monthly' ? "언제 시간이 되시나요?" : "가능한 시간을 알려주세요"}
@@ -170,9 +214,21 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
                             participants={participants}
                             selectedParticipantIds={selectedParticipantIds}
                         />
+
+                        <div className="flex justify-end mt-2 h-6">
+                            {selectedDates.length > 0 && (
+                                <button
+                                    onClick={() => setSelectedDates([])}
+                                    className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors flex items-center px-2 py-1 animate-in fade-in slide-in-from-top-1 duration-200"
+                                >
+                                    <span className="mr-1">↺</span>
+                                    전체 선택 해제
+                                </button>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="w-full h-px bg-gray-100 my-6"></div>
+                    <div className="w-full h-px bg-gray-100 mt-3 mb-6"></div>
 
                     {/* 2. Participants Zone */}
                     <div className="mb-8">
@@ -184,7 +240,7 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
                             {participants.length > 0 && <span className="text-xs text-gray-400">함께하고 있어요</span>}
                         </div>
 
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 mb-3">
                             {participants.length > 0 ? (
                                 participants.map((p) => {
                                     const isMe = p.id === participation?.id;
@@ -219,6 +275,21 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
                                     <span className="text-xs text-gray-400">첫 번째 참여자가 되어주세요!</span>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Highlighted Selection Button - Bottom Right */}
+                        <div className="flex justify-end">
+                            <button
+                                onClick={handleSelectHighlighted}
+                                disabled={selectedParticipantIds.length === 0}
+                                className={`text-xs font-bold transition-all duration-200 flex items-center px-3 py-1.5 rounded-lg ${selectedParticipantIds.length > 0
+                                    ? "bg-primary/10 text-primary hover:bg-primary/15 active:scale-95 cursor-pointer"
+                                    : "bg-gray-100 text-gray-400 cursor-not-allowed opacity-70"
+                                    }`}
+                            >
+                                <span className="mr-1.5">✨</span>
+                                같은 일정으로 선택하기
+                            </button>
                         </div>
                     </div>
 
@@ -283,7 +354,15 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
                             </div>
                         )}
                     </div>
-
+                </div>
+                {/* Footer Summary */}
+                <div className="border-t bg-white p-4 shadow-lg z-20 sticky bottom-0">
+                    <Button
+                        className="w-full h-12 text-base"
+                        onClick={handleComplete}
+                    >
+                        {selectedDates.length}개 시간 선택 완료
+                    </Button>
                 </div>
             </div>
         </AppScreen >
