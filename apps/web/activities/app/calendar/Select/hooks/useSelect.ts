@@ -32,7 +32,7 @@ export function useSelect(id: string) {
             } else {
                 // Redirect if not logged in and not a guest (no participation)
                 if (!isLoggedIn && !participation) {
-                    replace("GuestLogin", { id });
+                    replace("Join", { id });
                     return;
                 }
 
@@ -86,7 +86,7 @@ export function useSelect(id: string) {
 
             if (!participation && !guestPin && !isLoggedIn) {
                 alert("로그인이 필요합니다.");
-                replace("GuestLogin", { id });
+                replace("Join", { id });
                 return;
             }
 

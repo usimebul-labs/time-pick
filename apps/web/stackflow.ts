@@ -14,7 +14,7 @@ import Result from "./activities/app/calendar/Result";
 import Confirm from "./activities/app/calendar/Confirm";
 import Confirmed from "./activities/app/calendar/Confirmed";
 import Modify from "./activities/app/calendar/Modify";
-import GuestLogin from "./activities/app/calendar/GuestLogin";
+import Join from "./activities/app/calendar/Join";
 import {
   CreateBasicInfo,
   CreateCalendarType,
@@ -45,7 +45,7 @@ const activities = {
   Confirm,
   Confirmed,
   Modify,
-  GuestLogin,
+  Join,
   CreateBasicInfo,
   CreateCalendarType,
   CreateDateRange,
@@ -79,7 +79,7 @@ const stack = stackflow({
           CreateDeadline: "/deadline",
         }),
         Share: "/app/calendar/share/:id",
-        GuestLogin: "/app/calendar/:id/guest",
+        Join: "/app/calendar/:id/guest",
         Select: "/app/calendar/:id",
         Result: "/app/calendar/:id/results",
         Confirm: "/app/calendar/:id/confirm",

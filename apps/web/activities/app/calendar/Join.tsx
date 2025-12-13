@@ -2,21 +2,33 @@
 
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { Button, Input, Label } from "@repo/ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createGuestParticipant } from "@/app/actions/calendar";
 import { ArrowRight } from "lucide-react";
 import { useFlow } from "@/stackflow";
 
-type GuestLoginProps = {
-    params: {
-        id: string;
-    };
-};
 
-export default function GuestLogin({ params: { id } }: GuestLoginProps) {
+
+export default function Join({ params: { id } }: { params: { id: string } }) {
     const { replace } = useFlow();
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
+    const [eventTitle, setEventTitle] = useState<string>("");
+    const [hostName, setHostName] = useState<string>("");
+    const [hostAvatar, setHostAvatar] = useState<string>("");
+
+    useEffect(() => {
+        const fetchEventInfo = async () => {
+            const { getEventWithParticipation } = await import("@/app/actions/calendar");
+            const { event } = await getEventWithParticipation(id);
+            if (event) {
+                setEventTitle(event.title);
+                setHostName(event.hostName || "");
+                setHostAvatar(event.hostAvatarUrl || "");
+            }
+        };
+        fetchEventInfo();
+    }, [id]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,7 +43,7 @@ export default function GuestLogin({ params: { id } }: GuestLoginProps) {
                 sessions[id] = result.pin;
                 localStorage.setItem("guest_sessions", JSON.stringify(sessions));
 
-                // Redirect back to Join
+                // Redirect back to Select
                 replace("Select", { id }, { animate: false });
             } else {
                 alert(result.error || "게스트 등록 실패");
@@ -46,12 +58,37 @@ export default function GuestLogin({ params: { id } }: GuestLoginProps) {
 
     return (
         <AppScreen appBar={{ title: "모임 참여" }}>
-            <div className="flex flex-col h-full bg-white p-6">
+            <div className="flex flex-col h-full bg-gray-50 p-6">
                 <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
-                    <div className="text-center mb-10">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">반가워요! 👋</h1>
-                        <p className="text-gray-500">
-                            모임에 참여하려면 이름을 알려주세요.
+
+                    {/* Invitation Card */}
+                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center mb-8">
+                        {hostAvatar ? (
+                            <img
+                                src={hostAvatar}
+                                alt={hostName}
+                                className="w-16 h-16 rounded-full mx-auto mb-4 object-cover border-2 border-white shadow-md"
+                            />
+                        ) : (
+                            <div className="w-16 h-16 rounded-full mx-auto mb-4 bg-gray-100 flex items-center justify-center text-2xl">
+                                👋
+                            </div>
+                        )}
+
+                        <div className="mb-6">
+                            {hostName && (
+                                <p className="text-gray-500 mb-2 font-medium">
+                                    {hostName}님의 초대
+                                </p>
+                            )}
+                            <h2 className="text-2xl font-bold text-gray-900 leading-tight break-keep">
+                                {eventTitle || "로딩 중..."}
+                            </h2>
+                        </div>
+
+                        <p className="text-sm text-gray-400">
+                            가능한 시간을 알려주세요.<br />
+                            가장 좋은 시간을 찾아드릴게요!
                         </p>
                     </div>
 
@@ -87,6 +124,6 @@ export default function GuestLogin({ params: { id } }: GuestLoginProps) {
                     </div>
                 </div>
             </div>
-        </AppScreen>
+        </AppScreen >
     );
 }

@@ -261,6 +261,8 @@ export type EventDetail = {
     excludedDays: number[];
     deadline: string | null;
     hostId: string | null;
+    hostName: string | null;
+    hostAvatarUrl: string | null;
     isConfirmed: boolean;
 };
 
@@ -292,7 +294,8 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
 
     try {
         const event = await prisma.event.findUnique({
-            where: { id: eventId }
+            where: { id: eventId },
+            include: { host: true }
         });
 
         if (!event) {
@@ -376,6 +379,8 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
                 excludedDays: event.excludedDays,
                 deadline: event.deadline ? event.deadline.toISOString() : null,
                 hostId: event.hostId,
+                hostName: event.host?.fullName || null,
+                hostAvatarUrl: event.host?.avatarUrl || null,
                 isConfirmed: event.isConfirmed
             },
             participation,
