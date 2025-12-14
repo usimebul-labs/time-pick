@@ -7,7 +7,7 @@ import { addMinutes, eachDayOfInterval, format, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Calendar as CalendarIcon, Clock, MapPin, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, Label, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useFlow } from "../../../stackflow";
 
 // Custom Tooltip for Recharts
@@ -23,6 +23,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
+
 export default function Confirmed({ params: { id } }: { params: { id: string } }) {
     const [event, setEvent] = useState<EventDetail | null>(null);
     const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
@@ -32,6 +33,7 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
     // Advanced Features State
     const [selectedVipIds, setSelectedVipIds] = useState<Set<string>>(new Set());
     const [selectedSlot, setSelectedSlot] = useState<{ time: string; count: number; availableParticipants: ParticipantSummary[] } | null>(null);
+    const [selectedCount, setSelectedCount] = useState<number | null>(null);
 
     const { replace } = useFlow();
 
@@ -127,45 +129,53 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
         return Object.values(slotData).sort((a, b) => a.time.localeCompare(b.time));
     }, [event, participants, selectedVipIds]);
 
-    // Top 3 Logic
-    const top3 = useMemo(() => {
-        if (!chartData || chartData.length === 0) return [];
-
-        let candidates = [...chartData];
-
-        // Strict Filter: If VIPs selected, only show slots where ALL VIPs are present
-        if (selectedVipIds.size > 0) {
-            candidates = candidates.filter(d => d.vipCount === selectedVipIds.size);
+    const handleYAxisClick = (count: number) => {
+        if (selectedCount === count) {
+            setSelectedCount(null);
+        } else {
+            setSelectedCount(count);
+            // Clear slot selection when filtering by count to avoid confusion
+            setSelectedSlot(null);
         }
+    };
 
-        return candidates
-            .sort((a, b) => {
-                // Primary sort: count (desc)
-                if (b.count !== a.count) return b.count - a.count;
-                // Secondary sort: time (asc)
-                return a.time.localeCompare(b.time);
-            })
-            .slice(0, 3);
-    }, [chartData, selectedVipIds]);
+    // Custom Tick for clickable Y-Axis
+    const CustomYAxisTick = (props: any) => {
+        const { x, y, payload } = props;
+        const isSelected = selectedCount === payload.value;
+        return (
+            <g transform={`translate(${x},${y})`} style={{ cursor: 'pointer' }} onClick={() => handleYAxisClick(payload.value)}>
+                <text
+                    x={0}
+                    y={0}
+                    dy={4}
+                    textAnchor="end"
+                    fill={isSelected ? "#f97316" : "#666"}
+                    fontSize={12}
+                    fontWeight={isSelected ? "bold" : "normal"}
+                >
+                    {payload.value}명
+                </text>
+            </g>
+        );
+    };
 
     // Custom Dot Component
     const CustomizedDot = (props: any) => {
         const { cx, cy, payload } = props;
-        const rankIndex = top3.findIndex(item => item.time === payload.time);
-        const isTop3 = rankIndex !== -1;
-        const isVipParams = selectedVipIds.size > 0 && payload.vipCount > 0;
 
-        if (isTop3) {
-            return (
-                <g style={{ pointerEvents: 'none' }}>
-                    <circle cx={cx} cy={cy} r={10} fill="#f97316" stroke="#fff" strokeWidth={2} />
-                    <text x={cx} y={cy} dy={4} textAnchor="middle" fill="#fff" fontSize={10} fontWeight="bold">
-                        {rankIndex + 1}
-                    </text>
-                </g>
-            );
+        // Mode 1: Count Filtering
+        if (selectedCount !== null) {
+            if (payload.count === selectedCount) {
+                return (
+                    <circle cx={cx} cy={cy} r={5} fill="#f97316" stroke="#fff" strokeWidth={2} />
+                );
+            }
+            return null;
         }
 
+        // Mode 2: VIP Filtering (Default)
+        const isVipParams = selectedVipIds.size > 0 && payload.vipCount === selectedVipIds.size;
         if (isVipParams) {
             return (
                 <circle cx={cx} cy={cy} r={4} fill="#6366f1" stroke="#fff" strokeWidth={1} style={{ pointerEvents: 'none' }} />
@@ -177,21 +187,13 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
 
     const handleChartClick = (data: any) => {
         let targetSlot = null;
-
-        // 1. Try activePayload
         if (data && data.activePayload && data.activePayload.length > 0) {
             targetSlot = data.activePayload[0].payload;
-        }
-        // 2. Fallback: Try activeLabel
-        else if (data && data.activeLabel) {
+        } else if (data && data.activeLabel) {
             targetSlot = chartData.find(d => d.time === data.activeLabel);
         }
 
-        // Debug log
-        console.log("Chart Click:", data, "Target:", targetSlot);
-
         if (targetSlot) {
-            // Filter participants available at this slot
             const available = participants.filter(p => {
                 return p.availabilities.some(iso => {
                     const date = parseISO(iso);
@@ -207,12 +209,14 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
                 count: targetSlot.count,
                 availableParticipants: available
             });
+            // Clear count selection if user directly clicks a slot
+            setSelectedCount(null);
         }
     };
 
     // Footer Actions
     const handleEdit = () => {
-        replace("Join", { id });
+        replace("SelectEdit", { id });
     };
 
     const handleComplete = () => {
@@ -221,7 +225,7 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
         const isGuest = !!guestSessions[id];
 
         if (isGuest) {
-            alert("일정 확인이 완료되었습니다. 창을 닫아주세요.");
+            alert("일정 확인이 완료되었어요! 창을 닫아도 좋아요 👋");
             window.close();
         } else {
             replace("Dashboard", {});
@@ -246,26 +250,27 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
     );
 
     return (
-        <AppScreen>
+        <AppScreen appBar={{ title: event.title }}>
             <div className="flex flex-col h-full bg-white relative">
                 {/* Scrollable Content Area */}
                 <div className="flex-1 overflow-y-auto pb-32">
                     {/* 1. Header & Description */}
                     <div className="p-6 pb-2">
+                        <div className="mb-1 text-sm text-primary font-bold">모두의 일정을 모았어요! 🎉</div>
                         <h1 className="text-2xl font-bold mb-2 break-keep">{event.title}</h1>
                         {event.description && (
-                            <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 mb-4 whitespace-pre-wrap">
+                            <div className="bg-orange-50 p-4 rounded-2xl text-sm text-gray-700 mb-5 whitespace-pre-wrap leading-relaxed border border-orange-100">
                                 {event.description}
                             </div>
                         )}
-                        <div className="flex flex-col gap-1.5 text-xs text-gray-500">
+                        <div className="flex flex-col gap-2 text-sm text-gray-600 bg-gray-50 p-4 rounded-2xl">
                             <div className="flex items-center">
-                                <CalendarIcon className="w-3.5 h-3.5 mr-2" />
+                                <CalendarIcon className="w-4 h-4 mr-2.5 text-gray-400" />
                                 <span>{event.startDate} ~ {event.endDate}</span>
                             </div>
                             {event.startTime && (
                                 <div className="flex items-center">
-                                    <Clock className="w-3.5 h-3.5 mr-2" />
+                                    <Clock className="w-4 h-4 mr-2.5 text-gray-400" />
                                     <span>{event.startTime} ~ {event.endTime}</span>
                                 </div>
                             )}
@@ -274,60 +279,21 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
 
                     <div className="h-2 bg-gray-50 my-2" />
 
-                    {/* 3. Participants (Interactive) */}
-                    <div className="p-5">
-                        <div className="flex items-center justify-between mb-3">
-                            <h2 className="text-lg font-bold flex items-center">
-                                <Users className="w-5 h-5 mr-2" />
-                                참여자
-                                <span className="ml-1 text-primary text-base font-semibold">{participants.length}</span>
-                            </h2>
-                            <span className="text-xs text-gray-400">참여자를 눌러 필터링해보세요</span>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                            {participants.length > 0 ? (
-                                participants.map((p) => {
-                                    const isSelected = selectedVipIds.has(p.id);
-                                    return (
-                                        <button
-                                            key={p.id}
-                                            onClick={() => handleVipToggle(p.id)}
-                                            className={`flex items-center rounded-full px-2 py-1 border transition-all ${isSelected
-                                                ? "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200"
-                                                : "bg-gray-50 border-transparent hover:bg-gray-100"
-                                                }`}
-                                        >
-                                            <div className="w-4 h-4 rounded-full bg-gray-300 flex items-center justify-center text-[10px] text-gray-600 mr-1.5 overflow-hidden">
-                                                {p.avatarUrl ? (
-                                                    <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    p.name[0]
-                                                )}
-                                            </div>
-                                            <span className={`text-xs ${isSelected ? "text-indigo-700 font-semibold" : "text-gray-700"}`}>
-                                                {p.name}
-                                            </span>
-                                        </button>
-                                    );
-                                })
-                            ) : (
-                                <span className="text-xs text-gray-400 pl-1">아직 참여자가 없습니다.</span>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="h-2 bg-gray-50 my-2" />
-
-                    {/* 4. Density Graph (Dual Layer -> Single Layer with Dots) */}
+                    {/* 4. Density Graph */}
                     <div className="p-5 overflow-hidden">
-                        <h2 className="text-lg font-bold mb-4">참여 가능 시간 분포</h2>
-                        <p className="text-xs text-gray-400 mb-4">그래프를 눌러 상세 정보를 확인하세요</p>
-                        <div className="h-56 w-[calc(100%+var(--spacing)*4)]">
+                        <h2 className="text-lg font-bold mb-1">언제가 가장 좋을까요? 🤔</h2>
+                        <p className="text-sm text-gray-500 mb-6">
+                            {selectedCount !== null ? (
+                                <span className="text-primary font-bold">{selectedCount}명이 가능한 시간들이에요!</span>
+                            ) : (
+                                "참여 인원 수(Y축)를 누르면 해당 날짜를 볼 수 있어요!"
+                            )}
+                        </p>
+                        <div className="h-56 w-[calc(100%+var(--spacing)*2)] -ml-2">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart
                                     data={chartData}
-                                    margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
+                                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                                     onClick={handleChartClick}
                                 >
                                     <defs>
@@ -342,10 +308,13 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
                                         tick={{ fontSize: 10, fill: '#6B7280' }}
                                         minTickGap={30}
                                     />
-                                    <YAxis hide domain={[0, 'dataMax + 2']} />
-                                    {/* Tooltip can remain, but main interaction is click */}
+                                    <YAxis
+                                        domain={[0, 'dataMax + 1']}
+                                        allowDecimals={false}
+                                        tick={<CustomYAxisTick />}
+                                        width={40}
+                                    />
                                     <Tooltip cursor={{ fill: 'transparent' }} content={<CustomTooltip />} />
-
                                     <Area
                                         type="monotone"
                                         dataKey="count"
@@ -356,69 +325,125 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
                                         dot={<CustomizedDot />}
                                         activeDot={{ r: 6, stroke: '#f97316', strokeWidth: 2, fill: '#fff' }}
                                     />
+                                    {selectedCount !== null && (
+                                        <ReferenceLine y={selectedCount} stroke="#f97316" strokeDasharray="3 3" />
+                                    )}
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
-                    {/* 5. Bottom Details Panel (Static) */}
-                    <div className="border-t border-gray-100 bg-gray-50/50 min-h-[160px]">
-                        {selectedSlot ? (
-                            <div className="p-5 animate-in fade-in duration-200">
-                                <div className="flex justify-between items-center mb-4">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-gray-900">{selectedSlot.time}</h3>
-                                        <p className="text-sm text-primary font-medium">
-                                            {selectedSlot.count}명 참여 가능
-                                        </p>
-                                    </div>
-                                    <button onClick={() => setSelectedSlot(null)} className="p-1.5 bg-white border border-gray-200 rounded-full hover:bg-gray-50">
-                                        <Users className="w-4 h-4 text-gray-600" />
-                                    </button>
-                                </div>
 
-                                <div className="grid grid-cols-5 gap-2">
-                                    {selectedSlot.availableParticipants.length > 0 ? selectedSlot.availableParticipants.map(p => {
-                                        const isVip = selectedVipIds.has(p.id);
+                    <div className="h-2 bg-gray-50 my-2" />
+
+                    {/* Filtered Dates List (New Feature) */}
+                    {selectedCount !== null ? (
+                        <div className="p-5 pb-32">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-bold flex items-center gap-2">
+                                    <Clock className="w-5 h-5 text-primary" />
+                                    <span className="text-gray-900">{selectedCount}명이 되는 시간</span>
+                                    <span className="text-primary font-bold">
+                                        {chartData.filter(d => d.count === selectedCount).length}개
+                                    </span>
+                                </h2>
+                                <button
+                                    onClick={() => setSelectedCount(null)}
+                                    className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-full hover:bg-gray-200"
+                                >
+                                    필터 해제
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                {chartData.filter(d => d.count === selectedCount).length > 0 ? (
+                                    chartData.filter(d => d.count === selectedCount).map((d) => (
+                                        <div key={d.time} className="bg-orange-50 border border-orange-100 rounded-xl p-3 text-center">
+                                            <span className="text-sm font-bold text-gray-800">{d.time}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-2 text-center py-8 text-gray-400 text-sm">
+                                        해당 인원이 가능한 시간이 없어요 🥲
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        /* 4. Participants (Original View) */
+                        <div className="p-5 pb-32">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-bold flex items-center gap-2">
+                                    <Users className="w-5 h-5 text-gray-700" />
+                                    <span className="text-gray-900">
+                                        {selectedSlot ? `${selectedSlot.time}에` : "함께하는 사람들"}
+                                    </span>
+                                    <span className={`text-base font-bold ${selectedSlot ? "text-primary" : "text-gray-500"}`}>
+                                        {selectedSlot ? selectedSlot.count : participants.length}명
+                                    </span>
+                                </h2>
+                                {selectedSlot ? (
+                                    <button
+                                        onClick={() => setSelectedSlot(null)}
+                                        className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-full hover:bg-gray-200"
+                                    >
+                                        전체 친구 보기
+                                    </button>
+                                ) : (
+                                    <span className="text-xs text-gray-400">친구를 눌러보세요!</span>
+                                )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                                {(selectedSlot ? selectedSlot.availableParticipants : participants).length > 0 ? (
+                                    (selectedSlot ? selectedSlot.availableParticipants : participants).map((p) => {
+                                        const isSelected = selectedVipIds.has(p.id);
                                         return (
-                                            <div key={p.id} className="flex flex-col items-center">
-                                                <Avatar className={`w-9 h-9 mb-1 border-2 ${isVip ? 'border-indigo-400' : 'border-transparent'}`}>
-                                                    <AvatarImage src={p.avatarUrl || undefined} />
-                                                    <AvatarFallback className="bg-white border border-gray-100 text-gray-600 text-[10px]">
-                                                        {p.name[0]}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <span className={`text-[10px] text-center truncate w-full ${isVip ? 'text-indigo-600 font-semibold' : 'text-gray-600'}`}>
+                                            <button
+                                                key={p.id}
+                                                onClick={() => handleVipToggle(p.id)}
+                                                className={`flex items-center rounded-full px-2 py-1 border transition-all ${isSelected
+                                                    ? "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200"
+                                                    : "bg-gray-50 border-transparent hover:bg-gray-100"
+                                                    }`}
+                                            >
+                                                <div className="w-4 h-4 rounded-full bg-gray-300 flex items-center justify-center text-[10px] text-gray-600 mr-1.5 overflow-hidden">
+                                                    {p.avatarUrl ? (
+                                                        <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        p.name[0]
+                                                    )}
+                                                </div>
+                                                <span className={`text-xs ${isSelected ? "text-indigo-700 font-semibold" : "text-gray-700"}`}>
                                                     {p.name}
                                                 </span>
-                                            </div>
+                                            </button>
                                         );
-                                    }) : (
-                                        <p className="col-span-5 text-center text-gray-400 text-xs py-2">참여자가 없습니다.</p>
-                                    )}
-                                </div>
+                                    })
+                                ) : (
+                                    <div className="w-full text-center py-8 bg-gray-50 rounded-2xl flex flex-col items-center justify-center gap-2">
+                                        <span className="text-2xl">👀</span>
+                                        <span className="text-sm text-gray-400 font-medium">
+                                            {selectedSlot ? "이 시간에는 가능한 친구가 없어요 ㅠㅠ" : "아직 참여한 친구가 없어요."}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <div className="h-40 flex flex-col items-center justify-center text-gray-400 text-sm p-5">
-                                <Users className="w-6 h-6 mb-2 opacity-20" />
-                                <p>그래프의 점을 클릭하여<br />상세 정보를 확인하세요</p>
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-4 pb-8 z-30 flex gap-3">
+                <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t p-4 pb-8 z-30 flex gap-3">
                     <button
                         onClick={handleEdit}
-                        className="flex-1 py-3 px-4 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors"
+                        className="flex-1 py-3.5 px-4 rounded-2xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
                     >
-                        다시 수정하기
+                        내 일정 수정하기 ✏️
                     </button>
                     <button
                         onClick={handleComplete}
-                        className="flex-1 py-3 px-4 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors"
+                        className="flex-1 py-3.5 px-4 rounded-2xl bg-orange-500 text-white font-bold hover:bg-orange-600 shadow-lg shadow-orange-200 transition-all active:scale-[0.98]"
                     >
-                        완료
+                        확인했어요 👌
                     </button>
                 </div>
             </div>

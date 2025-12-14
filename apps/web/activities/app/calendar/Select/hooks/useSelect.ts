@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import { EventDetail, getEventWithParticipation, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { useFlow } from "@/stackflow";
 
+import { useActivity } from "@stackflow/react";
+import { useGuestStore } from "@/stores/guest";
+
 export function useSelect(id: string) {
     const [event, setEvent] = useState<EventDetail | null>(null);
     const [participation, setParticipation] = useState<ParticipantDetail | null>(null);
@@ -18,6 +21,7 @@ export function useSelect(id: string) {
     const [selectedDates, setSelectedDates] = useState<Date[]>([]);
 
     const { replace } = useFlow();
+    const activity = useActivity();
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -31,8 +35,17 @@ export function useSelect(id: string) {
                 setError(error);
             } else {
                 // Redirect if not logged in and not a guest (no participation)
-                if (!isLoggedIn && !participation) {
+                const pendingGuest = useGuestStore.getState().pendingGuest;
+                const isPendingGuest = pendingGuest && pendingGuest.eventId === id;
+
+                if (!isLoggedIn && !participation && !isPendingGuest) {
                     replace("Join", { id });
+                    return;
+                }
+
+                // Redirect to Confirmed if already participated (and not editing)
+                if (participation && activity.name !== "SelectEdit") {
+                    replace("Confirmed", { id });
                     return;
                 }
 
@@ -65,7 +78,7 @@ export function useSelect(id: string) {
             setLoading(false);
         };
         fetchEvent();
-    }, [id, replace]);
+    }, [id, replace, activity.name]);
 
 
     const toggleParticipant = (id: string) => {
@@ -82,7 +95,27 @@ export function useSelect(id: string) {
         if (!event) return;
         try {
             const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
-            const guestPin = guestSessions[id];
+            let guestPin = guestSessions[id];
+
+            const pendingGuest = useGuestStore.getState().pendingGuest;
+            const isPendingGuest = pendingGuest && pendingGuest.eventId === id;
+
+            // 1. Create Guest if pending
+            if (isPendingGuest && !guestPin) {
+                const { createGuestParticipant } = await import("@/app/actions/calendar");
+                const result = await createGuestParticipant(id, pendingGuest.name);
+
+                if (result.success && result.pin) {
+                    guestPin = result.pin;
+                    // Persist session
+                    guestSessions[id] = guestPin;
+                    localStorage.setItem("guest_sessions", JSON.stringify(guestSessions));
+                    useGuestStore.getState().clearPendingGuest();
+                } else {
+                    alert(result.error || "게스트 생성 실패");
+                    return;
+                }
+            }
 
             if (!participation && !guestPin && !isLoggedIn) {
                 alert("로그인이 필요합니다.");

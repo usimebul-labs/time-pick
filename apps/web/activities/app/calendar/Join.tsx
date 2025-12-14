@@ -3,9 +3,9 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { Button, Input, Label } from "@repo/ui";
 import { useEffect, useState } from "react";
-import { createGuestParticipant } from "@/app/actions/calendar";
 import { ArrowRight } from "lucide-react";
 import { useFlow } from "@/stackflow";
+import { useGuestStore } from "@/stores/guest";
 
 
 
@@ -35,25 +35,9 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
         if (!name.trim()) return;
 
         setLoading(true);
-        try {
-            const result = await createGuestParticipant(id, name);
-            if (result.success && result.pin) {
-                // Save session
-                const sessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
-                sessions[id] = result.pin;
-                localStorage.setItem("guest_sessions", JSON.stringify(sessions));
-
-                // Redirect back to Select
-                replace("Select", { id }, { animate: false });
-            } else {
-                alert(result.error || "게스트 등록 실패");
-            }
-        } catch (error) {
-            console.error(error);
-            alert("오류가 발생했습니다.");
-        } finally {
-            setLoading(false);
-        }
+        // Defer creation: Save to store and redirect to Select
+        useGuestStore.getState().setPendingGuest(id, name);
+        replace("Select", { id }, { animate: false });
     };
 
     return (
