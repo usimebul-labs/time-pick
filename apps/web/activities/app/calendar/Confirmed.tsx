@@ -254,31 +254,6 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
             <div className="flex flex-col h-full bg-white relative">
                 {/* Scrollable Content Area */}
                 <div className="flex-1 overflow-y-auto pb-32">
-                    {/* 1. Header & Description */}
-                    <div className="p-6 pb-2">
-                        <div className="mb-1 text-sm text-primary font-bold">모두의 일정을 모았어요! 🎉</div>
-                        <h1 className="text-2xl font-bold mb-2 break-keep">{event.title}</h1>
-                        {event.description && (
-                            <div className="bg-orange-50 p-4 rounded-2xl text-sm text-gray-700 mb-5 whitespace-pre-wrap leading-relaxed border border-orange-100">
-                                {event.description}
-                            </div>
-                        )}
-                        <div className="flex flex-col gap-2 text-sm text-gray-600 bg-gray-50 p-4 rounded-2xl">
-                            <div className="flex items-center">
-                                <CalendarIcon className="w-4 h-4 mr-2.5 text-gray-400" />
-                                <span>{event.startDate} ~ {event.endDate}</span>
-                            </div>
-                            {event.startTime && (
-                                <div className="flex items-center">
-                                    <Clock className="w-4 h-4 mr-2.5 text-gray-400" />
-                                    <span>{event.startTime} ~ {event.endTime}</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="h-2 bg-gray-50 my-2" />
-
                     {/* 4. Density Graph */}
                     <div className="p-5 overflow-hidden">
                         <h2 className="text-lg font-bold mb-1">언제가 가장 좋을까요? 🤔</h2>
@@ -437,7 +412,7 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
                         onClick={handleEdit}
                         className="flex-1 py-3.5 px-4 rounded-2xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
                     >
-                        내 일정 수정하기 ✏️
+                        일정 수정하기 ✏️
                     </button>
                     <button
                         onClick={handleComplete}
