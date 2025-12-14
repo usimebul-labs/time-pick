@@ -58,9 +58,9 @@ export function ShareCalendarDialog({
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <SheetContent side="bottom" className="rounded-t-xl">
                 <SheetHeader className="text-left mb-4">
-                    <SheetTitle>캘린더가 생성되었습니다!</SheetTitle>
+                    <SheetTitle>일정 공유하기</SheetTitle>
                     <SheetDescription>
-                        링크를 공유하여 친구들을 초대해보세요.
+                        친구들에게 일정을 공유해보세요.
                     </SheetDescription>
                 </SheetHeader>
 
@@ -96,7 +96,7 @@ export function ShareCalendarDialog({
 
                 <SheetFooter>
                     <Button onClick={onClose} className="w-full h-12 text-base">
-                        확인 (일정으로 이동)
+                        닫기
                     </Button>
                 </SheetFooter>
             </SheetContent>

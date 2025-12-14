@@ -579,6 +579,40 @@ export async function deleteParticipant(participantId: string): Promise<{ succes
     }
 }
 
+export async function deleteEvent(eventId: string): Promise<{ success: boolean; error?: string }> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { success: false, error: "로그인이 필요합니다." };
+    }
+
+    try {
+        const event = await prisma.event.findUnique({
+            where: { id: eventId }
+        });
+
+        if (!event) {
+            return { success: false, error: "일정을 찾을 수 없습니다." };
+        }
+
+        if (event.hostId !== user.id) {
+            return { success: false, error: "권한이 없습니다." };
+        }
+
+        await prisma.event.delete({
+            where: { id: eventId }
+        });
+
+        revalidatePath('/app/dashboard');
+        return { success: true };
+    } catch (e) {
+        console.error("Error deleting event:", e);
+        return { success: false, error: "일정 삭제 중 오류가 발생했습니다." };
+    }
+}
+
+
 export type UpdateEventState = {
     success?: boolean;
     error?: string;

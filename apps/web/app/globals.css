@@ -1,8 +1,17 @@
 @import "tailwindcss";
-@source "../../../packages/ui"; 
-@import "@stackflow/plugin-basic-ui/index.css"; 
+@source "../../../packages/ui";
+@import "@stackflow/plugin-basic-ui/index.css";
 
 @import "@repo/ui/globals.css";
-@layer utilities {
-  
+
+@layer utilities {}
+
+/* Ensure Radix UI does not hide the dashboard content or collapse height */
+/* Only target the direct app container to avoid affecting icons or other internal elements */
+body>[aria-hidden="true"] {
+    display: inherit !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: 100% !important;
+    min-height: 100vh !important;
 }
