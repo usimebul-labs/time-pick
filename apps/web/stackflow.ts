@@ -10,7 +10,8 @@ import Share from "./activities/app/calendar/Share";
 import Select from "./activities/app/calendar/Select";
 import Result from "./activities/app/calendar/Result";
 import Confirm from "./activities/app/calendar/Confirm";
-import Confirmed from "./activities/app/calendar/Confirmed";
+import Link from "next/link";
+import Status from "./activities/app/calendar/Status";
 import Modify from "./activities/app/calendar/Modify";
 import Join from "./activities/app/calendar/Join";
 import {
@@ -40,7 +41,7 @@ const activities = {
   SelectEdit: Select,
   Result,
   Confirm,
-  Confirmed,
+  Status,
   Modify,
   Join,
   CreateBasicInfo,
@@ -79,7 +80,7 @@ const stack = stackflow({
         SelectEdit: "/app/calendar/:id/edit",
         Result: "/app/calendar/:id/results",
         Confirm: "/app/calendar/:id/confirm",
-        Confirmed: "/app/calendar/:id/confirmed",
+        Status: "/app/calendar/:id/status",
         Modify: "/app/calendar/:id/modify",
       },
       fallbackActivity: () => "Landing",

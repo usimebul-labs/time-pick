@@ -56,7 +56,7 @@ export function useSelect(id: string) {
             }
 
             if (participation && activity.name !== "SelectEdit") {
-                replace("Confirmed", { id });
+                replace("Status", { id });
                 return;
             }
 
@@ -149,7 +149,7 @@ export function useSelect(id: string) {
             if (result.success) {
                 await queryClient.invalidateQueries({ queryKey: ['event', id] });
                 alert("일정이 등록되었습니다.");
-                replace("Confirmed", { id: event.id });
+                replace("Status", { id: event.id });
             } else {
                 alert(result.error);
             }
