@@ -3,11 +3,9 @@ import { basicUIPlugin } from "@stackflow/plugin-basic-ui";
 import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
 import { historySyncPlugin } from "@stackflow/plugin-history-sync";
 import Landing from "./activities/Landing";
-import Main from "./activities/app/Main";
 import Dashboard from "./activities/app/Dashboard";
 import Login from "./activities/app/Login";
 import Error from "./activities/app/auth/Error";
-import CalendarTest from "./activities/app/CalendarTest";
 import Share from "./activities/app/calendar/Share";
 import Select from "./activities/app/calendar/Select";
 import Result from "./activities/app/calendar/Result";
@@ -34,11 +32,9 @@ const groupRoutes = (prefix: string, routes: Record<string, string>) => {
 
 const activities = {
   Landing,
-  Main,
   Dashboard,
   Login,
   Error,
-  CalendarTest,
   Share,
   Select,
   SelectEdit: Select,
@@ -67,11 +63,9 @@ const stack = stackflow({
     historySyncPlugin({
       routes: {
         Landing: "/",
-        Main: "/app",
         Dashboard: "/app/dashboard",
         Login: "/app/login",
         Error: "/app/auth/auth-code-error",
-        CalendarTest: "/app/calendar-test",
         ...groupRoutes("/app/calendar/new", {
           CreateBasicInfo: "",
           CreateCalendarType: "/type",
