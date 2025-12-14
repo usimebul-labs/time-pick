@@ -1,12 +1,14 @@
 "use client";
 
 import { differenceInCalendarDays, isSameDay, parseISO } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { EventDetail, getEventWithParticipation, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { useFlow } from "@/stackflow";
+import { useEventQuery } from "@/hooks/queries/useEventQuery";
 
 import { useActivity } from "@stackflow/react";
 import { useGuestStore } from "@/stores/guest";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useSelect(id: string) {
     const [event, setEvent] = useState<EventDetail | null>(null);
@@ -22,63 +24,81 @@ export function useSelect(id: string) {
 
     const { replace } = useFlow();
     const activity = useActivity();
+    const queryClient = useQueryClient();
 
+    // State for guest PIN
+    const [guestPin, setGuestPin] = useState<string | undefined>(undefined);
+
+    // Initial load of guest PIN
     useEffect(() => {
-        const fetchEvent = async () => {
-            // Get guest PIN
-            const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
-            const guestPin = guestSessions[id];
+        const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
+        setGuestPin(guestSessions[id]);
+    }, [id]);
 
-            const { event, participation, participants, isLoggedIn, error } = await getEventWithParticipation(id, guestPin);
+    // Use Query hook
+    const { data, isLoading: queryLoading, error: queryError } = useEventQuery(id, guestPin);
 
-            if (error) {
-                setError(error);
-            } else {
-                // Redirect if not logged in and not a guest (no participation)
-                const pendingGuest = useGuestStore.getState().pendingGuest;
-                const isPendingGuest = pendingGuest && pendingGuest.eventId === id;
+    // Derived state from query data
+    useEffect(() => {
+        if (!data) return;
+        const { event, participation, participants, isLoggedIn, error } = data;
 
-                if (!isLoggedIn && !participation && !isPendingGuest) {
-                    replace("Join", { id });
-                    return;
-                }
+        if (error) {
+            setError(error);
+        } else {
+            // Redirect logic
+            const pendingGuest = useGuestStore.getState().pendingGuest;
+            const isPendingGuest = pendingGuest && pendingGuest.eventId === id;
 
-                // Redirect to Confirmed if already participated (and not editing)
-                if (participation && activity.name !== "SelectEdit") {
-                    replace("Confirmed", { id });
-                    return;
-                }
+            if (!isLoggedIn && !participation && !isPendingGuest) {
+                replace("Join", { id });
+                return;
+            }
 
-                setEvent(event);
-                setParticipation(participation);
+            if (participation && activity.name !== "SelectEdit") {
+                replace("Confirmed", { id });
+                return;
+            }
 
-                // Sort participants: Me first, then others
-                let sortedParticipants = participants || [];
-                if (participation) {
-                    const meIndex = sortedParticipants.findIndex(p => p.id === participation.id);
-                    if (meIndex > -1) {
-                        const me = sortedParticipants[meIndex];
-                        if (me) {
-                            const others = [...sortedParticipants];
-                            others.splice(meIndex, 1);
-                            sortedParticipants = [me, ...others];
-                        }
+            setEvent(event);
+            setParticipation(participation);
+            // setParticipants will be handled by sorting logic below or directly
+
+            setIsLoggedIn(isLoggedIn);
+        }
+        setLoading(false);
+    }, [data, id, replace, activity.name]);
+
+    // Initialize selectedDates from participation (only once when loaded)
+    // We use a ref to track if we've initialized to avoid overwriting user edits
+    const initializedRef = useRef(false);
+    useEffect(() => {
+        if (data?.participation?.availabilities && !initializedRef.current) {
+            setSelectedDates(data.participation.availabilities.map((d) => parseISO(d)));
+            initializedRef.current = true;
+        }
+    }, [data?.participation]);
+
+
+    // Update participants list and sort (Sync with server updates)
+    useEffect(() => {
+        if (data?.participants) {
+            let sortedParticipants = data.participants || [];
+            if (data.participation) {
+                const meIndex = sortedParticipants.findIndex(p => p.id === data.participation?.id);
+                if (meIndex > -1) {
+                    const me = sortedParticipants[meIndex];
+                    if (me) {
+                        const others = [...sortedParticipants];
+                        others.splice(meIndex, 1);
+                        sortedParticipants = [me, ...others];
                     }
                 }
-                setParticipants(sortedParticipants);
-                // Default: No one selected (Show all stats)
-                setSelectedParticipantIds([]);
-
-                setIsLoggedIn(isLoggedIn);
-
-                if (participation?.availabilities) {
-                    setSelectedDates(participation.availabilities.map((d) => parseISO(d)));
-                }
             }
-            setLoading(false);
-        };
-        fetchEvent();
-    }, [id, replace, activity.name]);
+            setParticipants(sortedParticipants);
+        }
+    }, [data?.participants, data?.participation]);
+
 
 
     const toggleParticipant = (id: string) => {
@@ -127,6 +147,7 @@ export function useSelect(id: string) {
             let result = await joinSchedule(event.id, selectedDates.map(d => d.toISOString()), { pin: guestPin });
 
             if (result.success) {
+                await queryClient.invalidateQueries({ queryKey: ['event', id] });
                 alert("일정이 등록되었습니다.");
                 replace("Confirmed", { id: event.id });
             } else {

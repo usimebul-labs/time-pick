@@ -1,5 +1,7 @@
 'use client';
 
+import { useEventQuery } from "@/hooks/queries/useEventQuery";
+
 import { EventDetail, getEventWithParticipation, ParticipantSummary } from "@/app/actions/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
@@ -25,10 +27,20 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 
 export default function Confirmed({ params: { id } }: { params: { id: string } }) {
-    const [event, setEvent] = useState<EventDetail | null>(null);
-    const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    // State for guest PIN
+    const [guestPin, setGuestPin] = useState<string | undefined>(undefined);
+
+    // Initial load of guest PIN
+    useEffect(() => {
+        const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
+        setGuestPin(guestSessions[id]);
+    }, [id]);
+
+    const { data, isLoading, error: queryError } = useEventQuery(id, guestPin);
+
+    const event = data?.event || null;
+    const participants = data?.participants || [];
+    const error = data?.error || queryError?.message || null;
 
     // Advanced Features State
     const [selectedVipIds, setSelectedVipIds] = useState<Set<string>>(new Set());
@@ -94,23 +106,6 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
         }
     };
 
-    useEffect(() => {
-        const fetchEvent = async () => {
-            const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
-            const guestPin = guestSessions[id];
-
-            const { event, participants, error } = await getEventWithParticipation(id, guestPin);
-
-            if (error) {
-                setError(error);
-            } else {
-                setEvent(event);
-                setParticipants(participants || []);
-            }
-            setLoading(false);
-        };
-        fetchEvent();
-    }, [id]);
 
     const handleVipToggle = (participantId: string) => {
         const newSet = new Set(selectedVipIds);
@@ -281,7 +276,7 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
         }
     };
 
-    if (loading) return (
+    if (isLoading) return (
         <AppScreen>
             <div className="flex justify-center items-center h-screen bg-gray-50">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

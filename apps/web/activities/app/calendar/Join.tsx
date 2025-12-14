@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useFlow } from "@/stackflow";
 import { useGuestStore } from "@/stores/guest";
+import { useEventQuery } from "@/hooks/queries/useEventQuery";
 
 
 
@@ -17,18 +18,16 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
     const [hostName, setHostName] = useState<string>("");
     const [hostAvatar, setHostAvatar] = useState<string>("");
 
+    const { data } = useEventQuery(id);
+    const event = data?.event;
+
     useEffect(() => {
-        const fetchEventInfo = async () => {
-            const { getEventWithParticipation } = await import("@/app/actions/calendar");
-            const { event } = await getEventWithParticipation(id);
-            if (event) {
-                setEventTitle(event.title);
-                setHostName(event.hostName || "");
-                setHostAvatar(event.hostAvatarUrl || "");
-            }
-        };
-        fetchEventInfo();
-    }, [id]);
+        if (event) {
+            setEventTitle(event.title);
+            setHostName(event.hostName || "");
+            setHostAvatar(event.hostAvatarUrl || "");
+        }
+    }, [event]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
