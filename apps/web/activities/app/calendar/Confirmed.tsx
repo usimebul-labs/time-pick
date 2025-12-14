@@ -6,7 +6,7 @@ import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { addMinutes, eachDayOfInterval, format, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Calendar as CalendarIcon, Clock, MapPin, Users } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, Label, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useFlow } from "../../../stackflow";
 
@@ -36,6 +36,63 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
     const [selectedCount, setSelectedCount] = useState<number | null>(null);
 
     const { replace } = useFlow();
+
+    // Dragging Logic
+    const [isDragging, setIsDragging] = useState(false);
+    const chartRef = useRef<HTMLDivElement>(null);
+    const maxCount = useMemo(() => participants.length || 1, [participants]);
+
+    const handlePointerDown = (e: React.PointerEvent) => {
+        setIsDragging(true);
+        updateSelection(e.clientY);
+        e.currentTarget.setPointerCapture(e.pointerId);
+    };
+
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!isDragging) return;
+        updateSelection(e.clientY);
+    };
+
+    const handlePointerUp = (e: React.PointerEvent) => {
+        setIsDragging(false);
+        e.currentTarget.releasePointerCapture(e.pointerId);
+    };
+
+    const updateSelection = (clientY: number) => {
+        if (!chartRef.current) return;
+        const rect = chartRef.current.getBoundingClientRect();
+
+        // Margins in Recharts (Top: 10, Bottom: 30 for XAxis labels mostly)
+        // We need to approximate the chart area.
+        // Let's assume top padding 20px and bottom padding 30px for axis.
+        const chartTop = rect.top + 10;
+        const chartHeight = rect.height - 40; // Approx inner chart height
+
+        // Calculate relative Y (0 at top, 1 at bottom)
+        let relativeY = (clientY - chartTop) / chartHeight;
+
+        // Clamp 0-1
+        relativeY = Math.max(0, Math.min(1, relativeY));
+
+        // Invert Y (Graph Y origin is usually bottom)
+        // Recharts CartesianGrid Y axis: 0 is at bottom.
+        // value = max * (1 - relativeY)
+        const value = Math.round(maxCount * (1 - relativeY));
+
+        // Valid Range check
+        const clampedValue = Math.max(0, Math.min(maxCount, value));
+
+        if (clampedValue === 0) {
+            setSelectedCount(null);
+            setSelectedSlot(null);
+            return;
+        }
+
+        if (selectedCount !== clampedValue) {
+            setSelectedCount(clampedValue);
+            setSelectedSlot(null); // Clear slot selection
+        }
+    };
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -129,22 +186,14 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
         return Object.values(slotData).sort((a, b) => a.time.localeCompare(b.time));
     }, [event, participants, selectedVipIds]);
 
-    const handleYAxisClick = (count: number) => {
-        if (selectedCount === count) {
-            setSelectedCount(null);
-        } else {
-            setSelectedCount(count);
-            // Clear slot selection when filtering by count to avoid confusion
-            setSelectedSlot(null);
-        }
-    };
+
 
     // Custom Tick for clickable Y-Axis
     const CustomYAxisTick = (props: any) => {
         const { x, y, payload } = props;
         const isSelected = selectedCount === payload.value;
         return (
-            <g transform={`translate(${x},${y})`} style={{ cursor: 'pointer' }} onClick={() => handleYAxisClick(payload.value)}>
+            <g transform={`translate(${x},${y})`}>
                 <text
                     x={0}
                     y={0}
@@ -261,10 +310,45 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
                             {selectedCount !== null ? (
                                 <span className="text-primary font-bold">{selectedCount}명이 가능한 시간들이에요!</span>
                             ) : (
-                                "참여 인원 수(Y축)를 누르면 해당 날짜를 볼 수 있어요!"
+                                "왼쪽 슬라이더를 위아래로 움직여서 확인해보세요!"
                             )}
                         </p>
-                        <div className="h-56 w-[calc(100%+var(--spacing)*2)] -ml-2">
+                        <div className="h-56 w-[calc(100%+var(--spacing)*2)] ml-3 relative select-none touch-none" ref={chartRef}>
+                            {/* Drag Overlay */}
+                            <div
+                                className="absolute top-2 -left-7 bottom-8 w-8 z-20 cursor-ns-resize flex flex-col items-center"
+                                onPointerDown={handlePointerDown}
+                                onPointerMove={handlePointerMove}
+                                onPointerUp={handlePointerUp}
+                                onPointerLeave={handlePointerUp} // Safety
+                            >
+                                {/* Visual Track (Background) */}
+                                <div className="absolute top-0 bottom-0 w-1.5 bg-gray-100/80 rounded-full" />
+
+                                {/* Visual Track (Active Fill) */}
+                                <div
+                                    className="absolute bottom-0 w-1.5 bg-primary/20 rounded-full transition-all duration-75"
+                                    style={{ height: `${((selectedCount ?? 0) / maxCount) * 100}%` }}
+                                />
+
+                                {/* Handle Button */}
+                                <div
+                                    className={`absolute w-6 h-6 bg-white rounded-full shadow-[0_2px_12px_rgba(249,115,22,0.25)] border-[2px] border-white ring-1 ring-orange-100 flex items-center justify-center z-30 transition-transform duration-100 ${isDragging ? 'scale-110' : 'scale-100'}`}
+                                    style={{
+                                        bottom: `${((selectedCount ?? 0) / maxCount) * 100}%`,
+                                        transform: `translateY(50%)` // Center vertically
+                                    }}
+                                >
+                                    {/* Inner dot or text? Text is useful. Let's make it look like a badge. */}
+                                    <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+                                        <span className="text-[10px] font-extrabold text-primary pt-[1px]">{selectedCount ?? 0}</span>
+                                    </div>
+
+                                    {/* Active Glow/Ring */}
+                                    {isDragging && <div className="absolute inset-0 rounded-full ring-2 ring-primary ring-offset-2 transition-all" />}
+                                </div>
+                            </div>
+
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart
                                     data={chartData}
@@ -284,10 +368,9 @@ export default function Confirmed({ params: { id } }: { params: { id: string } }
                                         minTickGap={30}
                                     />
                                     <YAxis
-                                        domain={[0, 'dataMax + 1']}
-                                        allowDecimals={false}
-                                        tick={<CustomYAxisTick />}
-                                        width={40}
+                                        domain={[0, maxCount]}
+                                        hide
+                                        width={0}
                                     />
                                     <Tooltip cursor={{ fill: 'transparent' }} content={<CustomTooltip />} />
                                     <Area
