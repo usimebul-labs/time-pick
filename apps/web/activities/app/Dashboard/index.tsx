@@ -4,7 +4,7 @@ import { DashboardHeader } from "./components/DashboardHeader";
 import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
 import { ScheduleList } from "./components/ScheduleList";
-import { INITIAL_DISPLAY_COUNT, useDashboard } from "./useDashboard";
+import { INITIAL_DISPLAY_COUNT, useDashboard } from "./hooks/useDashboard";
 
 export default function Dashboard() {
     const {

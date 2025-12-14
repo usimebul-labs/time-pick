@@ -2,7 +2,7 @@ import { DashboardSchedule, getUserSchedules, deleteEvent } from "@/app/actions/
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { useFlow } from "../../../stackflow";
+import { useFlow } from "../../../../stackflow";
 
 // Constants
 export const INITIAL_DISPLAY_COUNT = 3;

@@ -3,7 +3,7 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { GuestForm } from "./components/GuestForm";
 import { JoinHeader } from "./components/JoinHeader";
-import { useJoin } from "./useJoin";
+import { useJoin } from "./hooks/useJoin";
 
 export default function Join({ params: { id } }: { params: { id: string } }) {
     const {
