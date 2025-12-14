@@ -1,8 +1,8 @@
 import { useEventQuery } from "@/hooks/queries/useEventQuery";
 import { ParticipantSummary } from "@/app/actions/calendar";
-import { useFlow } from "../../../stackflow";
 import { addMinutes, eachDayOfInterval, format, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
+import { useFlow } from "@/stackflow";
 
 export type ChartDataPoint = {
     time: string;
