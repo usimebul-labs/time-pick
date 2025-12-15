@@ -3,6 +3,7 @@ import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 import { Calendar, ChevronDown, ChevronUp, MoreVertical, Share2, Users } from "lucide-react";
 import { ParticipantFacepile } from "./ParticipantFacepile";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 
 interface ScheduleListProps {
     title: string;
@@ -38,6 +39,23 @@ export function ScheduleList({
     type
 }: ScheduleListProps) {
     const displayedSchedules = showAll ? schedules : schedules.slice(0, initialDisplayCount);
+
+    const getDDay = (deadline: string) => {
+        const today = new Date();
+        const target = parseISO(deadline);
+        const diff = differenceInCalendarDays(target, today);
+
+        if (diff < 0) return null; // Already passed
+
+        const isUrgent = diff <= 3;
+        const text = diff === 0 ? "D-Day" : `D-${diff}`;
+
+        return (
+            <span className={`ml-1.5 font-bold ${isUrgent ? "text-red-500" : "text-gray-500"}`}>
+                ({text})
+            </span>
+        );
+    };
 
     return (
         <section>
@@ -79,8 +97,13 @@ export function ScheduleList({
                             {type === 'my' ? (
                                 <>
                                     <h3 className="text-[17px] font-bold text-gray-900 mb-1 pr-16 leading-tight line-clamp-1">{schedule.title}</h3>
-                                    <p className="text-xs text-gray-500 font-medium mb-4">
-                                        {schedule.deadline ? `${schedule.deadline} 마감` : "마감일 없음"}
+                                    <p className="text-xs text-gray-500 font-medium mb-4 flex items-center">
+                                        {schedule.deadline ? (
+                                            <>
+                                                {schedule.deadline} 마감
+                                                {getDDay(schedule.deadline)}
+                                            </>
+                                        ) : "마감일 없음"}
                                     </p>
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-50">
                                         <div className="flex items-center gap-2">
@@ -115,8 +138,13 @@ export function ScheduleList({
                                                 <span className="text-xs text-gray-400">없음</span>
                                             )}
                                         </div>
-                                        <span className="text-xs text-gray-400 font-medium">
-                                            {schedule.deadline ? `${schedule.deadline} 까지` : "상시"}
+                                        <span className="text-xs text-gray-400 font-medium flex items-center">
+                                            {schedule.deadline ? (
+                                                <>
+                                                    {schedule.deadline} 까지
+                                                    {getDDay(schedule.deadline)}
+                                                </>
+                                            ) : "상시"}
                                         </span>
                                     </div>
                                 </>
