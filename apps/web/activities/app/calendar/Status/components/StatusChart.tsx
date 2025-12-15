@@ -1,5 +1,5 @@
 import { format, parseISO } from "date-fns";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChartDataPoint, SelectedSlot } from "../useStatus";
 import { ParticipantSummary, EventDetail } from "@/app/actions/calendar";
@@ -38,23 +38,193 @@ export function StatusChart({
     participants,
     event
 }: StatusChartProps) {
-    const [isDragging, setIsDragging] = useState(false);
     const chartRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [isDraggingSlider, setIsDraggingSlider] = useState(false);
 
+    // Window State
+    const totalData = chartData.length;
+    const minVisible = 5; // Minimum items to show
+    // Default window size: min(total, 30)
+    const [visibleCount, setVisibleCount] = useState(() => Math.min(totalData, 30));
+    const [startIndex, setStartIndex] = useState(0);
+
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Derived State
+    // Ensure we don't go out of bounds
+    const safeVisibleCount = Math.min(visibleCount, totalData);
+    const safeStartIndex = Math.max(0, Math.min(startIndex, totalData - safeVisibleCount));
+
+    const visibleData = chartData.slice(safeStartIndex, safeStartIndex + safeVisibleCount);
+
+    // Zoom Logic (Wheel)
+    // Use layout effect or effect to attach non-passive listener
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const onWheel = (e: WheelEvent) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const delta = e.deltaY > 0 ? 1 : -1;
+                // Use current state values from refs or closure if dependencies update
+                // Since this effect depends on state, it will re-bind. 
+                // To avoid stale closures without re-binding too much, we can rely on React re-binding or use refs.
+                // Re-binding is fine for now.
+
+                const step = Math.max(1, Math.round(safeVisibleCount * 0.1));
+                const change = delta * step;
+
+                let newVisibleCount = safeVisibleCount + change;
+                newVisibleCount = Math.max(minVisible, Math.min(newVisibleCount, totalData));
+
+                if (newVisibleCount !== safeVisibleCount) {
+                    let newStartIndex = safeStartIndex;
+                    if (newStartIndex + newVisibleCount > totalData) {
+                        newStartIndex = Math.max(0, totalData - newVisibleCount);
+                    }
+                    setVisibleCount(newVisibleCount);
+                    setStartIndex(newStartIndex);
+                }
+            } else {
+                if (e.deltaX !== 0 || e.deltaY !== 0) {
+                    // For horizontal scroll (pan), we might generally want native behavior if it's just scrolling the page?
+                    // BUT if we want to pan the CHART, we should prevent default horizontal scroll of page (if any).
+                    // If we are strictly panning the chart:
+                    const move = (e.deltaX !== 0 ? e.deltaX : e.deltaY) > 0 ? 1 : -1;
+                    const step = Math.max(1, Math.round(safeVisibleCount * 0.05));
+                    let newStartIndex = safeStartIndex + (move * step);
+                    newStartIndex = Math.max(0, Math.min(newStartIndex, totalData - safeVisibleCount));
+
+                    if (newStartIndex !== safeStartIndex) {
+                        // Create a "scrollable area" feeling
+                        // If we are consuming the scroll, prevent default?
+                        // If we prevent default, the page won't scroll vertically either.
+                        // Usually, prevent default only if we successfully panned?
+                        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                            // Horizontal intent -> Pan chart
+                            e.preventDefault();
+                            setStartIndex(newStartIndex);
+                        } else {
+                            // Vertical intent -> Let page scroll
+                        }
+                    }
+                }
+            }
+        };
+
+        container.addEventListener('wheel', onWheel, { passive: false });
+
+        return () => {
+            container.removeEventListener('wheel', onWheel);
+        };
+    }, [safeVisibleCount, safeStartIndex, totalData, minVisible]);
+
+    // Pan Logic (Drag on Chart)
+    const [isPanning, setIsPanning] = useState(false);
+    const lastPanX = useRef<number | null>(null);
+
+    const handlePanDown = (e: React.PointerEvent) => {
+        // Only pan if not clicking on the slider or specific elements
+        // But the slider is outside the chart area generally
+        setIsPanning(true);
+        lastPanX.current = e.clientX;
+        e.currentTarget.setPointerCapture(e.pointerId);
+    };
+
+    const handlePanMove = (e: React.PointerEvent) => {
+        if (!isPanning || lastPanX.current === null) return;
+
+        const deltaX = lastPanX.current - e.clientX;
+        // Sensitivity: 1 pixel = ? items.
+        // Let's say 1 item per ~10-20 pixels usually, or calculate based on width.
+        // Simple approximation:
+        if (chartRef.current) {
+            const width = chartRef.current.clientWidth;
+            // items moved = (delta / width) * visibleCount
+            const itemsMoved = (deltaX / width) * safeVisibleCount;
+
+            if (Math.abs(itemsMoved) >= 1) {
+                const step = Math.round(itemsMoved);
+                let newStartIndex = safeStartIndex + step;
+                newStartIndex = Math.max(0, Math.min(newStartIndex, totalData - safeVisibleCount));
+
+                if (newStartIndex !== safeStartIndex) {
+                    setStartIndex(newStartIndex);
+                    lastPanX.current = e.clientX;
+                }
+            }
+        }
+    };
+
+    const handlePanUp = (e: React.PointerEvent) => {
+        setIsPanning(false);
+        lastPanX.current = null;
+        e.currentTarget.releasePointerCapture(e.pointerId);
+    };
+
+    // Slider Logic
+    const handleSliderDown = (e: React.PointerEvent) => {
+        e.stopPropagation(); // Prevent chart pan
+    };
+
+    // Scrollbar Drag Logic
+    const [isScrolling, setIsScrolling] = useState(false);
+    const scrollStartX = useRef<number | null>(null);
+    const scrollStartIndexInit = useRef<number>(0);
+
+    const handleScrollMouseDown = (e: React.PointerEvent) => {
+        e.stopPropagation();
+        setIsScrolling(true);
+        scrollStartX.current = e.clientX;
+        scrollStartIndexInit.current = safeStartIndex;
+        e.currentTarget.setPointerCapture(e.pointerId);
+    };
+
+    const handleScrollMouseMove = (e: React.PointerEvent) => {
+        if (!isScrolling || scrollStartX.current === null || !scrollContainerRef.current) return;
+        const deltaX = e.clientX - scrollStartX.current;
+        const containerWidth = scrollContainerRef.current.clientWidth;
+
+        // Ratio of movement
+        // full width = totalData
+        // movement % = deltaX / containerWidth
+        // items moved = movement % * totalData
+        const itemsMoved = Math.round((deltaX / containerWidth) * totalData);
+
+        let newStartIndex = scrollStartIndexInit.current + itemsMoved;
+        newStartIndex = Math.max(0, Math.min(newStartIndex, totalData - safeVisibleCount));
+        setStartIndex(newStartIndex);
+    };
+
+    const handleScrollMouseUp = (e: React.PointerEvent) => {
+        setIsScrolling(false);
+        scrollStartX.current = null;
+        e.currentTarget.releasePointerCapture(e.pointerId);
+    };
+
+
+    // Existing Slider Logic (Vertical Selection)
     const handlePointerDown = (e: React.PointerEvent) => {
-        setIsDragging(true);
+        e.stopPropagation(); // Stop propagation to prevent chart panning
+        setIsDraggingSlider(true);
         updateSelection(e.clientY);
         e.currentTarget.setPointerCapture(e.pointerId);
     };
 
     const handlePointerMove = (e: React.PointerEvent) => {
-        if (!isDragging) return;
+        if (!isDraggingSlider) return;
         updateSelection(e.clientY);
+        e.stopPropagation();
     };
 
     const handlePointerUp = (e: React.PointerEvent) => {
-        setIsDragging(false);
+        setIsDraggingSlider(false);
         e.currentTarget.releasePointerCapture(e.pointerId);
+        e.stopPropagation();
     };
 
     const updateSelection = (clientY: number) => {
@@ -82,8 +252,7 @@ export function StatusChart({
         }
     };
 
-    // Custom Dot Component (Defined inside to access props/state closure if needed, or pass props)
-    // But better to define outside or use props
+    // Custom Dot Component
     const CustomizedDot = (props: any) => {
         const { cx, cy, payload } = props;
 
@@ -109,6 +278,8 @@ export function StatusChart({
     };
 
     const handleChartClick = (data: any) => {
+        // Prevent click if we were panning? simple click usually doesn't involve much movement
+        // Recharts onClick might trigger after pan, but let's assume valid for now if minimal movement
         let targetSlot = null;
         if (data && data.activePayload && data.activePayload.length > 0) {
             targetSlot = data.activePayload[0].payload;
@@ -136,8 +307,9 @@ export function StatusChart({
         }
     };
 
+
     return (
-        <div className="p-5 overflow-hidden">
+        <div className="p-5 overflow-hidden select-none">
             <h2 className="text-lg font-bold mb-1">언제가 가장 좋을까요? 🤔</h2>
             <p className="text-sm text-gray-500 mb-6">
                 {selectedCount !== null ? (
@@ -146,73 +318,108 @@ export function StatusChart({
                     "왼쪽 슬라이더를 위아래로 움직여서 확인해보세요!"
                 )}
             </p>
-            <div className="h-56 w-[calc(100%+var(--spacing)*2)] ml-3 relative select-none touch-none" ref={chartRef}>
-                {/* Drag Overlay */}
+
+            <div
+                className="relative"
+                ref={containerRef}
+            >
                 <div
-                    className="absolute top-2 -left-7 bottom-8 w-8 z-20 cursor-ns-resize flex flex-col items-center"
-                    onPointerDown={handlePointerDown}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                    onPointerLeave={handlePointerUp}
+                    className="h-56 w-[calc(100%+var(--spacing)*2)] ml-3 relative touch-none"
+                    ref={chartRef}
+                    onPointerDown={handlePanDown}
+                    onPointerMove={handlePanMove}
+                    onPointerUp={handlePanUp}
+                    onPointerLeave={handlePanUp}
                 >
-                    <div className="absolute top-0 bottom-0 w-1.5 bg-gray-100/80 rounded-full" />
+                    {/* Valid Drag Overlay (Vertical Slider) */}
                     <div
-                        className="absolute bottom-0 w-1.5 bg-primary/20 rounded-full transition-all duration-75"
-                        style={{ height: `${((selectedCount ?? 0) / maxCount) * 100}%` }}
-                    />
-                    <div
-                        className={`absolute w-6 h-6 bg-white rounded-full shadow-[0_2px_12px_rgba(249,115,22,0.25)] border-[2px] border-white ring-1 ring-orange-100 flex items-center justify-center z-30 transition-transform duration-100 ${isDragging ? 'scale-110' : 'scale-100'}`}
-                        style={{
-                            bottom: `${((selectedCount ?? 0) / maxCount) * 100}%`,
-                            transform: `translateY(50%)`
-                        }}
+                        className="absolute top-2 -left-7 bottom-8 w-8 z-20 cursor-ns-resize flex flex-col items-center touch-none"
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerLeave={handlePointerUp}
                     >
-                        <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                            <span className="text-[10px] font-extrabold text-primary pt-[1px]">{selectedCount ?? 0}</span>
+                        <div className="absolute top-0 bottom-0 w-1.5 bg-gray-100/80 rounded-full" />
+                        <div
+                            className="absolute bottom-0 w-1.5 bg-primary/20 rounded-full transition-all duration-75"
+                            style={{ height: `${((selectedCount ?? 0) / maxCount) * 100}%` }}
+                        />
+                        <div
+                            className={`absolute w-6 h-6 bg-white rounded-full shadow-[0_2px_12px_rgba(249,115,22,0.25)] border-[2px] border-white ring-1 ring-orange-100 flex items-center justify-center z-30 transition-transform duration-100 ${isDraggingSlider ? 'scale-110' : 'scale-100'}`}
+                            style={{
+                                bottom: `${((selectedCount ?? 0) / maxCount) * 100}%`,
+                                transform: `translateY(50%)`
+                            }}
+                        >
+                            <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+                                <span className="text-[10px] font-extrabold text-primary pt-[1px]">{selectedCount ?? 0}</span>
+                            </div>
+                            {isDraggingSlider && <div className="absolute inset-0 rounded-full ring-2 ring-primary ring-offset-2 transition-all" />}
                         </div>
-                        {isDragging && <div className="absolute inset-0 rounded-full ring-2 ring-primary ring-offset-2 transition-all" />}
                     </div>
+
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart
+                            data={visibleData}
+                            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                            onClick={handleChartClick}
+                        >
+                            <defs>
+                                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                            <XAxis
+                                dataKey="time"
+                                tick={{ fontSize: 10, fill: '#6B7280' }}
+                                minTickGap={50}
+                            />
+                            <YAxis
+                                domain={[0, maxCount]}
+                                hide
+                                width={0}
+                            />
+                            <Tooltip cursor={{ fill: 'transparent' }} content={<CustomTooltip />} />
+                            <Area
+                                type="monotone"
+                                dataKey="count"
+                                stroke="#f97316"
+                                strokeWidth={2}
+                                fillOpacity={1}
+                                fill="url(#colorCount)"
+                                dot={<CustomizedDot />}
+                                activeDot={{ r: 6, stroke: '#f97316', strokeWidth: 2, fill: '#fff' }}
+                                isAnimationActive={false} // Disable animation for smoother zoom/pan
+                            />
+                            {selectedCount !== null && (
+                                <ReferenceLine y={selectedCount} stroke="#f97316" strokeDasharray="3 3" />
+                            )}
+                        </AreaChart>
+                    </ResponsiveContainer>
                 </div>
 
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                        data={chartData}
-                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                        onClick={handleChartClick}
+                {/* Horizontal Scrollbar / Zoom Indicator */}
+                <div className="mt-2 h-4 w-full px-4 flex items-center justify-center">
+                    <div
+                        ref={scrollContainerRef}
+                        className="w-full h-1.5 bg-gray-200 rounded-full relative cursor-pointer"
+                    // Optional: Click on track to jump? simplify to just thumb drag for now
                     >
-                        <defs>
-                            <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#f97316" stopOpacity={0.8} />
-                                <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                        <XAxis
-                            dataKey="time"
-                            tick={{ fontSize: 10, fill: '#6B7280' }}
-                            minTickGap={30}
+                        <div
+                            className="absolute top-0 bottom-0 bg-gray-400 rounded-full cursor-grab active:cursor-grabbing hover:bg-gray-500 transition-colors"
+                            style={{
+                                left: `${(safeStartIndex / totalData) * 100}%`,
+                                width: `${(safeVisibleCount / totalData) * 100}%`
+                            }}
+                            onPointerDown={handleScrollMouseDown}
+                            onPointerMove={handleScrollMouseMove}
+                            onPointerUp={handleScrollMouseUp}
+                            onPointerLeave={handleScrollMouseUp}
                         />
-                        <YAxis
-                            domain={[0, maxCount]}
-                            hide
-                            width={0}
-                        />
-                        <Tooltip cursor={{ fill: 'transparent' }} content={<CustomTooltip />} />
-                        <Area
-                            type="monotone"
-                            dataKey="count"
-                            stroke="#f97316"
-                            strokeWidth={2}
-                            fillOpacity={1}
-                            fill="url(#colorCount)"
-                            dot={<CustomizedDot />}
-                            activeDot={{ r: 6, stroke: '#f97316', strokeWidth: 2, fill: '#fff' }}
-                        />
-                        {selectedCount !== null && (
-                            <ReferenceLine y={selectedCount} stroke="#f97316" strokeDasharray="3 3" />
-                        )}
-                    </AreaChart>
-                </ResponsiveContainer>
+                    </div>
+                </div>
             </div>
         </div>
     );
