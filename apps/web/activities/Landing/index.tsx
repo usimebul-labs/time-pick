@@ -3,10 +3,10 @@ import { ActivityComponentType } from "@stackflow/react";
 import { LandingFooter } from "./components/LandingFooter";
 import { LandingHeader } from "./components/LandingHeader";
 import { LandingHero } from "./components/LandingHero";
-import { useLandingUser } from "./hooks/useLandingUser";
+import { useLoginedUser } from "../../common/hooks/useLoginedUser";
 
 const Landing: ActivityComponentType = () => {
-    const { user } = useLandingUser();
+    const { user } = useLoginedUser();
 
     return (
         <AppScreen>

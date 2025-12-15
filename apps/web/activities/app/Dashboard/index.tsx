@@ -6,6 +6,7 @@ import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
 import { ScheduleList } from "./components/ScheduleList";
 import { INITIAL_DISPLAY_COUNT, useDashboard } from "./hooks/useDashboard";
+import Loading from "@/common/components/Loading";
 
 export default function Dashboard() {
     const {
@@ -40,15 +41,8 @@ export default function Dashboard() {
         handleCardClick
     } = useDashboard();
 
-    if (loading) {
-        return (
-            <AppScreen>
-                <div className="flex items-center justify-center min-h-screen h-full bg-gray-50">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-            </AppScreen>
-        );
-    }
+    if (loading) return <Loading />
+
 
     return (
         <AppScreen>
