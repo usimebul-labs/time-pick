@@ -16,7 +16,11 @@ trigger: always_on
   - `useEffect` or direct API calls.
   - Complex event handler logic.
   - State definitions (`useState`) other than simple UI toggles.
-- **Naming**: `use[PageName].ts` (e.g., `useLoginPage`).
+- **Directory**: Custom hooks must be placed inside the `hooks` directory within the component folder.
+- **Logic Cohesion**:
+  - **Single Responsibility**: A hook should only contain **related** business logic. If a page handles distinct logical domains (e.g., "Form Validation" vs "Data Fetching"), split them into separate hooks (e.g., `useLoginForm.ts`, `usePageData.ts`) instead of creating one giant hook.
+- **Direct Consumption**:
+  - **Sub-component Usage**: If a sub-component requires specific business logic, it must **import and call the relevant Custom Hook directly**. Do not pass complex state or handlers from the parent `index.tsx` via props (Avoid Prop Drilling).
 
 ### B. Server Data Fetching
 - **Rule**: Server data fetching must be handled inside the Custom Hook.
@@ -37,13 +41,16 @@ trigger: always_on
 - **Structure**:
   - Create a folder named exactly after the component (e.g., `LoginPage/`).
   - Rename the main component file to `index.tsx` and move it inside.
-  - Place the extracted custom hook and related sub-components within this folder.
+  - Create a `hooks/` directory for logic.
+  - Place related sub-components within the folder.
 - **Example**:
   ```text
   /src/pages/LoginPage/
-  ├── index.tsx           (Main View)
-  ├── useLoginPage.ts     (Logic Hook)
-  └── components/         (Optional: Private sub-components)
+  ├── index.tsx           (Main View - Composition only)
+  ├── hooks/   
+  │   ├── useLoginData.ts (Data Fetching)
+  │   └── useAuthForm.ts  (Form Logic)
+  └── components/         (Sub-components)
   ```
 
 ## 3. Refactoring Instructions for AI
@@ -51,7 +58,13 @@ trigger: always_on
 1.  **Restructure (Folder Creation)**: 
     - Create a directory named `[ComponentName]`.
     - Move the original `[ComponentName].tsx` into this directory and rename it to `index.tsx`.
-2.  **Analyze**: Identify `useState`, `useEffect`, and API calls in the `index.tsx`.
-3.  **Separate**: Move all identified logic into a new file named `[ComponentName]/use[ComponentName].ts`.
-4.  **Clean Up**: Replace logic in the `index.tsx` with the hook call.
-5.  **Simplify**: If the component renders conditional blocks (like Guest Login), ensure they are wrapped in clean `{ condition && <SubComponent /> }` syntax and place `SubComponent` within the same folder.
+    - Create a `hooks` folder inside.
+2.  **Analyze**: Identify `useState`, `useEffect`, and API calls in the `index.tsx`. Group them by logical domain.
+3.  **Separate**: 
+    - Create distinct hooks in `hooks/` folder based on logic groups (e.g., `use[Feature].ts`).
+    - Move the logic into these hooks.
+4.  **Assign**: 
+    - If logic belongs to a specific sub-component, make the sub-component call the hook directly.
+    - If logic is for the main layout, call it in `index.tsx`.
+5.  **Clean Up**: Replace logic in the `index.tsx` with the hook calls or sub-components.
+6.  **Simplify**: If the component renders conditional blocks, wrap them in clean `{ condition && <SubComponent /> }` syntax.

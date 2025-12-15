@@ -1,26 +1,24 @@
-import { stackflow } from "@stackflow/react";
 import { basicUIPlugin } from "@stackflow/plugin-basic-ui";
-import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
 import { historySyncPlugin } from "@stackflow/plugin-history-sync";
+import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
+import { stackflow } from "@stackflow/react";
 import Landing from "./activities/Landing";
 import Dashboard from "./activities/app/Dashboard";
 import Login from "./activities/app/Login";
 import Error from "./activities/app/auth/Error";
-import Share from "./activities/app/calendar/Share";
-import Select from "./activities/app/calendar/Select";
-import Result from "./activities/app/calendar/Result";
 import Confirm from "./activities/app/calendar/Confirm";
-import Link from "next/link";
-import Status from "./activities/app/calendar/Status";
-import Modify from "./activities/app/calendar/Modify";
-import Join from "./activities/app/calendar/Join";
 import {
   CreateBasicInfo,
   CreateCalendarType,
   CreateDateRange,
-  CreateExclusions,
   CreateDeadline,
+  CreateExclusions,
 } from "./activities/app/calendar/Create";
+import Join from "./activities/app/calendar/Join";
+import Modify from "./activities/app/calendar/Modify";
+import Result from "./activities/app/calendar/Result";
+import Select from "./activities/app/calendar/Select";
+import Status from "./activities/app/calendar/Status";
 
 const groupRoutes = (prefix: string, routes: Record<string, string>) => {
   const grouped: Record<string, string> = {};
@@ -36,7 +34,6 @@ const activities = {
   Dashboard,
   Login,
   Error,
-  Share,
   Select,
   SelectEdit: Select,
   Result,
@@ -74,7 +71,6 @@ const stack = stackflow({
           CreateExclusions: "/exclusions",
           CreateDeadline: "/deadline",
         }),
-        Share: "/app/calendar/share/:id",
         Join: "/app/calendar/:id/guest",
         Select: "/app/calendar/:id",
         SelectEdit: "/app/calendar/:id/edit",
