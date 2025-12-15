@@ -1,13 +1,13 @@
 import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
+import { useLandingAuth } from "../hooks/useLandingAuth";
 
 interface LandingHeaderProps {
     user: User | null;
-    onLoginClick: () => void;
-    onLogoutClick: () => void;
 }
 
-export const LandingHeader = ({ user, onLoginClick, onLogoutClick }: LandingHeaderProps) => {
+export const LandingHeader = ({ user }: LandingHeaderProps) => {
+    const { handleLoginClick, handleLogoutClick } = useLandingAuth();
     const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "사용자";
 
     return (
@@ -16,20 +16,13 @@ export const LandingHeader = ({ user, onLoginClick, onLogoutClick }: LandingHead
                 TimePick
             </div>
             <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
-                {user ? (
+                {user ?
                     <div className="flex items-center gap-4">
-                        <span className="text-sm font-medium text-slate-700">
-                            {displayName}님 안녕하세요
-                        </span>
-                        <Button variant="outline" size="sm" onClick={onLogoutClick}>
-                            로그아웃
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer" onClick={onLoginClick}>
-                        로그인
-                    </div>
-                )}
+                        <span className="text-sm font-medium text-slate-700">안녕하세요 {displayName}님</span>
+                        <Button variant="outline" size="sm" onClick={handleLogoutClick}>로그아웃</Button>
+                    </div> :
+                    <Button variant="default" size="sm" onClick={handleLoginClick}>로그인</Button>
+                }
             </nav>
         </header>
     );

@@ -3,23 +3,18 @@ import { ActivityComponentType } from "@stackflow/react";
 import { LandingFooter } from "./components/LandingFooter";
 import { LandingHeader } from "./components/LandingHeader";
 import { LandingHero } from "./components/LandingHero";
-import { useLanding } from "./hooks/useLanding";
+import { useLandingUser } from "./hooks/useLandingUser";
 
 const Landing: ActivityComponentType = () => {
-    const { user, handleLoginClick, handleDashboardClick, handleStartClick, handleLogoutClick } = useLanding();
+    const { user } = useLandingUser();
 
     return (
         <AppScreen>
             <div className="flex flex-col min-h-screen bg-background text-foreground overflow-y-auto">
-                <LandingHeader
-                    user={user}
-                    onLoginClick={handleLoginClick}
-                    onLogoutClick={handleLogoutClick}
-                />
+                <LandingHeader user={user} />
+                <LandingHero user={user} />
 
-                <main className="flex-1">
-                    <LandingHero user={user} onStartClick={handleStartClick} onDashboardClick={handleDashboardClick} />
-                </main>
+
                 <LandingFooter />
             </div>
         </AppScreen>

@@ -7,7 +7,7 @@ import { differenceInCalendarDays, parseISO } from "date-fns";
 
 interface ScheduleListProps {
     title: string;
-    icon: string;
+    icon: React.ReactNode;
     schedules: DashboardSchedule[];
     showAll: boolean;
     onToggleShowAll: (show: boolean) => void;
@@ -81,7 +81,7 @@ export function ScheduleList({
                                         className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full"
                                         onClick={(e) => { e.stopPropagation(); onShareClick && onShareClick(schedule.id); }}
                                     >
-                                        <Share2 className="w-4 h-4" />
+                                        <Share2 className="w-4 h-4" strokeWidth={1.5} />
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -89,7 +89,7 @@ export function ScheduleList({
                                         className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full"
                                         onClick={(e) => { e.stopPropagation(); onMenuClick && onMenuClick(schedule.id); }}
                                     >
-                                        <MoreVertical className="w-4 h-4" />
+                                        <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
                                     </Button>
                                 </div>
                             )}
@@ -154,7 +154,7 @@ export function ScheduleList({
                 ) : (
                     <div className="flex flex-col items-center justify-center py-10 bg-white rounded-lg border border-dashed border-slate-200">
                         <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-                            {type === 'my' ? <Calendar className="w-6 h-6 text-slate-300" /> : <Users className="w-6 h-6 text-slate-300" />}
+                            {type === 'my' ? <Calendar className="w-6 h-6 text-slate-300" strokeWidth={1.5} /> : <Users className="w-6 h-6 text-slate-300" strokeWidth={1.5} />}
                         </div>
                         <p className="text-slate-500 text-sm font-medium">{emptyMessage}</p>
                         {type === 'my' && onCreateSchedule && (
@@ -173,9 +173,9 @@ export function ScheduleList({
                             className="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 text-sm font-medium gap-1"
                         >
                             {showAll ? (
-                                <>접기 <ChevronUp className="w-4 h-4" /></>
+                                <>접기 <ChevronUp className="w-4 h-4" strokeWidth={1.5} /></>
                             ) : (
-                                <>더 보기 ({schedules.length - initialDisplayCount}) <ChevronDown className="w-4 h-4" /></>
+                                <>더 보기 ({schedules.length - initialDisplayCount}) <ChevronDown className="w-4 h-4" strokeWidth={1.5} /></>
                             )}
                         </Button>
                     </div>

@@ -1,5 +1,6 @@
 import { ShareCalendarDialog, Button } from "@repo/ui";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { CalendarRange, Sparkles } from "lucide-react";
 import { DashboardHeader } from "./components/DashboardHeader";
 import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
@@ -58,7 +59,7 @@ export default function Dashboard() {
                     {/* My Created Schedules */}
                     <ScheduleList
                         title="내가 만든 일정"
-                        icon="🗓️"
+                        icon={<CalendarRange className="w-5 h-5 text-slate-400" strokeWidth={1.5} />}
                         schedules={mySchedules}
                         showAll={showAllMySchedules}
                         onToggleShowAll={setShowAllMySchedules}
@@ -78,7 +79,7 @@ export default function Dashboard() {
                     {/* Joined Schedules */}
                     <ScheduleList
                         title="참여 중인 일정"
-                        icon="⭐"
+                        icon={<Sparkles className="w-5 h-5 text-slate-400" strokeWidth={1.5} />}
                         schedules={joinedSchedules}
                         showAll={showAllJoinedSchedules}
                         onToggleShowAll={setShowAllJoinedSchedules}

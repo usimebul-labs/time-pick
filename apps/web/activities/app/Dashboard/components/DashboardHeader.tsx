@@ -42,10 +42,11 @@ export function DashboardHeader({ user, onCreateSchedule }: DashboardHeaderProps
                 </div>
 
                 <Button
-                    className="w-full h-12 text-[15px] font-semibold shadow-sm rounded-md bg-indigo-600 hover:bg-indigo-700 hover:shadow-md transition-all active:scale-[0.98]"
+                    size="xl"
+                    className="w-full font-semibold shadow-sm"
                     onClick={onCreateSchedule}
                 >
-                    <Plus className="mr-2 h-5 w-5" /> 새 일정 만들기
+                    <Plus className="mr-2 h-5 w-5" strokeWidth={2.5} /> 새 일정 만들기
                 </Button>
             </div>
         </div>
