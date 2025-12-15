@@ -1,15 +1,13 @@
-import { useState, useEffect, useActionState } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useFlow } from "../../../../../stackflow";
 import { useCreateCalendarStore } from "../store";
-import { createCalendar, CreateCalendarState } from "@/app/actions/calendar";
-
-const initialState: CreateCalendarState = { message: "", error: "" };
+import { createCalendar } from "@/app/actions/calendar";
 
 export function useDeadline() {
     const { replace } = useFlow();
     const { data, updateData } = useCreateCalendarStore();
     const [isUnlimited, setIsUnlimited] = useState(!data.deadline);
-    const [state, formAction] = useActionState(createCalendar, initialState);
+    const [isPending, startTransition] = useTransition();
 
     const handleToggle = (checked: boolean) => {
         setIsUnlimited(checked);
@@ -33,25 +31,27 @@ export function useDeadline() {
         }
     }, [data.deadline]);
 
-    // Handle Submission Result
-    // Handle Submission Result
-    useEffect(() => {
-        if (state.message === "Success" && state.eventId) {
-            if (typeof window !== "undefined") {
-                sessionStorage.setItem("lastCreatedEventId", state.eventId);
+    const handleSubmit = (formData: FormData) => {
+        startTransition(async () => {
+            const result = await createCalendar({ message: "", error: "" }, formData);
+
+            if (result.message === "Success" && result.eventId) {
+                if (typeof window !== "undefined") {
+                    sessionStorage.setItem("lastCreatedEventId", result.eventId);
+                }
+                replace("Select", { id: result.eventId });
+            } else if (result.error) {
+                alert(result.error);
             }
-            replace("Select", { id: state.eventId });
-        } else if (state.error) {
-            alert(state.error);
-        }
-    }, [state, replace]);
+        });
+    };
 
     return {
         data,
         updateData,
         isUnlimited,
         handleToggle,
-        state,
-        formAction,
+        handleSubmit,
+        isPending,
     };
 }

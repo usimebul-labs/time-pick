@@ -11,8 +11,8 @@ export default function CreateDeadline() {
         updateData,
         isUnlimited,
         handleToggle,
-        state,
-        formAction,
+        handleSubmit,
+        isPending
     } = useDeadline();
 
     return (
@@ -57,7 +57,7 @@ export default function CreateDeadline() {
 
             {/* float bottom button */}
             <div className="p-4 bg-white border-t safe-area-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
-                <form action={formAction} className="w-full">
+                <form action={handleSubmit} className="w-full">
                     {/* Hidden inputs to pass data to Server Action */}
                     <input type="hidden" name="title" value={data.title} />
                     <input type="hidden" name="description" value={data.description} />
@@ -80,8 +80,8 @@ export default function CreateDeadline() {
                         <input type="hidden" name="deadline" value={data.deadline} />
                     )}
 
-                    <Button size="lg" type="submit" className="w-full text-base">
-                        캘린더 만들고 초대하기
+                    <Button size="lg" type="submit" disabled={isPending} className="w-full text-base">
+                        {isPending ? "생성 중..." : "캘린더 만들고 초대하기"}
                     </Button>
                 </form>
             </div>

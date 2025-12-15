@@ -53,11 +53,12 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
 
         if (scheduleType === 'datetime' && startHour !== null && endHour !== null) {
             // Construct arbitrary date with correct hours
+            // Construct arbitrary date with correct hours
             startTime = new Date();
-            startTime.setHours(startHour, 0, 0, 0);
+            startTime.setUTCHours(startHour, 0, 0, 0);
 
             endTime = new Date();
-            endTime.setHours(endHour, 0, 0, 0);
+            endTime.setUTCHours(endHour, 0, 0, 0);
         }
 
         // 3. Handle Deadline
@@ -68,7 +69,7 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
         } else {
             // Default to endDate EOD
             deadline = new Date(endDateStr);
-            deadline.setHours(23, 59, 59, 999);
+            deadline.setUTCHours(23, 59, 59, 999);
         }
 
         // 4. Handle Days
@@ -669,9 +670,9 @@ export async function updateEvent(
         if (oldEvent.type === 'weekly' && startHour !== null && endHour !== null) {
             if (oldEvent.type === 'weekly') {
                 startTime = new Date();
-                startTime.setHours(startHour, 0, 0, 0);
+                startTime.setUTCHours(startHour, 0, 0, 0);
                 endTime = new Date();
-                endTime.setHours(endHour, 0, 0, 0);
+                endTime.setUTCHours(endHour, 0, 0, 0);
             }
         }
 
@@ -680,7 +681,7 @@ export async function updateEvent(
             deadline = new Date(deadlineStr);
         } else {
             deadline = new Date(endDateStr);
-            deadline.setHours(23, 59, 59, 999);
+            deadline.setUTCHours(23, 59, 59, 999);
         }
 
         const enabledDays = JSON.parse(enabledDaysStr) as string[];
