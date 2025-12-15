@@ -12,13 +12,13 @@ export const LandingHeader = ({ user, onLoginClick, onLogoutClick }: LandingHead
 
     return (
         <header className="px-4 lg:px-6 h-16 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-            <div className="flex items-center justify-center font-bold text-xl tracking-tight cursor-pointer">
+            <div className="flex items-center justify-center font-bold text-xl tracking-tight text-slate-900 cursor-pointer">
                 TimePick
             </div>
             <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
                 {user ? (
                     <div className="flex items-center gap-4">
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-slate-700">
                             {displayName}님 안녕하세요
                         </span>
                         <Button variant="outline" size="sm" onClick={onLogoutClick}>
@@ -26,7 +26,7 @@ export const LandingHeader = ({ user, onLoginClick, onLogoutClick }: LandingHead
                         </Button>
                     </div>
                 ) : (
-                    <div className="text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={onLoginClick}>
+                    <div className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer" onClick={onLoginClick}>
                         로그인
                     </div>
                 )}

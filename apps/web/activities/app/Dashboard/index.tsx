@@ -51,7 +51,7 @@ export default function Dashboard() {
 
     return (
         <AppScreen>
-            <div className="flex flex-col flex-1 bg-[#F8F9FA] min-h-screen h-full pb-20">
+            <div className="flex flex-col flex-1 bg-slate-50 min-h-screen h-full pb-20">
                 <DashboardHeader user={user} onCreateSchedule={handleCreateSchedule} />
 
                 <div className="flex-1 p-5 space-y-8 overflow-y-auto">
@@ -94,7 +94,7 @@ export default function Dashboard() {
                         <Button
                             variant="ghost"
                             onClick={handleSignOut}
-                            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 text-sm font-medium h-auto py-2 px-4 rounded-full"
+                            className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 text-sm font-medium h-auto py-2 px-4 rounded-full"
                         >
                             로그아웃
                         </Button>
