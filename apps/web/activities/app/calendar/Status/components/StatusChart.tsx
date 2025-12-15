@@ -87,7 +87,15 @@ export function StatusChart({
     const CustomizedDot = (props: any) => {
         const { cx, cy, payload } = props;
 
-        // Mode 1: Count Filtering
+        // Mode 1: VIP Filtering (Default)
+        const isVipParams = selectedVipIds.size > 0 && payload.vipCount === selectedVipIds.size;
+        if (isVipParams) {
+            return (
+                <circle cx={cx} cy={cy} r={4} fill="#6366f1" stroke="#fff" strokeWidth={1} style={{ pointerEvents: 'none' }} />
+            );
+        }
+
+        // Mode 2: Count Filtering
         if (selectedCount !== null) {
             if (payload.count === selectedCount) {
                 return (
@@ -95,14 +103,6 @@ export function StatusChart({
                 );
             }
             return null;
-        }
-
-        // Mode 2: VIP Filtering (Default)
-        const isVipParams = selectedVipIds.size > 0 && payload.vipCount === selectedVipIds.size;
-        if (isVipParams) {
-            return (
-                <circle cx={cx} cy={cy} r={4} fill="#6366f1" stroke="#fff" strokeWidth={1} style={{ pointerEvents: 'none' }} />
-            );
         }
 
         return null;
