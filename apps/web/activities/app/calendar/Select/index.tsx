@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@repo/ui";
+import { Button, ShareCalendarDialog } from "@repo/ui";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { AlertCircle } from "lucide-react";
 import { useSelect } from "./hooks/useSelect";
@@ -21,7 +21,10 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
         setSelectedDates,
         toggleParticipant,
         handleComplete,
-        handleSelectHighlighted
+        handleSelectHighlighted,
+        isShareOpen,
+        setIsShareOpen,
+        shareLink
     } = useSelect(id);
 
     if (loading) return (
@@ -85,6 +88,11 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
                     </Button>
                 </div>
             </div>
+            <ShareCalendarDialog
+                isOpen={isShareOpen}
+                onClose={() => setIsShareOpen(false)}
+                link={shareLink}
+            />
         </AppScreen >
     );
 }

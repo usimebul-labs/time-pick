@@ -29,6 +29,21 @@ export function useSelect(id: string) {
     // State for guest PIN
     const [guestPin, setGuestPin] = useState<string | undefined>(undefined);
 
+    // Share Sheet Logic
+    const [isShareOpen, setIsShareOpen] = useState(false);
+    const [shareLink, setShareLink] = useState("");
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setShareLink(`${window.location.origin}/app/calendar/${id}`);
+            const lastCreatedId = sessionStorage.getItem("lastCreatedEventId");
+            if (lastCreatedId === id) {
+                setIsShareOpen(true);
+                sessionStorage.removeItem("lastCreatedEventId");
+            }
+        }
+    }, [id]);
+
     // Initial load of guest PIN
     useEffect(() => {
         const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
@@ -232,6 +247,9 @@ export function useSelect(id: string) {
         setSelectedDates,
         toggleParticipant,
         handleComplete,
-        handleSelectHighlighted
+        handleSelectHighlighted,
+        isShareOpen,
+        setIsShareOpen,
+        shareLink
     };
 }

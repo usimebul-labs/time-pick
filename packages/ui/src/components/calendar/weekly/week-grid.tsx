@@ -23,7 +23,7 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
       <div className="grid grid-cols-8 divide-x divide-y" onMouseLeave={onDragEnd} onPointerUp={onDragEnd} onTouchMove={onTouchMove}>
         {hours.map((hour) => (
           <React.Fragment key={hour}>
-            <div className="col-span-1 py-2 pr-2 text-xs text-right text-muted-foreground font-medium border-b-0 h-10 sticky left-0 bg-background/95 z-10">
+            <div className="col-span-1 py-2 pr-2 text-xs text-right text-muted-foreground font-medium border-b-0 h-8 sticky left-0 bg-background/95 z-10">
               {`${hour}:00`}
             </div>
 
@@ -62,7 +62,7 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
                   }}
                   onMouseEnter={() => onDragOver(datetime)}
                   className={cn(
-                    'col-span-1 h-10 border-b relative transition-colors duration-75 flex items-end justify-center pb-1',
+                    'col-span-1 h-8 border-b relative transition-colors duration-75 flex items-end justify-center pb-1',
                     disabled && 'bg-gray-50 cursor-not-allowed text-muted-foreground line-through decoration-slate-400',
                     !disabled && [
                       'hover:bg-accent hover:text-accent-foreground',

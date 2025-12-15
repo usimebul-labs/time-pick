@@ -34,9 +34,13 @@ export function useDeadline() {
     }, [data.deadline]);
 
     // Handle Submission Result
+    // Handle Submission Result
     useEffect(() => {
         if (state.message === "Success" && state.eventId) {
-            replace("Share", { id: state.eventId });
+            if (typeof window !== "undefined") {
+                sessionStorage.setItem("lastCreatedEventId", state.eventId);
+            }
+            replace("Select", { id: state.eventId });
         } else if (state.error) {
             alert(state.error);
         }
