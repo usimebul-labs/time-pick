@@ -13,8 +13,6 @@ const Landing: ActivityComponentType = () => {
             <div className="flex flex-col min-h-screen bg-background text-foreground overflow-y-auto">
                 <LandingHeader user={user} />
                 <LandingHero user={user} />
-
-
                 <LandingFooter />
             </div>
         </AppScreen>
