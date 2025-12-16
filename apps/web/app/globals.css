@@ -8,10 +8,9 @@
 
 /* Ensure Radix UI does not hide the dashboard content or collapse height */
 /* Only target the direct app container to avoid affecting icons or other internal elements */
-body>[aria-hidden="true"] {
+body>[aria-hidden="true"]:not([role="dialog"]) {
     display: inherit !important;
     visibility: visible !important;
     opacity: 1 !important;
-    height: 100% !important;
     min-height: 100vh !important;
 }

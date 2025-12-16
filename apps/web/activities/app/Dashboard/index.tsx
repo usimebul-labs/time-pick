@@ -1,4 +1,5 @@
 import Loading from "@/common/components/Loading";
+import { useEffect } from "react";
 import { ShareCalendarDialog } from "@repo/ui";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { Calendar, Sparkles } from "lucide-react";
@@ -13,6 +14,12 @@ export default function Dashboard() {
     const { user, handleCreateSchedule, handleModify, handleConfirm, handleDelete, } = useDashboard();
     const { isShareOpen, closeShare, shareEventId, isMenuOpen, closeMenu, menuEventId,
         isParticipantOpen, closeParticipant, selectedParticipants, selectedParticipantCount, } = useDashboardStore();
+
+    useEffect(() => {
+        closeShare();
+        closeMenu();
+        closeParticipant();
+    }, []);
 
     if (!user) return <Loading />
 
