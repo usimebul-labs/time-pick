@@ -17,6 +17,29 @@ const Empty = () => {
     </div>
 }
 
+const Loading = () => {
+    return (
+        <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-lg p-5 shadow-sm border border-slate-200">
+                    <div className="flex justify-between items-start mb-2">
+                        <div className="h-5 bg-slate-100 rounded w-3/4 animate-pulse" />
+                    </div>
+                    <div className="h-4 bg-slate-100 rounded w-1/4 animate-pulse mb-4" />
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+                        <div className="flex -space-x-2">
+                            {[1, 2, 3].map((j) => (
+                                <div key={j} className="w-8 h-8 bg-slate-100 rounded-full ring-2 ring-white animate-pulse" />
+                            ))}
+                        </div>
+                        <div className="h-6 w-16 bg-slate-100 rounded animate-pulse" />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
 
 interface Events {
     user: User;
@@ -28,7 +51,7 @@ export function EventList({ user, type }: Events) {
     const { events, loading, error } = useEvents(user, type);
     const [showAll, setShowAll] = useState(false);
 
-    if (loading) return <div>로딩중...</div>
+    if (loading) return <Loading />
     if (error) return <div>에러: {error}</div>
     if (events.length === 0) return <Empty />
 
