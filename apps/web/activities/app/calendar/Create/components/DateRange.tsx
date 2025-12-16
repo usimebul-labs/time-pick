@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, Input, Label, Checkbox, Button } from "@repo/ui";
-import { CreateCalendarData } from "../types";
+import { CreateCalendarData } from "../hooks/types";
 import { CalendarIcon, Clock, ArrowRight } from "lucide-react";
 import { useDateRange } from "../hooks/useDateRange";
 import CreateLayout from "./CreateLayout";

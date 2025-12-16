@@ -1,7 +1,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useFlow } from "../../../../../stackflow";
 import { createCalendar, CreateCalendarState } from "@/app/actions/calendar";
-import { CreateCalendarData } from "../types";
+import { CreateCalendarData } from "./types";
 
 const initialState: CreateCalendarState = { message: "", error: "" };
 

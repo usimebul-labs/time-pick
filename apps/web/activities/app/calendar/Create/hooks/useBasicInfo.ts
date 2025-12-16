@@ -1,4 +1,4 @@
-import { useCreateCalendarStore } from "../store";
+import { useCreateCalendarStore } from "./store";
 import { useFlow } from "../../../../../stackflow";
 
 export function useBasicInfo() {

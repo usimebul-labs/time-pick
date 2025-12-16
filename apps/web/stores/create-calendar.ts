@@ -1,6 +1,6 @@
 
 import { create } from "zustand";
-import { CreateCalendarData } from "../activities/app/calendar/Create/types";
+import { CreateCalendarData } from "../activities/app/calendar/Create/hooks/types";
 
 // Helper Functions
 const formatDate = (d: Date) => {

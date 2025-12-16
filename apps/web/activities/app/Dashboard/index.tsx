@@ -7,7 +7,7 @@ import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
 import { EventList } from "./components/EventList";
 import { useDashboard } from "./hooks/useDashboard";
-import { useDashboardStore } from "./store/useDashboardStore";
+import { useDashboardStore } from "./hooks/stores";
 
 export default function Dashboard() {
     const {
