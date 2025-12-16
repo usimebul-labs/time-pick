@@ -1,6 +1,6 @@
 import { useState, useEffect, useTransition } from "react";
 import { useFlow } from "../../../../../stackflow";
-import { useCreateCalendarStore } from "./store";
+import { useCreateCalendarStore } from "./useCreateCalendarStore";
 import { createCalendar } from "@/app/actions/calendar";
 
 export function useDeadline() {

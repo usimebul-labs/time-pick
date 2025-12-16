@@ -14,14 +14,7 @@ import { SelectShareDialog } from "./components/SelectShareDialog";
 
 export default function Select({ params: { id } }: { params: { id: string } }) {
     // 1. Data (Main Component only responsible for data fetching)
-    const {
-        event,
-        loading,
-        error,
-        participants,
-        participation,
-        isLoggedIn
-    } = useSelectData(id);
+    const { event, loading, error, participants, participation, isLoggedIn } = useSelectData(id);
 
     // 2. Global State Reset (Shared responsibility, but orchestration belongs here or in a hook?)
     // User asked for "Main component fetches initial data only".
