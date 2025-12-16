@@ -7,7 +7,7 @@ import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
 import { EventList } from "./components/EventList";
 import { useDashboard } from "./hooks/useDashboard";
-import { useDashboardStore } from "./hooks/stores";
+import { useDashboardStore } from "./hooks/useDashboardStore";
 
 export default function Dashboard() {
     const { user, handleCreateSchedule, handleModify, handleConfirm, handleDelete, } = useDashboard();

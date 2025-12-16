@@ -4,7 +4,7 @@ import { User } from "@supabase/supabase-js";
 import { MoreVertical, Share2 } from "lucide-react";
 import { ParticipantFacepile } from "./ParticipantFacepile";
 import { differenceInCalendarDays, parseISO } from "date-fns";
-import { useDashboardStore } from "../hooks/stores";
+import { useDashboardStore } from "../hooks/useDashboardStore";
 import { useFlow } from "../../../../stackflow";
 import { MouseEventHandler } from "react";
 

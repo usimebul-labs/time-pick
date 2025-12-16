@@ -1,21 +1,18 @@
 import { EventDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { Calendar } from "@repo/ui";
+import { useCalendarSection } from "../hooks/useCalendarSection";
 
 interface CalendarSectionProps {
     event: EventDetail;
-    selectedDates: Date[];
     participants: ParticipantSummary[];
-    selectedParticipantIds: string[];
-    onSelectDates: (dates: Date[]) => void;
 }
 
 export function CalendarSection({
     event,
-    selectedDates,
-    participants,
-    selectedParticipantIds,
-    onSelectDates
+    participants
 }: CalendarSectionProps) {
+    const { selectedDates, onSelectDates, selectedParticipantIds } = useCalendarSection();
+
     return (
         <div>
             <div className="flex items-center justify-between mb-4">

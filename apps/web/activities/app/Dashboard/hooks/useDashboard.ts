@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFlow } from "../../../../stackflow";
-import { useDashboardStore } from "./stores";
+import { useDashboardStore } from "./useDashboardStore";
 
 // Constants
 export const INITIAL_DISPLAY_COUNT = 3;

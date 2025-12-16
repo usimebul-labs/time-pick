@@ -1,7 +1,7 @@
 import { DashboardEvent, getMySchedules, getJoinedSchedules } from "@/app/actions/calendar";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { useDashboardStore } from "./stores";
+import { useDashboardStore } from "./useDashboardStore";
 
 // Constants
 export const INITIAL_DISPLAY_COUNT = 3;

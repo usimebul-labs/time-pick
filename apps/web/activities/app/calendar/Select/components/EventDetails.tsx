@@ -1,19 +1,30 @@
 import { EventDetail } from "@/app/actions/calendar";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 import { format } from "date-fns";
 import { AlignLeft, Calendar as CalendarIcon, ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { useState } from "react";
 
 interface EventDetailsProps {
     event: EventDetail;
-    deadlineInfo: {
-        deadlineDate: Date;
-        isUrgent: boolean;
-        dDayText: string;
-    } | null;
 }
 
-export function EventDetails({ event, deadlineInfo }: EventDetailsProps) {
+export function EventDetails({ event }: EventDetailsProps) {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+    const getDeadlineInfo = () => {
+        if (!event?.deadline) return null;
+        const deadlineDate = parseISO(event.deadline);
+        const diff = differenceInCalendarDays(deadlineDate, new Date());
+
+        let dDayText = "";
+        if (diff < 0) dDayText = "마감됨";
+        else if (diff === 0) dDayText = "D-Day";
+        else dDayText = `D-${diff}`;
+
+        return { deadlineDate, dDayText };
+    };
+
+    const deadlineInfo = getDeadlineInfo();
 
     return (
         <div className="bg-gray-50 rounded-xl border border-gray-100/80 overflow-hidden transition-all duration-300">

@@ -1,21 +1,25 @@
 import { ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { User } from "lucide-react";
+import { useParticipantList } from "../hooks/useParticipantList";
+import { EventDetail } from "@/app/actions/calendar";
 
 interface ParticipantListProps {
+    event: EventDetail;
     participants: ParticipantSummary[];
     participation: ParticipantDetail | null;
-    selectedParticipantIds: string[];
-    onToggleParticipant: (id: string) => void;
-    onSelectHighlighted: () => void;
 }
 
 export function ParticipantList({
+    event,
     participants,
     participation,
-    selectedParticipantIds,
-    onToggleParticipant,
-    onSelectHighlighted
 }: ParticipantListProps) {
+    const {
+        selectedParticipantIds,
+        onToggleParticipant,
+        onSelectHighlighted
+    } = useParticipantList(event, participants);
+
     return (
         <div className="mb-8">
             <div className="flex items-center justify-between mb-3">
