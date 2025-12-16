@@ -13,7 +13,7 @@ const Empty = () => {
         <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
             <Calendar className="w-6 h-6 text-slate-300" strokeWidth={1.5} />
         </div>
-        <p className="text-slate-500 text-sm font-medium">내 일정이 없네요</p>
+        <p className="text-slate-500 text-sm font-medium">일정이 없어요</p>
     </div>
 }
 
@@ -35,12 +35,7 @@ export function EventList({ user, type }: Events) {
     return (
         <div className="space-y-4">
             {events.map((event) => (
-                <EventItem
-                    key={event.id}
-                    event={event}
-                    user={user}
-                    type={type}
-                />
+                <EventItem key={event.id} event={event} user={user} type={type} />
             ))}
 
             {events.length > initCount && (

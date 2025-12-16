@@ -25,6 +25,9 @@ interface DashboardState {
     selectedParticipantCount: number;
     openParticipant: (participants: Participant[], count: number) => void;
     closeParticipant: () => void;
+    // Refresh Trigger
+    refreshTrigger: number;
+    triggerRefresh: () => void;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -54,4 +57,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
         selectedParticipants: [],
         selectedParticipantCount: 0
     }),
+    // Refresh Trigger
+    refreshTrigger: 0,
+    triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
 }));
