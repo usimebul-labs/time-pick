@@ -10,7 +10,7 @@ export const INITIAL_DISPLAY_COUNT = 3;
 
 export function useDashboard() {
     const [user, setUser] = useState<User | null>(null);
-    const { closeMenu } = useDashboardStore();
+    const { closeMenu, triggerRefresh } = useDashboardStore();
 
     const supabase = createClient();
     const { push } = useFlow();
@@ -47,6 +47,7 @@ export function useDashboard() {
             const { success, error } = await deleteEvent(id);
             if (success) {
                 // setMySchedules(prev => prev.filter(s => s.id !== id));
+                triggerRefresh();
                 closeMenu();
             } else {
                 alert(error || "삭제 중 오류가 발생했습니다.");
