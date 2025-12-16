@@ -33,8 +33,8 @@ export default function Modify({ params: { id } }: { params: { id: string } }) {
     if (loading) {
         return (
             <AppScreen>
-                <div className="flex items-center justify-center min-h-screen bg-gray-50">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <div className="flex items-center justify-center min-h-screen bg-slate-50">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                 </div>
             </AppScreen>
         );
@@ -49,7 +49,7 @@ export default function Modify({ params: { id } }: { params: { id: string } }) {
                 },
             }}
         >
-            <div className="flex flex-col h-full bg-gray-50">
+            <div className="flex flex-col h-full bg-slate-50">
                 <form id="modify-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-8 pb-32">
                     <BasicInfoSection data={formState} onChange={updateForm} />
                     <DateRangeSection data={formState} onChange={updateForm} />

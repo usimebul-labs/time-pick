@@ -19,31 +19,31 @@ export default function CreateDateRange() {
         <CreateLayout title="일정 만들기" step={3} totalSteps={5}>
             <section className="space-y-8">
                 <div className="flex items-center justify-between">
-                    <Label className="text-base font-bold">언제 만날까요?</Label>
+                    <Label className="text-base font-bold text-slate-900">언제 만날까요?</Label>
                     <div className="flex items-center gap-2">
-                        <Label htmlFor="undefined-range" className="text-xs text-gray-500 cursor-pointer">
+                        <Label htmlFor="undefined-range" className="text-xs text-slate-500 cursor-pointer">
                             아직 잘 모르겠어요
                         </Label>
                         <Checkbox
                             id="undefined-range"
                             checked={isUndefined}
                             onCheckedChange={handleUndefinedChange}
-                            className="w-5 h-5"
+                            className="w-5 h-5 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
                         />
                     </div>
                 </div>
 
                 <div className={isUndefined ? "opacity-30 pointer-events-none transition-opacity" : "transition-opacity space-y-8"}>
                     <section>
-                        <Label className="text-base font-bold mb-3 flex items-center gap-2 text-gray-800">
+                        <Label className="text-base font-bold mb-3 flex items-center gap-2 text-slate-900">
                             <CalendarIcon className="w-5 h-5 text-blue-500" />
                             어떤 날짜들이 좋은가요?
                         </Label>
-                        <Card className="border shadow-sm bg-white overflow-hidden rounded-xl">
+                        <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden rounded-xl">
                             <CardContent className="p-0">
-                                <div className="grid grid-cols-2 divide-x divide-gray-100">
+                                <div className="grid grid-cols-2 divide-x divide-slate-100">
                                     <div className="p-4">
-                                        <Label className="text-xs font-medium text-gray-500 mb-2 block">
+                                        <Label className="text-xs font-medium text-slate-500 mb-2 block">
                                             이날부터
                                         </Label>
                                         <Input
@@ -55,7 +55,7 @@ export default function CreateDateRange() {
                                         />
                                     </div>
                                     <div className="p-4">
-                                        <Label className="text-xs font-medium text-gray-500 mb-2 block">
+                                        <Label className="text-xs font-medium text-slate-500 mb-2 block">
                                             이날까지
                                         </Label>
                                         <Input
@@ -73,15 +73,15 @@ export default function CreateDateRange() {
 
                     {data.scheduleType === "datetime" && (
                         <section>
-                            <Label className="text-base font-bold mb-3 flex items-center gap-2 text-gray-800">
+                            <Label className="text-base font-bold mb-3 flex items-center gap-2 text-slate-900">
                                 <Clock className="w-5 h-5 text-purple-500" />
                                 몇 시쯤 만날까요?
                             </Label>
-                            <Card className="border shadow-sm bg-white overflow-hidden rounded-xl">
+                            <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden rounded-xl">
                                 <CardContent className="p-0">
-                                    <div className="grid grid-cols-2 divide-x divide-gray-100">
+                                    <div className="grid grid-cols-2 divide-x divide-slate-100">
                                         <div className="p-4">
-                                            <Label className="text-xs font-medium text-gray-500 mb-2 block">
+                                            <Label className="text-xs font-medium text-slate-500 mb-2 block">
                                                 이 시간부터 (시)
                                             </Label>
                                             <Input
@@ -96,7 +96,7 @@ export default function CreateDateRange() {
                                             />
                                         </div>
                                         <div className="p-4">
-                                            <Label className="text-xs font-medium text-gray-500 mb-2 block">
+                                            <Label className="text-xs font-medium text-slate-500 mb-2 block">
                                                 이 시간까지 (시)
                                             </Label>
                                             <Input
@@ -117,8 +117,8 @@ export default function CreateDateRange() {
                     )}
                 </div>
                 {isUndefined && (
-                    <div className="bg-gray-50 p-4 rounded-xl text-center">
-                        <p className="text-sm text-gray-600">
+                    <div className="bg-slate-50 p-4 rounded-xl text-center">
+                        <p className="text-sm text-slate-600">
                             기간 없이 투표를 먼저 시작할 수 있어요.
                         </p>
                     </div>

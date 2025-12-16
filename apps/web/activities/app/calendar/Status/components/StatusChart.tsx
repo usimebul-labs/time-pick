@@ -260,7 +260,7 @@ export function StatusChart({
         const isVipParams = selectedVipIds.size > 0 && payload.vipCount === selectedVipIds.size;
         if (isVipParams) {
             return (
-                <circle cx={cx} cy={cy} r={4} fill="#6366f1" stroke="#fff" strokeWidth={1} style={{ pointerEvents: 'none' }} />
+                <circle cx={cx} cy={cy} r={4} fill="#818cf8" stroke="#fff" strokeWidth={1} style={{ pointerEvents: 'none' }} />
             );
         }
 
@@ -268,7 +268,7 @@ export function StatusChart({
         if (selectedCount !== null) {
             if (payload.count === selectedCount) {
                 return (
-                    <circle cx={cx} cy={cy} r={5} fill="#f97316" stroke="#fff" strokeWidth={2} />
+                    <circle cx={cx} cy={cy} r={5} fill="#4f46e5" stroke="#fff" strokeWidth={2} />
                 );
             }
             return null;
@@ -339,22 +339,22 @@ export function StatusChart({
                         onPointerUp={handlePointerUp}
                         onPointerLeave={handlePointerUp}
                     >
-                        <div className="absolute top-0 bottom-0 w-1.5 bg-gray-100/80 rounded-full" />
+                        <div className="absolute top-0 bottom-0 w-1.5 bg-slate-100/80 rounded-full" />
                         <div
-                            className="absolute bottom-0 w-1.5 bg-primary/20 rounded-full transition-all duration-75"
+                            className="absolute bottom-0 w-1.5 bg-indigo-600/20 rounded-full transition-all duration-75"
                             style={{ height: `${((selectedCount ?? 0) / maxCount) * 100}%` }}
                         />
                         <div
-                            className={`absolute w-6 h-6 bg-white rounded-full shadow-[0_2px_12px_rgba(249,115,22,0.25)] border-[2px] border-white ring-1 ring-orange-100 flex items-center justify-center z-30 transition-transform duration-100 ${isDraggingSlider ? 'scale-110' : 'scale-100'}`}
+                            className={`absolute w-6 h-6 bg-white rounded-full shadow-[0_2px_12px_rgba(79,70,229,0.25)] border-[2px] border-white ring-1 ring-indigo-100 flex items-center justify-center z-30 transition-transform duration-100 ${isDraggingSlider ? 'scale-110' : 'scale-100'}`}
                             style={{
                                 bottom: `${((selectedCount ?? 0) / maxCount) * 100}%`,
                                 transform: `translateY(50%)`
                             }}
                         >
                             <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                                <span className="text-[10px] font-extrabold text-primary pt-[1px]">{selectedCount ?? 0}</span>
+                                <span className="text-[10px] font-extrabold text-indigo-600 pt-[1px]">{selectedCount ?? 0}</span>
                             </div>
-                            {isDraggingSlider && <div className="absolute inset-0 rounded-full ring-2 ring-primary ring-offset-2 transition-all" />}
+                            {isDraggingSlider && <div className="absolute inset-0 rounded-full ring-2 ring-indigo-600 ring-offset-2 transition-all" />}
                         </div>
                     </div>
 
@@ -366,14 +366,14 @@ export function StatusChart({
                         >
                             <defs>
                                 <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                             <XAxis
                                 dataKey="time"
-                                tick={{ fontSize: 10, fill: '#6B7280' }}
+                                tick={{ fontSize: 10, fill: '#64748B' }}
                                 minTickGap={50}
                             />
                             <YAxis
@@ -385,16 +385,16 @@ export function StatusChart({
                             <Area
                                 type="monotone"
                                 dataKey="count"
-                                stroke="#f97316"
+                                stroke="#4f46e5"
                                 strokeWidth={2}
                                 fillOpacity={1}
                                 fill="url(#colorCount)"
                                 dot={<CustomizedDot />}
-                                activeDot={{ r: 6, stroke: '#f97316', strokeWidth: 2, fill: '#fff' }}
+                                activeDot={{ r: 6, stroke: '#4f46e5', strokeWidth: 2, fill: '#fff' }}
                                 isAnimationActive={false} // Disable animation for smoother zoom/pan
                             />
                             {selectedCount !== null && (
-                                <ReferenceLine y={selectedCount} stroke="#f97316" strokeDasharray="3 3" />
+                                <ReferenceLine y={selectedCount} stroke="#4f46e5" strokeDasharray="3 3" />
                             )}
                         </AreaChart>
                     </ResponsiveContainer>

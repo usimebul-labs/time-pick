@@ -19,7 +19,7 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
 
     return (
         <AppScreen appBar={{ title: "모임 참여" }}>
-            <div className="flex flex-col h-full bg-gray-50 p-6">
+            <div className="flex flex-col h-full bg-slate-50 p-6">
                 <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
                     <JoinHeader
                         hostAvatar={hostAvatar}

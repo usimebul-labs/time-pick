@@ -23,7 +23,7 @@ export default function CreateExclusions() {
                 {/* Days of Week */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <Label className="text-base font-bold">어떤 요일에 만날까요?</Label>
+                        <Label className="text-base font-bold text-slate-900">어떤 요일에 만날까요?</Label>
                         <div className="flex gap-1">
                             <Button
                                 variant="outline"
@@ -51,7 +51,7 @@ export default function CreateExclusions() {
                             </Button>
                         </div>
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-slate-500">
                         만나기 힘든 요일은 선택을 해제해주세요.
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -65,8 +65,8 @@ export default function CreateExclusions() {
                                     className={`
                                   w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all shadow-sm
                                   ${isSelected
-                                            ? "bg-primary text-primary-foreground scale-100 font-bold"
-                                            : "bg-gray-100 text-gray-400 scale-95"
+                                            ? "bg-indigo-600 text-white scale-100 font-bold hover:bg-indigo-700"
+                                            : "bg-slate-100 text-slate-400 scale-95 hover:bg-slate-200"
                                         }
                                 `}
                                 >
@@ -78,26 +78,26 @@ export default function CreateExclusions() {
                 </div>
 
                 {/* Holidays */}
-                <div className="flex items-center justify-between py-2 border-t border-b border-gray-100">
+                <div className="flex items-center justify-between py-2 border-t border-b border-slate-100">
                     <div>
-                        <Label className="text-base font-semibold block mb-0.5">공휴일은 쉴까요?</Label>
-                        <p className="text-xs text-gray-500">
+                        <Label className="text-base font-semibold block mb-0.5 text-slate-900">공휴일은 쉴까요?</Label>
+                        <p className="text-xs text-slate-500">
                             달력의 빨간 날은 자동으로 제외해요.
                         </p>
                     </div>
                     <Checkbox
                         disabled // Not implemented yet logic-wise
-                        className="w-5 h-5"
+                        className="w-5 h-5 border-slate-300"
                     />
                 </div>
 
                 {/* Specific Dates */}
                 <div className="space-y-3">
-                    <Label className="text-base font-bold block">이 날은 안 돼요 (선택)</Label>
+                    <Label className="text-base font-bold block text-slate-900">이 날은 안 돼요 (선택)</Label>
                     <div className="flex gap-2">
                         <Input
                             type="date"
-                            className="flex-1 bg-white"
+                            className="flex-1 bg-white border-slate-200 rounded-xl"
                             onChange={(e) => {
                                 if (e.target.value) {
                                     addExcludedDate(e.target.value);
@@ -117,13 +117,13 @@ export default function CreateExclusions() {
                                     {excludedDates.map((date: string) => (
                                         <div
                                             key={date}
-                                            className="flex items-center bg-white border px-2 py-1 rounded text-sm text-gray-700 shadow-sm"
+                                            className="flex items-center bg-white border border-slate-200 px-2 py-1 rounded-lg text-sm text-slate-700 shadow-sm"
                                         >
                                             <span>{date}</span>
                                             <button
                                                 type="button"
                                                 onClick={() => removeExcludedDate(date)}
-                                                className="ml-2 text-gray-400 hover:text-red-500"
+                                                className="ml-2 text-slate-400 hover:text-red-500"
                                             >
                                                 <X className="w-3 h-3" />
                                             </button>

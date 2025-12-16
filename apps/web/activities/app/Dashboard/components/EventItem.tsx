@@ -58,19 +58,19 @@ export function EventItem({ event, user, type }: EventItemProps) {
 
     return (
         <div
-            className="bg-white rounded-lg p-5 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-100 active:scale-[0.99] group relative"
+            className="bg-white rounded-xl p-5 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-200 active:scale-[0.99] group relative"
             onClick={handleSelect}
         >
             {type === "my" &&
                 <div className="absolute top-4 right-4 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <Button variant="ghost" size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full"
+                        className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
                         onClick={handleShare}>
                         <Share2 className="w-4 h-4" strokeWidth={1.5} />
                     </Button>
 
                     <Button variant="ghost" size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full"
+                        className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
                         onClick={handleMenuOpen}>
                         <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
                     </Button>

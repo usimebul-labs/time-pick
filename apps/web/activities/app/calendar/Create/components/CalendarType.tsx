@@ -11,7 +11,7 @@ export default function CreateCalendarType() {
     return (
         <CreateLayout title="일정 만들기" step={2} totalSteps={5}>
             <section className="space-y-6">
-                <h2 className="text-base font-bold">날짜는 어떻게 정할까요?</h2>
+                <h2 className="text-base font-bold text-slate-900">날짜는 어떻게 정할까요?</h2>
 
                 <RadioGroup
                     value={data.scheduleType}
@@ -24,10 +24,10 @@ export default function CreateCalendarType() {
                     <Label
                         htmlFor="type-monthly"
                         className={`
-                        relative cursor-pointer border-2 rounded-xl p-6 transition-all hover:bg-gray-50 flex flex-col items-center text-center h-full
+                        relative cursor-pointer border-2 rounded-xl p-6 transition-all hover:bg-slate-50 flex flex-col items-center text-center h-full
                         ${data.scheduleType === "date"
-                                ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                : "border-gray-200"
+                                ? "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600"
+                                : "border-slate-200"
                             }
                     `}
                     >
@@ -43,21 +43,21 @@ export default function CreateCalendarType() {
                                 <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
                                     <CalendarDays className="w-5 h-5" />
                                 </div>
-                                <span className="text-sm font-bold text-gray-900">
+                                <span className="text-sm font-bold text-slate-900">
                                     월간 캘린더
                                 </span>
                             </div>
 
                             {/* 2열: 날짜만 정하기 (작게, 세미볼드) */}
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-slate-500">
                                 날짜만 정하기
                             </span>
                         </div>
 
                         {/* 3열: 캘린더 예시 - Monthly (4 rows) */}
-                        <div className="w-full bg-white border rounded p-2 grid grid-cols-7 gap-1 pointer-events-none opacity-80 mt-auto">
+                        <div className="w-full bg-white border rounded-lg p-2 grid grid-cols-7 gap-1 pointer-events-none opacity-80 mt-auto border-slate-100">
                             {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
-                                <div key={d} className="text-[10px] text-gray-400 mb-1">
+                                <div key={d} className="text-[10px] text-slate-400 mb-1">
                                     {d}
                                 </div>
                             ))}
@@ -75,10 +75,10 @@ export default function CreateCalendarType() {
                     <Label
                         htmlFor="type-weekly"
                         className={`
-                        relative cursor-pointer border-2 rounded-xl p-6 transition-all hover:bg-gray-50 flex flex-col items-center text-center h-full
+                        relative cursor-pointer border-2 rounded-xl p-6 transition-all hover:bg-slate-50 flex flex-col items-center text-center h-full
                         ${data.scheduleType === "datetime"
-                                ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                : "border-gray-200"
+                                ? "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600"
+                                : "border-slate-200"
                             }
                     `}
                     >
@@ -94,13 +94,13 @@ export default function CreateCalendarType() {
                                 <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
                                     <Clock className="w-5 h-5" />
                                 </div>
-                                <span className="text-sm font-bold text-gray-900">
+                                <span className="text-sm font-bold text-slate-900">
                                     주간 캘린더
                                 </span>
                             </div>
 
                             {/* 2열: 날짜와 시간 정하기 (작게, 세미볼드) */}
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-slate-500">
                                 날짜와 시간 정하기
                             </span>
                         </div>

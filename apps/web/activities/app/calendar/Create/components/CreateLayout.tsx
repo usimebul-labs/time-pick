@@ -39,21 +39,21 @@ export default function CreateLayout({
                 },
             }}
         >
-            <div className="flex flex-col h-full bg-gray-50">
+            <div className="flex flex-col h-full bg-slate-50">
                 {/* Progress Bar */}
                 <div className="bg-white px-4 pt-2 pb-0">
-                    <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-primary transition-all duration-300 ease-out"
+                            className="h-full bg-indigo-600 transition-all duration-300 ease-out"
                             style={{ width: `${(step / totalSteps) * 100}%` }}
                         />
                     </div>
-                    <div className="flex justify-between text-[10px] text-gray-400 mt-1 mb-2 font-medium">
-                        <span className={step >= 1 ? "text-primary" : ""}>기본 정보</span>
-                        <span className={step >= 2 ? "text-primary" : ""}>유형</span>
-                        <span className={step >= 3 ? "text-primary" : ""}>기간</span>
-                        <span className={step >= 4 ? "text-primary" : ""}>제외</span>
-                        <span className={step >= 5 ? "text-primary" : ""}>마감</span>
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1 mb-2 font-medium">
+                        <span className={step >= 1 ? "text-indigo-600 font-bold" : ""}>기본 정보</span>
+                        <span className={step >= 2 ? "text-indigo-600 font-bold" : ""}>유형</span>
+                        <span className={step >= 3 ? "text-indigo-600 font-bold" : ""}>기간</span>
+                        <span className={step >= 4 ? "text-indigo-600 font-bold" : ""}>제외</span>
+                        <span className={step >= 5 ? "text-indigo-600 font-bold" : ""}>마감</span>
                     </div>
                 </div>
 

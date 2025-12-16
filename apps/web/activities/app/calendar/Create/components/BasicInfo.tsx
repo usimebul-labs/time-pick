@@ -12,7 +12,7 @@ export default function CreateBasicInfo() {
         <CreateLayout title="일정 만들기" step={1} totalSteps={5}>
             <section className="space-y-6">
                 <div className="space-y-2">
-                    <Label className="text-base font-bold block">
+                    <Label className="text-base font-bold block text-slate-900">
                         어떤 모임인가요? <span className="text-red-500">*</span>
                     </Label>
                     <Input
@@ -20,19 +20,19 @@ export default function CreateBasicInfo() {
                         placeholder="예: 팀 주간 회의, 점심 약속"
                         value={data.title}
                         onChange={(e) => updateData({ title: e.target.value })}
-                        className="bg-white h-12 text-base"
+                        className="bg-white h-12 text-base border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
                         required
                         autoFocus
                     />
                 </div>
                 <div className="space-y-2">
-                    <Label className="text-base font-bold block">메모 (선택)</Label>
+                    <Label className="text-base font-bold block text-slate-900">메모 (선택)</Label>
                     <Textarea
                         name="description"
                         placeholder="일정에 대한 간단한 설명을 적어주세요."
                         value={data.description}
                         onChange={(e) => updateData({ description: e.target.value })}
-                        className="bg-white resize-none min-h-[120px] text-base"
+                        className="bg-white resize-none min-h-[120px] text-base border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
                     />
                 </div>
             </section>

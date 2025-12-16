@@ -39,7 +39,7 @@ export function DashboardHeader({ user, onCreateSchedule }: DashboardHeaderProps
 
                 <Button
                     size="xl"
-                    className="w-full font-semibold shadow-sm"
+                    className="w-full font-bold shadow-sm rounded-xl"
                     onClick={onCreateSchedule}
                 >
                     <Plus className="mr-2 h-5 w-5" strokeWidth={2.5} /> 새 일정 만들기

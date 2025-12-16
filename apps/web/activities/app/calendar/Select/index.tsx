@@ -33,18 +33,18 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
 
     if (loading) return (
         <AppScreen>
-            <div className="flex justify-center items-center h-screen bg-gray-50">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="flex justify-center items-center h-screen bg-slate-50">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
             </div>
         </AppScreen>
     );
 
     if (error || !event) return (
         <AppScreen>
-            <div className="flex flex-col justify-center items-center h-screen p-4 text-center bg-gray-50">
+            <div className="flex flex-col justify-center items-center h-screen p-4 text-center bg-slate-50">
                 <AlertCircle className="w-10 h-10 text-red-500 mb-2" />
-                <h2 className="text-lg font-bold mb-1">오류가 발생했습니다</h2>
-                <p className="text-gray-500">{error || "일정을 찾을 수 없습니다."}</p>
+                <h2 className="text-lg font-bold mb-1 text-slate-900">오류가 발생했습니다</h2>
+                <p className="text-slate-500">{error || "일정을 찾을 수 없습니다."}</p>
             </div>
         </AppScreen>
     );

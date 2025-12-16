@@ -20,14 +20,14 @@ export default function CreateDeadline() {
             <section className="space-y-2">
                 <div className="flex">
                     <div className="flex items-center gap-2 ml-auto">
-                        <Label htmlFor="deadline-toggle" className="text-xs text-gray-500 cursor-pointer">
+                        <Label htmlFor="deadline-toggle" className="text-xs text-slate-500 cursor-pointer">
                             마감 시간은 정하지 않을래요
                         </Label>
                         <Checkbox
                             id="deadline-toggle"
                             checked={isUnlimited}
                             onCheckedChange={handleToggle}
-                            className="w-5 h-5"
+                            className="w-5 h-5 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
                         />
                     </div>
                 </div>
@@ -36,19 +36,19 @@ export default function CreateDeadline() {
                     className={`border-none shadow-sm transition-all duration-300 ${!isUnlimited ? "opacity-100 translate-y-0" : "opacity-30 pointer-events-none translate-y-2"
                         }`}
                 >
-                    <CardContent className="p-4 bg-gray-50 rounded-xl">
-                        <Label className="text-base font-bold mb-2 flex items-center gap-2 text-gray-800">
-                            <Clock className="w-4 h-4 text-primary" />
+                    <CardContent className="p-4 bg-slate-50 rounded-xl">
+                        <Label className="text-base font-bold mb-2 flex items-center gap-2 text-slate-800">
+                            <Clock className="w-4 h-4 text-indigo-600" />
                             이 때까지 투표 받을게요
                         </Label>
                         <Input
                             type="datetime-local"
                             value={data.deadline || ""}
                             onChange={(e) => updateData({ deadline: e.target.value })}
-                            className="bg-white border-gray-200"
+                            className="bg-white border-slate-200 rounded-xl"
                             disabled={isUnlimited}
                         />
-                        <p className="text-xs text-gray-500 mt-2">
+                        <p className="text-xs text-slate-500 mt-2">
                             마감 시간이 지나면 친구들이 더 이상 투표할 수 없어요.
                         </p>
                     </CardContent>

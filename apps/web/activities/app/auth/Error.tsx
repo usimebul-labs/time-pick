@@ -20,16 +20,16 @@ export default function Error({ }: ErrorProps) {
         <AppScreen>
             <div className="flex flex-col flex-1 bg-white items-center justify-center p-4">
                 <h1 className="text-2xl font-bold text-red-600">로그인 오류</h1>
-                <p className="mt-2 text-gray-600">인증 과정에서 문제가 발생했습니다.</p>
+                <p className="mt-2 text-slate-600">인증 과정에서 문제가 발생했습니다.</p>
                 {errorMessage && (
-                    <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-md max-w-md text-center break-words">
+                    <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-xl max-w-md text-center break-words border border-red-100">
                         <p className="font-semibold">오류 내용:</p>
                         <p>{errorMessage}</p>
                     </div>
                 )}
                 <button
                     onClick={() => replace("Login", {})}
-                    className="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    className="mt-8 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-sm"
                 >
                     로그인 페이지로 돌아가기
                 </button>
