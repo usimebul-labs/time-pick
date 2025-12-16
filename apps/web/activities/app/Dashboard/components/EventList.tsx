@@ -24,7 +24,7 @@ interface Events {
 }
 
 const initCount = 3;
-export function Events({ user, type }: Events) {
+export function EventList({ user, type }: Events) {
     const { events, loading, error } = useEvents(user, type);
     const [showAll, setShowAll] = useState(false);
 
@@ -34,7 +34,14 @@ export function Events({ user, type }: Events) {
 
     return (
         <div className="space-y-4">
-            {events.map((event) => <EventItem key={event.id} event={event} user={user} type={type} />)}
+            {events.map((event) => (
+                <EventItem
+                    key={event.id}
+                    event={event}
+                    user={user}
+                    type={type}
+                />
+            ))}
 
             {events.length > initCount && (
                 <div className="flex justify-center mt-2">

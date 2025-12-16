@@ -4,6 +4,9 @@ import { User } from "@supabase/supabase-js";
 import { MoreVertical, Share2 } from "lucide-react";
 import { ParticipantFacepile } from "./ParticipantFacepile";
 import { differenceInCalendarDays, parseISO } from "date-fns";
+import { useDashboardStore } from "../store/useDashboardStore";
+import { useFlow } from "../../../../stackflow";
+import { MouseEventHandler } from "react";
 
 
 const DDay = ({ deadline }: { deadline: string }) => {
@@ -30,40 +33,45 @@ interface EventItemProps {
 }
 
 export function EventItem({ event, user, type }: EventItemProps) {
+    const { push } = useFlow();
+    const { openShare, openMenu, openParticipant } = useDashboardStore();
 
-
-    const onClick = () => {
-
+    const handleSelect: MouseEventHandler<HTMLDivElement> = (e) => {
+        e.stopPropagation();
+        push("Select", { id: event.id });
     }
 
-    const onShareClick = (id: string) => {
-
+    const handleShare: MouseEventHandler<HTMLButtonElement> = (e) => {
+        e.stopPropagation();
+        openShare(event.id);
     }
 
-    const onMenuClick = (id: string) => {
-
+    const handleMenuOpen: MouseEventHandler<HTMLButtonElement> = (e) => {
+        e.stopPropagation();
+        openMenu(event.id);
     }
 
-    const onParticipantClick = (participants: any[], count: number) => {
-
+    const handleShowParticipants: MouseEventHandler<HTMLDivElement> = (e) => {
+        e.stopPropagation();
+        openParticipant(event.participants, event.participants.length);
     }
 
     return (
         <div
             className="bg-white rounded-lg p-5 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-100 active:scale-[0.99] group relative"
-            onClick={onClick}
+            onClick={handleSelect}
         >
             {type === "my" &&
                 <div className="absolute top-4 right-4 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <Button variant="ghost" size="icon"
                         className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full"
-                        onClick={(e) => { e.stopPropagation(); onShareClick(event.id); }}>
+                        onClick={handleShare}>
                         <Share2 className="w-4 h-4" strokeWidth={1.5} />
                     </Button>
 
                     <Button variant="ghost" size="icon"
                         className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full"
-                        onClick={(e) => { e.stopPropagation(); onMenuClick(event.id); }}>
+                        onClick={handleMenuOpen}>
                         <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
                     </Button>
                 </div>
@@ -83,7 +91,7 @@ export function EventItem({ event, user, type }: EventItemProps) {
             <div className="flex justify-between items-center pt-2 border-t border-slate-50">
                 <div className="flex items-center gap-2">
                     {event.participants.length > 0 ?
-                        <ParticipantFacepile participants={event.participants} totalCount={event.participants.length} user={user} onClick={onParticipantClick} /> :
+                        <ParticipantFacepile participants={event.participants} totalCount={event.participants.length} user={user} clickHandler={handleShowParticipants} /> :
                         <span className="text-xs text-slate-400 font-medium">아직 참여자가 없어요</span>
                     }
                 </div>

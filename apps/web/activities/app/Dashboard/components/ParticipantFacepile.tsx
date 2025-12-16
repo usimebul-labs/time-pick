@@ -1,4 +1,5 @@
 import { User } from "@supabase/supabase-js";
+import { MouseEventHandler } from "react";
 
 interface ParticipantFacepileProps {
     participants: {
@@ -8,10 +9,10 @@ interface ParticipantFacepileProps {
     }[];
     totalCount: number;
     user: User | null;
-    onClick: (participants: any[], count: number) => void;
+    clickHandler: MouseEventHandler<HTMLDivElement>;
 }
 
-export function ParticipantFacepile({ participants, totalCount, user, onClick }: ParticipantFacepileProps) {
+export function ParticipantFacepile({ participants, totalCount, user, clickHandler }: ParticipantFacepileProps) {
     // Sort participants for display
     const sortedParticipants = [...participants].sort((a, b) => {
         const isMeA = user && a.userId === user.id;
@@ -36,10 +37,7 @@ export function ParticipantFacepile({ participants, totalCount, user, onClick }:
     return (
         <div
             className="flex items-center -space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={(e) => {
-                e.stopPropagation();
-                onClick(participants, totalCount);
-            }}
+            onClick={clickHandler}
         >
             {displayParticipants.map((p, i) => (
                 <div key={i} className="relative w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-white" title={p.name}>

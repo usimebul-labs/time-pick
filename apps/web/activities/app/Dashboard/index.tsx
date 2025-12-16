@@ -1,50 +1,38 @@
-import { ShareCalendarDialog, Button } from "@repo/ui";
+import Loading from "@/common/components/Loading";
+import { ShareCalendarDialog } from "@repo/ui";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
-import { Calendar, CalendarRange, Sparkles } from "lucide-react";
+import { Calendar, Sparkles } from "lucide-react";
 import { DashboardHeader } from "./components/DashboardHeader";
 import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
-import { ScheduleList } from "./components/ScheduleList";
-import { INITIAL_DISPLAY_COUNT, useDashboard } from "./hooks/useDashboard";
-import Loading from "@/common/components/Loading";
-import { EventItem } from "./components/EventItem";
-import { Events } from "./components/Events";
+import { EventList } from "./components/EventList";
+import { useDashboard } from "./hooks/useDashboard";
+import { useDashboardStore } from "./store/useDashboardStore";
 
 export default function Dashboard() {
     const {
         user,
-        mySchedules,
-        joinedSchedules,
-        loading,
-        showAllMySchedules,
-        setShowAllMySchedules,
-        showAllJoinedSchedules,
-        setShowAllJoinedSchedules,
-        shareDialogOpen,
-        shareEventId,
-        menuOpen,
-        menuScheduleId,
-        participantSheetOpen,
-        setParticipantSheetOpen,
-        selectedParticipants,
-        selectedParticipantCount,
-        handleSignOut,
         handleCreateSchedule,
-        handleManage,
         handleModify,
         handleConfirm,
         handleDelete,
-        handleShare,
-        handleShareClose,
-        setMenuOpen,
-        handleMenuClose,
-        handleMenuOpen,
-        handleParticipantClick,
-        handleCardClick
     } = useDashboard();
 
-    if (!user) return <Loading />
+    const {
+        isShareOpen,
+        closeShare,
+        shareEventId,
+        isMenuOpen,
+        closeMenu,
+        menuScheduleId,
+        isParticipantOpen,
+        closeParticipant,
+        selectedParticipants,
+        selectedParticipantCount,
+    } = useDashboardStore();
 
+
+    if (!user) return <Loading />
 
     return (
         <AppScreen>
@@ -52,7 +40,6 @@ export default function Dashboard() {
                 <DashboardHeader user={user} onCreateSchedule={handleCreateSchedule} />
 
                 <div className="flex-1 p-5 space-y-8 overflow-y-auto">
-
                     <section>
                         <div className="flex items-center justify-between mb-4 px-1">
                             <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900">
@@ -60,7 +47,7 @@ export default function Dashboard() {
                                 내 일정
                             </h2>
                         </div>
-                        <Events user={user} type="my" />
+                        <EventList user={user} type="my" />
                     </section>
 
                     <section>
@@ -70,35 +57,29 @@ export default function Dashboard() {
                                 참여 중인 일정
                             </h2>
                         </div>
-                        <Events user={user} type="joined" />
+                        <EventList user={user} type="joined" />
                     </section>
                 </div>
             </div>
 
             <ShareCalendarDialog
-                isOpen={shareDialogOpen}
-                onClose={handleShareClose}
-                link={typeof window !== 'undefined' && shareEventId ? `${window.location.origin}/app/calendar/${shareEventId}` : ''}
+                isOpen={isShareOpen}
+                onClose={closeShare}
+                link={shareEventId ? `${window.location.origin}/app/calendar/${shareEventId}` : ''}
             />
 
             <DashboardMenuSheet
-                open={menuOpen}
-                onOpenChange={setMenuOpen}
-                scheduleId={menuScheduleId}
+                open={isMenuOpen}
+                onOpenChange={(open) => !open && closeMenu()}
+                eventId={menuScheduleId}
                 onModify={handleModify}
                 onConfirm={handleConfirm}
                 onDelete={handleDelete}
             />
 
-            {/* 
-               Wait, I realized `DashboardMenuSheet` requires `onModify`. 
-               And `ScheduleList` relies on `onMenuClick` which is `handleMenuOpen`.
-               And `ScheduleList` - `onMenuClick` triggers `handleMenuOpen`.
-            */}
-
             <DashboardParticipantSheet
-                open={participantSheetOpen}
-                onOpenChange={setParticipantSheetOpen}
+                open={isParticipantOpen}
+                onOpenChange={(open) => !open && closeParticipant()}
                 participants={selectedParticipants}
                 count={selectedParticipantCount}
                 user={user}
@@ -106,13 +87,3 @@ export default function Dashboard() {
         </AppScreen>
     );
 }
-
-// I need to fix the `onModify` part.
-// The hook `useDashboard.ts` has `handleManage` which goes to `Result`.
-// But "Settings/Modify" button goes to `Modify`.
-// I should update `useDashboard.ts` first to add `handleModify` or just expose `push`.
-// But I can't edit `useDashboard.ts` in this same step easily without complex tool usage.
-// Actually, `stackflow` hook is used in `useDashboard`, not here.
-// So `Dashboard/index.tsx` cannot call `push` unless I use `useFlow` here too.
-// Ideally, `useDashboard` handles all nav.
-// I will rewrite `useDashboard.ts` to include `handleModify`.

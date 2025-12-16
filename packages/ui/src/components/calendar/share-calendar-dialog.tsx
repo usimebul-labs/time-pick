@@ -20,11 +20,7 @@ interface ShareCalendarDialogProps {
     link: string;
 }
 
-export function ShareCalendarDialog({
-    isOpen,
-    onClose,
-    link,
-}: ShareCalendarDialogProps) {
+export function ShareCalendarDialog({ isOpen, onClose, link }: ShareCalendarDialogProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
