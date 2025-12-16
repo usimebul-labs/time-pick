@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@repo/database";
+import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
 export type CreateCalendarState = {
@@ -134,11 +135,10 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
     }
 }
 
-export type DashboardSchedule = {
+export type DashboardEvent = {
     id: string;
     title: string;
     deadline: string | null;
-    participantCount: number;
     isConfirmed: boolean;
     participants: {
         name: string;
@@ -147,28 +147,17 @@ export type DashboardSchedule = {
     }[];
 };
 
-export async function getUserSchedules(): Promise<{
-    mySchedules: DashboardSchedule[];
-    joinedSchedules: DashboardSchedule[];
-    error?: string;
-}> {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+export async function getMySchedules(user: User): Promise<{ schedules: DashboardEvent[]; error?: string; }> {
 
-    if (!user) {
-        return { mySchedules: [], joinedSchedules: [] };
-    }
-
+    if (!user) return { schedules: [] };
     try {
-        // 1. Get My Schedules (Hosted by me)
+
         const myEvents = await prisma.event.findMany({
             where: {
                 hostId: user.id
             },
+
             include: {
-                _count: {
-                    select: { participants: true }
-                },
                 participants: {
                     include: {
                         user: true
@@ -183,11 +172,10 @@ export async function getUserSchedules(): Promise<{
             }
         });
 
-        const mySchedules: DashboardSchedule[] = myEvents.map(event => ({
+        const schedules: DashboardEvent[] = myEvents.map(event => ({
             id: event.id,
             title: event.title,
             deadline: (event.deadline ? event.deadline.toISOString().split('T')[0] : null) as string | null,
-            participantCount: event._count.participants,
             isConfirmed: event.isConfirmed,
             participants: event.participants.map(p => ({
                 name: p.name,
@@ -196,8 +184,16 @@ export async function getUserSchedules(): Promise<{
             }))
         }));
 
-        // 2. Get Joined Schedules
-        // Where I am a participant BUT NOT the host
+        return { schedules };
+
+    } catch (e) {
+        console.error("Error fetching my schedules:", e);
+        return { schedules: [], error: "내 일정을 불러오는 중 오류가 발생했습니다." };
+    }
+}
+
+export async function getJoinedSchedules(user: User): Promise<{ schedules: DashboardEvent[]; error?: string; }> {
+    try {
         const participations = await prisma.participant.findMany({
             where: {
                 userId: user.id,
@@ -210,9 +206,6 @@ export async function getUserSchedules(): Promise<{
             include: {
                 event: {
                     include: {
-                        _count: {
-                            select: { participants: true }
-                        },
                         participants: {
                             include: {
                                 user: true
@@ -229,11 +222,10 @@ export async function getUserSchedules(): Promise<{
             }
         });
 
-        const joinedSchedules: DashboardSchedule[] = participations.map(p => ({
+        const schedules: DashboardEvent[] = participations.map(p => ({
             id: p.event.id,
             title: p.event.title,
             deadline: (p.event.deadline ? p.event.deadline.toISOString().split('T')[0] : null) as string | null,
-            participantCount: p.event._count.participants,
             isConfirmed: p.event.isConfirmed,
             participants: p.event.participants.map(ep => ({
                 name: ep.name,
@@ -242,13 +234,14 @@ export async function getUserSchedules(): Promise<{
             }))
         }));
 
-        return { mySchedules, joinedSchedules };
-
+        return { schedules };
     } catch (e) {
-        console.error("Error fetching schedules:", e);
-        return { mySchedules: [], joinedSchedules: [], error: "일정을 불러오는 중 오류가 발생했습니다." };
+        console.error("Error fetching joined schedules:", e);
+        return { schedules: [], error: "참여한 일정을 불러오는 중 오류가 발생했습니다." };
     }
 }
+
+
 
 export type EventDetail = {
     id: string;

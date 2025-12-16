@@ -1,4 +1,4 @@
-import { DashboardSchedule, getUserSchedules, deleteEvent } from "@/app/actions/calendar";
+import { DashboardEvent, deleteEvent } from "@/app/actions/calendar";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
@@ -9,8 +9,8 @@ export const INITIAL_DISPLAY_COUNT = 3;
 
 export function useDashboard() {
     const [user, setUser] = useState<User | null>(null);
-    const [mySchedules, setMySchedules] = useState<DashboardSchedule[]>([]);
-    const [joinedSchedules, setJoinedSchedules] = useState<DashboardSchedule[]>([]);
+    const [mySchedules, setMySchedules] = useState<DashboardEvent[]>([]);
+    const [joinedSchedules, setJoinedSchedules] = useState<DashboardEvent[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Show More State
@@ -38,17 +38,6 @@ export function useDashboard() {
             // 1. Get User
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
-
-            // 2. Get Schedules
-            if (user) {
-                const { mySchedules, joinedSchedules, error } = await getUserSchedules();
-                if (error) {
-                    console.error(error);
-                } else {
-                    setMySchedules(mySchedules);
-                    setJoinedSchedules(joinedSchedules);
-                }
-            }
             setLoading(false);
         };
         init();

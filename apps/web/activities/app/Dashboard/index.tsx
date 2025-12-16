@@ -1,12 +1,14 @@
 import { ShareCalendarDialog, Button } from "@repo/ui";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
-import { CalendarRange, Sparkles } from "lucide-react";
+import { Calendar, CalendarRange, Sparkles } from "lucide-react";
 import { DashboardHeader } from "./components/DashboardHeader";
 import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
 import { ScheduleList } from "./components/ScheduleList";
 import { INITIAL_DISPLAY_COUNT, useDashboard } from "./hooks/useDashboard";
 import Loading from "@/common/components/Loading";
+import { EventItem } from "./components/EventItem";
+import { Events } from "./components/Events";
 
 export default function Dashboard() {
     const {
@@ -41,7 +43,7 @@ export default function Dashboard() {
         handleCardClick
     } = useDashboard();
 
-    if (loading) return <Loading />
+    if (!user) return <Loading />
 
 
     return (
@@ -50,50 +52,26 @@ export default function Dashboard() {
                 <DashboardHeader user={user} onCreateSchedule={handleCreateSchedule} />
 
                 <div className="flex-1 p-5 space-y-8 overflow-y-auto">
-                    {/* My Created Schedules */}
-                    <ScheduleList
-                        title="내가 만든 일정"
-                        icon={<CalendarRange className="w-5 h-5 text-slate-400" strokeWidth={1.5} />}
-                        schedules={mySchedules}
-                        showAll={showAllMySchedules}
-                        onToggleShowAll={setShowAllMySchedules}
-                        user={user}
-                        initialDisplayCount={INITIAL_DISPLAY_COUNT}
-                        emptyMessage="아직 만든 일정이 없어요"
-                        onCardClick={handleCardClick}
-                        onShareClick={handleShare}
-                        onMenuClick={handleMenuOpen}
-                        onParticipantClick={handleParticipantClick}
-                        onCreateSchedule={handleCreateSchedule}
-                        type="my"
-                    />
 
-                    {/* Actually, let's just pass `handleMenuOpen` to `onMenuClick` */}
+                    <section>
+                        <div className="flex items-center justify-between mb-4 px-1">
+                            <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900">
+                                <Calendar className="w-4 h-4" strokeWidth={1.5} />
+                                내 일정
+                            </h2>
+                        </div>
+                        <Events user={user} type="my" />
+                    </section>
 
-                    {/* Joined Schedules */}
-                    <ScheduleList
-                        title="참여 중인 일정"
-                        icon={<Sparkles className="w-5 h-5 text-slate-400" strokeWidth={1.5} />}
-                        schedules={joinedSchedules}
-                        showAll={showAllJoinedSchedules}
-                        onToggleShowAll={setShowAllJoinedSchedules}
-                        user={user}
-                        initialDisplayCount={INITIAL_DISPLAY_COUNT}
-                        emptyMessage="참여 중인 일정이 없어요"
-                        onCardClick={handleCardClick}
-                        onParticipantClick={handleParticipantClick}
-                        type="joined"
-                    />
-
-                    <div className="pt-2 flex justify-center pb-8">
-                        <Button
-                            variant="ghost"
-                            onClick={handleSignOut}
-                            className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 text-sm font-medium h-auto py-2 px-4 rounded-full"
-                        >
-                            로그아웃
-                        </Button>
-                    </div>
+                    <section>
+                        <div className="flex items-center justify-between mb-4 px-1">
+                            <h2 className="text-lg font-bold flex items-center gap-2 text-slate-900">
+                                <Sparkles className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
+                                참여 중인 일정
+                            </h2>
+                        </div>
+                        <Events user={user} type="joined" />
+                    </section>
                 </div>
             </div>
 

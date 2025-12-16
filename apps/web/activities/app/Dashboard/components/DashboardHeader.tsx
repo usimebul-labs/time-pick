@@ -1,4 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage, Button } from "@repo/ui";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 import { Plus } from "lucide-react";
 
@@ -17,13 +18,11 @@ export function DashboardHeader({ user, onCreateSchedule }: DashboardHeaderProps
         return "사용자";
     };
 
-    const getUserAvatar = (user: User | null) => {
-        if (!user) return "";
-        return user.user_metadata?.avatar_url || user.user_metadata?.picture || "";
-    };
-
     const userName = getUserName(user);
-    const userAvatarUrl = getUserAvatar(user);
+
+    const handleLogoutClick = async () => {
+        await supabase.auth.signOut();
+    };
 
     return (
         <div className="bg-white/80 sticky top-0 z-10 backdrop-blur-md border-b border-slate-200">
@@ -33,12 +32,9 @@ export function DashboardHeader({ user, onCreateSchedule }: DashboardHeaderProps
                         <p className="text-slate-500 text-sm font-medium mb-0.5">반가워요 👋</p>
                         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{userName}님</h1>
                     </div>
-                    <Avatar className="h-10 w-10 ring-2 ring-white p-0.5">
-                        <AvatarImage src={userAvatarUrl} alt={userName} className="rounded-full" />
-                        <AvatarFallback className="text-sm bg-indigo-50 text-indigo-600">
-                            {userName.slice(0, 1).toUpperCase()}
-                        </AvatarFallback>
-                    </Avatar>
+                    <Button variant="ghost" size="sm"
+                        className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 text-sm font-medium h-auto py-2 px-4 rounded-full"
+                        onClick={handleLogoutClick}>로그아웃</Button>
                 </div>
 
                 <Button

@@ -1,4 +1,4 @@
-import { DashboardSchedule } from "@/app/actions/calendar";
+import { DashboardEvent } from "@/app/actions/calendar";
 import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 import { Calendar, ChevronDown, ChevronUp, MoreVertical, Share2, Users } from "lucide-react";
@@ -8,7 +8,7 @@ import { differenceInCalendarDays, parseISO } from "date-fns";
 interface ScheduleListProps {
     title: string;
     icon: React.ReactNode;
-    schedules: DashboardSchedule[];
+    schedules: DashboardEvent[];
     showAll: boolean;
     onToggleShowAll: (show: boolean) => void;
     user: User | null;
