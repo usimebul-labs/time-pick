@@ -324,7 +324,7 @@ export function StatusChart({
                 ref={containerRef}
             >
                 <div
-                    className="h-56 w-[calc(100%+var(--spacing)*2)] ml-3 relative touch-none"
+                    className="h-56 w-full ml-3 relative touch-none"
                     ref={chartRef}
                     onPointerDown={handlePanDown}
                     onPointerMove={handlePanMove}
@@ -358,7 +358,7 @@ export function StatusChart({
                         </div>
                     </div>
 
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width={"100%"} height={"100%"}>
                         <AreaChart
                             data={visibleData}
                             margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
