@@ -10,27 +10,9 @@ import { useDashboard } from "./hooks/useDashboard";
 import { useDashboardStore } from "./hooks/stores";
 
 export default function Dashboard() {
-    const {
-        user,
-        handleCreateSchedule,
-        handleModify,
-        handleConfirm,
-        handleDelete,
-    } = useDashboard();
-
-    const {
-        isShareOpen,
-        closeShare,
-        shareEventId,
-        isMenuOpen,
-        closeMenu,
-        menuScheduleId,
-        isParticipantOpen,
-        closeParticipant,
-        selectedParticipants,
-        selectedParticipantCount,
-    } = useDashboardStore();
-
+    const { user, handleCreateSchedule, handleModify, handleConfirm, handleDelete, } = useDashboard();
+    const { isShareOpen, closeShare, shareEventId, isMenuOpen, closeMenu, menuEventId,
+        isParticipantOpen, closeParticipant, selectedParticipants, selectedParticipantCount, } = useDashboardStore();
 
     if (!user) return <Loading />
 
@@ -71,7 +53,7 @@ export default function Dashboard() {
             <DashboardMenuSheet
                 open={isMenuOpen}
                 onOpenChange={(open) => !open && closeMenu()}
-                eventId={menuScheduleId}
+                eventId={menuEventId}
                 onModify={handleModify}
                 onConfirm={handleConfirm}
                 onDelete={handleDelete}

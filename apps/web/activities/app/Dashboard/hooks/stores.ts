@@ -15,8 +15,8 @@ interface DashboardState {
 
     // Menu Sheet
     isMenuOpen: boolean;
-    menuScheduleId: string | null;
-    openMenu: (scheduleId: string) => void;
+    menuEventId: string | null;
+    openMenu: (eventId: string) => void;
     closeMenu: () => void;
 
     // Participant Sheet
@@ -39,9 +39,9 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
     // Menu Sheet
     isMenuOpen: false,
-    menuScheduleId: null,
-    openMenu: (scheduleId) => set({ isMenuOpen: true, menuScheduleId: scheduleId }),
-    closeMenu: () => set({ isMenuOpen: false, menuScheduleId: null }),
+    menuEventId: null,
+    openMenu: (eventId) => set({ isMenuOpen: true, menuEventId: eventId }),
+    closeMenu: () => set({ isMenuOpen: false, menuEventId: null }),
 
     // Participant Sheet
     isParticipantOpen: false,

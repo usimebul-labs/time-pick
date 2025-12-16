@@ -12,7 +12,7 @@ type ShareProps = {
 };
 
 export default function Share({ params: { id } }: ShareProps) {
-    const { replace, pop } = useFlow();
+    const { replace } = useFlow();
     const [link, setLink] = useState("");
 
     useEffect(() => {
