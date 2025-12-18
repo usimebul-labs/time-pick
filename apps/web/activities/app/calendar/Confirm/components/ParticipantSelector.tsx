@@ -7,6 +7,7 @@ import { cn } from "@repo/ui";
 interface ParticipantSelectorProps {
     participants: ParticipantSummary[];
     selectedIds: Set<string>;
+    highlightedIds?: string[]; // Add this
     onToggle: (id: string) => void;
     onClear: () => void;
 }
@@ -14,6 +15,7 @@ interface ParticipantSelectorProps {
 export function ParticipantSelector({
     participants,
     selectedIds,
+    highlightedIds, // Add this
     onToggle,
     onClear
 }: ParticipantSelectorProps) {
@@ -42,6 +44,7 @@ export function ParticipantSelector({
                     mode="grid"
                     interaction="selectable"
                     selectedIds={selectedIds}
+                    highlightedIds={highlightedIds} // Pass this
                     onToggle={onToggle}
                 />
             </div>

@@ -37,6 +37,9 @@ interface SharedParticipantListProps {
     maxFacepile?: number;
     onFacepileClick?: () => void;
 
+    // For highlighting (e.g. available in slot)
+    highlightedIds?: Set<string> | string[];
+
     // Custom class names
     className?: string;
     itemClassName?: string;
@@ -53,6 +56,7 @@ export function SharedParticipantList({
     currentUserId,
     maxFacepile = 5,
     onFacepileClick,
+    highlightedIds,
     className,
     itemClassName
 }: SharedParticipantListProps) {
@@ -60,6 +64,12 @@ export function SharedParticipantList({
         if (!selectedIds) return false;
         if (Array.isArray(selectedIds)) return selectedIds.includes(id);
         return selectedIds.has(id);
+    };
+
+    const isHighlighted = (id: string) => {
+        if (!highlightedIds) return false;
+        if (Array.isArray(highlightedIds)) return highlightedIds.includes(id);
+        return highlightedIds.has(id);
     };
 
     const isMe = (p: SharedParticipant) => {
@@ -122,6 +132,7 @@ export function SharedParticipantList({
             <div className={cn("flex flex-wrap gap-2", className)}>
                 {participants.map((p) => {
                     const active = isSelected(p.id);
+                    const highlighted = isHighlighted(p.id);
                     const me = isMe(p);
 
                     return (
@@ -130,11 +141,18 @@ export function SharedParticipantList({
                             onClick={() => interaction === "selectable" && onToggle?.(p.id)}
                             disabled={interaction === "readonly"}
                             className={cn(
-                                "flex items-center rounded-full px-2 py-1 border transition-all",
+                                "flex items-center rounded-full px-2 py-1 border transition-all relative",
                                 interaction === "selectable" ? "cursor-pointer" : "cursor-default",
                                 active
-                                    ? "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200"
+                                    ? "bg-indigo-50 border-indigo-200"
                                     : "bg-white border-gray-200 hover:bg-gray-50",
+                                // Highlight effect: thick border (ring)
+                                highlighted && !active && "ring-2 ring-indigo-400 border-transparent",
+                                // Highlight + Active: Just keep active style, maybe enhance?
+                                // User said: "Available participants via Border". "Selected via Background/Font".
+                                // So maybe they want BOTH visible at same time.
+                                // If I am filtered (Selected) AND Available (Highlighted), I should show both.
+                                highlighted && active && "ring-2 ring-indigo-500 ring-offset-1",
                                 itemClassName
                             )}
                         >

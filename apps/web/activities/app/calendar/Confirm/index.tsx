@@ -55,6 +55,11 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                         <ParticipantSelector
                             participants={participants}
                             selectedIds={selectedParticipantIds}
+                            highlightedIds={
+                                selectedRankIndex !== null && rankedSlots[selectedRankIndex]
+                                    ? rankedSlots[selectedRankIndex]!.participants
+                                    : undefined
+                            }
                             onToggle={toggleParticipant}
                             onClear={clearParticipants}
                         />
