@@ -1,4 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage, Sheet, SheetContent, SheetHeader, SheetTitle } from "@repo/ui";
+import { SharedParticipantList } from "@/components/common/SharedParticipantList";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 
 interface DashboardParticipantSheetProps {
@@ -22,30 +23,14 @@ export function DashboardParticipantSheet({
                 <SheetHeader className="p-6 pb-4 border-b border-gray-100 shrink-0">
                     <SheetTitle className="text-lg font-bold text-slate-900">참여자 목록 <span className="text-indigo-600 ml-1">{count}명</span></SheetTitle>
                 </SheetHeader>
-                <div className="grid grid-cols-1 gap-1 overflow-y-auto flex-1 p-4 pb-20 content-start">
-                    {participants.map((p, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl transition-colors">
-                            <Avatar className="h-10 w-10 ring-1 ring-slate-100">
-                                <AvatarImage src={p.avatarUrl || ""} alt={p.name} />
-                                <AvatarFallback className="text-xs bg-indigo-50 text-indigo-700 font-bold">
-                                    {p.name[0]}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-semibold text-slate-900 truncate">
-                                        {p.name}
-                                    </span>
-                                    {user && p.userId === user.id && (
-                                        <span className="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.5 rounded-full">나</span>
-                                    )}
-                                </div>
-                                <span className="text-xs text-slate-400">
-                                    {p.userId ? "회원" : "게스트"}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
+                <div className="flex-1 p-4 pb-20 overflow-y-auto content-start">
+                    <SharedParticipantList
+                        participants={participants.map(p => ({ ...p, id: p.userId || p.name }))}
+                        mode="list"
+                        interaction="readonly"
+                        currentUser={user}
+                        className="gap-1"
+                    />
                 </div>
             </SheetContent>
         </Sheet>

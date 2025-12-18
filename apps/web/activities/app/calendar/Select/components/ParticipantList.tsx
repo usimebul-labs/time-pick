@@ -1,3 +1,4 @@
+import { SharedParticipantList } from "@/components/common/SharedParticipantList";
 import { ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { User } from "lucide-react";
 import { useParticipantList } from "../hooks/useParticipantList";
@@ -30,41 +31,15 @@ export function ParticipantList({
                 {participants.length > 0 && <span className="text-xs text-gray-400">함께하고 있어요</span>}
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-3">
-                {participants.length > 0 ? (
-                    participants.map((p) => {
-                        const isMe = p.id === participation?.id;
-                        const isSelected = selectedParticipantIds.includes(p.id);
-
-                        return (
-                            <div
-                                key={p.id}
-                                onClick={() => onToggleParticipant(p.id)}
-                                className={`flex items-center cursor-pointer transition-all duration-200 ${isSelected
-                                    ? "bg-primary/5 border border-primary ring-1 ring-primary/20 shadow-sm opacity-100"
-                                    : "bg-white border border-gray-200 hover:bg-gray-50"
-                                    } rounded-full pl-1 pr-2.5 py-1 select-none hover:scale-105 active:scale-95`}
-                            >
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold mr-2 overflow-hidden ring-1 ring-white transition-colors duration-200 ${isSelected ? "bg-gradient-to-br from-primary/10 to-primary/20 text-primary" : "bg-gray-100 text-gray-500"
-                                    }`}>
-                                    {p.avatarUrl ? (
-                                        <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        p.name[0]
-                                    )}
-                                </div>
-                                <span className={`text-xs font-medium transition-colors duration-200 ${isSelected ? "text-primary font-bold" : "text-gray-700"}`}>
-                                    {p.name}
-                                    {isMe && <span className={`text-[10px] ml-0.5 ${isSelected ? "text-primary font-bold" : "text-gray-400"}`}>(나)</span>}
-                                </span>
-                            </div>
-                        );
-                    })
-                ) : (
-                    <div className="text-center w-full py-4 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
-                        <span className="text-xs text-gray-400">첫 번째 참여자가 되어주세요!</span>
-                    </div>
-                )}
+            <div className="mb-3">
+                <SharedParticipantList
+                    participants={participants}
+                    mode="grid"
+                    interaction="selectable"
+                    selectedIds={selectedParticipantIds}
+                    onToggle={onToggleParticipant}
+                    currentUserId={participation?.id}
+                />
             </div>
 
             {/* Highlighted Selection Button - Bottom Right */}

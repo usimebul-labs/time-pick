@@ -10,7 +10,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
         participants,
         selectedParticipantIds,
         toggleParticipant,
-        selectAllParticipants,
+        clearParticipants,
         duration,
         setDuration,
         selectedTime,
@@ -62,7 +62,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                             participants={participants}
                             selectedIds={selectedParticipantIds}
                             onToggle={toggleParticipant}
-                            onSelectAll={selectAllParticipants}
+                            onClear={clearParticipants}
                         />
                     </section>
 

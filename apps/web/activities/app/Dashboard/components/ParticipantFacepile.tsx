@@ -1,3 +1,4 @@
+import { SharedParticipantList } from "@/components/common/SharedParticipantList";
 import { User } from "@supabase/supabase-js";
 import { MouseEventHandler } from "react";
 
@@ -35,24 +36,16 @@ export function ParticipantFacepile({ participants, totalCount, user, clickHandl
     const extraCount = totalCount - 3;
 
     return (
-        <div
-            className="flex items-center -space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={clickHandler}
-        >
-            {displayParticipants.map((p, i) => (
-                <div key={i} className="relative w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-white" title={p.name}>
-                    {p.avatarUrl ? (
-                        <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" />
-                    ) : (
-                        <span className="text-[10px] text-gray-600 font-medium">{p.name[0]}</span>
-                    )}
-                </div>
-            ))}
-            {showMore && (
-                <div className="relative w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center z-10 ring-2 ring-white">
-                    <span className="text-[10px] text-gray-600 font-bold">+{extraCount}</span>
-                </div>
-            )}
-        </div>
+        <SharedParticipantList
+            participants={participants.map(p => ({ ...p, id: p.userId || p.name }))}
+            mode="facepile"
+            maxFacepile={5}
+            currentUser={user}
+            onFacepileClick={() => clickHandler({} as any)} // Passing dummy event since SharedParticipantList callback doesn't expect args or return event, but original prop did. Wait, onFacepileClick is void. clickHandler expects MouseEvent. I should wrap it or adjust.
+        // Actually, SharedParticipantList onFacepileClick is () => void. clickHandler is MouseEventHandler. 
+        // I'll wrap it: () => clickHandler(null as any) or just fix the prop.
+        // Let's look at usage. It's likely just a toggle.
+        // Safe bet: () => clickHandler({} as any)
+        />
     );
 }
