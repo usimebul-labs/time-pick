@@ -136,8 +136,8 @@ export function useConfirm(id: string) {
                         }
                     }
                     if (matches) {
-                        count = selectedParticipantIds.size;
-                        participantIds = Array.from(selectedParticipantIds);
+                        count = availableSet.size;
+                        participantIds = Array.from(availableSet);
                     }
                 } else {
                     // No selection -> everyone available in this slot is a candidate group
