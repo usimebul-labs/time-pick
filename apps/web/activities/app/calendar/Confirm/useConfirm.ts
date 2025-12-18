@@ -41,7 +41,6 @@ export function useConfirm(id: string) {
         bank: string;
         inquiry: string;
         memo: string;
-        customFields: { label: string; value: string }[];
     }>({
         location: "", // Can implement pre-fill from event description if parsed
         transport: "",
@@ -49,8 +48,7 @@ export function useConfirm(id: string) {
         fee: "",
         bank: "",
         inquiry: "",
-        memo: "",
-        customFields: []
+        memo: ""
     });
 
     const { replace } = useFlow();

@@ -783,7 +783,7 @@ export async function confirmEvent(
         bank: string;
         inquiry: string;
         memo: string;
-        customFields: { label: string; value: string }[];
+
     }
 ): Promise<ConfirmEventState> {
     const supabase = await createClient();
@@ -801,26 +801,6 @@ export async function confirmEvent(
         if (!event) return { error: "일정을 찾을 수 없습니다." };
         if (event.hostId !== user.id) return { error: "권한이 없습니다." };
 
-        // Parse start/end times from finalSlot
-        // finalSlot.startTime format:
-        // Monthly: "YYYY-MM-DD" -> Convert to Date. Time is in separate state? 
-        // Wait, hook logic for Monthly: returns "YYYY-MM-DD".
-        // But UI allows setting a specific time "HH:mm".
-        // So we need to combine them.
-
-        // Let's assume passed startTime is ISO or fully qualified.
-        // Actually, logic in useConfirm should combine them before sending here.
-
-        // We will expect ISO strings for startDate/endDate of the final event logic.
-        // Or if it's Monthly, we update startDate/endDate/startTime/endTime according to the slot.
-
-        // Simplified approach: Update event with confirmed flag and description/memo?
-        // But we need to save the "Additional Info".
-        // Schema Check: Event model has `description`, `title`.
-        // It doesn't have fields for "Location", "Transport", etc.
-        // We should probably append these to `description` or store in a JSON field if we had one.
-        // Metadata not available. Appending to description is the safest way to persist without schema change.
-
         let newDescription = event.description || "";
         newDescription += "\n\n--- 확정 안내 ---\n";
         if (additionalInfo.location) newDescription += `📍 장소: ${additionalInfo.location}\n`;
@@ -830,10 +810,6 @@ export async function confirmEvent(
         if (additionalInfo.bank) newDescription += `🏦 계좌: ${additionalInfo.bank}\n`;
         if (additionalInfo.inquiry) newDescription += `📞 문의: ${additionalInfo.inquiry}\n`;
         if (additionalInfo.memo) newDescription += `📝 메모: ${additionalInfo.memo}\n`;
-
-        additionalInfo.customFields.forEach(f => {
-            if (f.label && f.value) newDescription += `📌 ${f.label}: ${f.value}\n`;
-        });
 
         // Determine Start/End Date/Time
         // If Monthly selection was just a Date, we need to know the specific Time set by user.

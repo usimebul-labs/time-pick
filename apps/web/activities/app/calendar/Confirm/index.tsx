@@ -1,7 +1,7 @@
 
 import { AppScreen } from "@stackflow/plugin-basic-ui";
-import { useConfirm } from "./useConfirm";
 import { Loader2 } from "lucide-react";
+import { useConfirm } from "./useConfirm";
 
 export default function Confirm({ params: { id } }: { params: { id: string } }) {
     const {
@@ -67,7 +67,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                         />
                     </section>
 
-                    {/* 2. Time/Duration Setting */}
+                    {/* 2. Duration Setting */}
                     {event.type === 'weekly' &&
                         <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -93,28 +93,20 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                     </section>
 
 
-                    {/* 2. Time/Duration Setting */}
-                    {event.type === 'monthly' &&
-                        <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                            {/* Header moved inside component */}
-                            <MonthlyTimeSelector
-                                startTime={selectedTime}
-                                onStartTimeChange={setSelectedTime}
-                                endTime={selectedEndTime}
-                                onEndTimeChange={setSelectedEndTime}
-                            />
-                        </section>
-                    }
-
-
-                    {/* 4. Additional Info */}
-                    <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    {/* 4. Additional Info (Includes Time for Monthly) */}
+                    <section className="space-y-4">
                         <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <span>📝</span> 안내 사항
+                            <span>📝</span> 기타 안내 사항
                         </h2>
                         <AdditionalInfoForm
                             info={additionalInfo}
                             onChange={setAdditionalInfo}
+                            monthlyTimeProps={event.type === 'monthly' ? {
+                                startTime: selectedTime,
+                                onStartTimeChange: setSelectedTime,
+                                endTime: selectedEndTime,
+                                onEndTimeChange: setSelectedEndTime
+                            } : undefined}
                         />
                     </section>
                 </div>
@@ -134,8 +126,8 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
     );
 }
 
-import { ParticipantSelector } from "./components/ParticipantSelector";
-import { WeeklyTimeSelector } from "./components/WeeklyTimeSelector";
-import { MonthlyTimeSelector } from "./components/MonthlyTimeSelector";
-import { ScheduleRankList } from "./components/ScheduleRankList";
 import { AdditionalInfoForm } from "./components/AdditionalInfoForm";
+import { ParticipantSelector } from "./components/ParticipantSelector";
+import { ScheduleRankList } from "./components/ScheduleRankList";
+import { WeeklyTimeSelector } from "./components/WeeklyTimeSelector";
+
