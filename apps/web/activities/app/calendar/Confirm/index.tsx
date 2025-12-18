@@ -46,39 +46,28 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
             <div className="flex flex-col flex-1 bg-slate-50 text-slate-900 overflow-y-auto pb-24">
                 <div className="flex-1 px-5 py-6 space-y-8">
                     <div className="space-y-2">
-                        <div className="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1">
-                            일정 확정
-                        </div>
                         <h1 className="text-2xl font-bold text-slate-900 leading-tight">{event.title}</h1>
                         <p className="text-slate-500 text-sm">{event.description || "확정을 위해 세부 내용을 입력해주세요"}</p>
                     </div>
 
                     {/* 1. Participant List */}
-                    <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <span>👥</span> 참여자 선택
-                        </h2>
-                        <ParticipantSelector
-                            participants={participants}
-                            selectedIds={selectedParticipantIds}
-                            onToggle={toggleParticipant}
-                            onClear={clearParticipants}
-                        />
-                    </section>
+                    <ParticipantSelector
+                        participants={participants}
+                        selectedIds={selectedParticipantIds}
+                        onToggle={toggleParticipant}
+                        onClear={clearParticipants}
+                    />
 
                     {/* 2. Time/Duration Setting */}
-                    <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    {event.type === 'weekly' && <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                         <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <span>⏰</span> {event.type === 'weekly' ? '소요 시간' : '시간 설정'}
+                            <span>⏰</span> 소요시간
                         </h2>
-                        <TimeSelector
-                            type={event.type}
+                        <WeeklyTimeSelector
                             duration={duration}
                             onDurationChange={setDuration}
-                            time={selectedTime}
-                            onTimeChange={setSelectedTime}
                         />
-                    </section>
+                    </section>}
 
                     {/* 3. Ranked Schedules */}
                     <section className="space-y-4">
@@ -91,6 +80,19 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                             onSelect={setSelectedRankIndex}
                         />
                     </section>
+
+
+                    {/* 2. Time/Duration Setting */}
+                    {event.type === 'monthly' && <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <span>⏰</span> 시간 설정
+                        </h2>
+                        <MonthlyTimeSelector
+                            time={selectedTime}
+                            onTimeChange={setSelectedTime}
+                        />
+                    </section>}
+
 
                     {/* 4. Additional Info */}
                     <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
@@ -120,6 +122,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
 }
 
 import { ParticipantSelector } from "./components/ParticipantSelector";
-import { TimeSelector } from "./components/TimeSelector";
+import { WeeklyTimeSelector } from "./components/WeeklyTimeSelector";
+import { MonthlyTimeSelector } from "./components/MonthlyTimeSelector";
 import { ScheduleRankList } from "./components/ScheduleRankList";
 import { AdditionalInfoForm } from "./components/AdditionalInfoForm";

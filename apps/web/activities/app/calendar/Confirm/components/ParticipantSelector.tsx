@@ -22,10 +22,11 @@ export function ParticipantSelector({
 
     return (
         <div className="space-y-3">
+
             <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500 font-medium">
-                    함께할 멤버를 선택해주세요
-                </span>
+                <h2 className="text-lg font-bold mb-1 flex items-center gap-2">
+                    꼭 참여해야할 멤버가 있나요?
+                </h2>
                 {hasSelection && (
                     <button
                         onClick={onClear}
