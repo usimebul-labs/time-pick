@@ -22,70 +22,94 @@ export function ScheduleRankList({ slots, selectedSlotIndex, onSelect }: Schedul
         );
     }
 
-    const firstRank = slots[0];
-    const otherRanks = slots.slice(1);
+    // Grouping by participant count
+    // slots are already sorted by count DESC
+    const groupedSlots: Record<number, RankedSlot[]> = {};
+    const counts: number[] = [];
 
-    const renderSlot = (slot: RankedSlot, index: number, isMain: boolean = false) => {
-        const isSelected = selectedSlotIndex === index;
+    slots.forEach(slot => {
+        if (!groupedSlots[slot.count]) {
+            groupedSlots[slot.count] = [];
+            counts.push(slot.count);
+        }
+        groupedSlots[slot.count]!.push(slot);
+    });
+
+    const maxCount = counts[0];
+    const otherCounts = counts.slice(1);
+
+    const renderGroup = (count: number, groupSlots: RankedSlot[]) => {
         return (
-            <div
-                key={index}
-                className={cn(
-                    "relative p-4 rounded-2xl border cursor-pointer transition-all",
-                    isSelected
-                        ? "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200"
-                        : "bg-white border-gray-100 hover:border-indigo-100 hover:shadow-sm",
-                    isMain ? "shadow-md" : ""
-                )}
-                onClick={() => onSelect(index)}
-            >
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center space-x-3">
-                        <span className={cn(
-                            "px-3 py-1 rounded-full text-xs font-bold",
-                            index === 0
-                                ? "bg-orange-100 text-orange-700"
-                                : "bg-gray-100 text-gray-600"
-                        )}>
-                            {index === 0 ? "👑 1순위" : `${slot.rank}순위`}
-                        </span>
-                        <div className={cn(
-                            "font-bold text-lg",
-                            isSelected ? "text-indigo-900" : "text-gray-800"
-                        )}>
-                            {slot.startTime} {slot.endTime && !slot.startTime.includes("~") ? `~ ${slot.endTime}` : ""}
-                        </div>
-                    </div>
-                    <div className="text-sm font-medium text-gray-500">
-                        {slot.count}명 가능
-                    </div>
+            <div key={count} className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-500 flex items-center gap-2">
+                    <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">
+                        {count}명 가능
+                    </span>
+                    {count === maxCount && <span className="text-xs text-indigo-600 font-medium">✨ 추천</span>}
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {groupSlots.map((slot, i) => {
+                        const originalIndex = slots.findIndex(s => s === slot); // Find original index for selection
+                        const isSelected = selectedSlotIndex === originalIndex;
+
+                        return (
+                            <div
+                                key={`${count}-${i}`}
+                                onClick={() => onSelect(originalIndex)}
+                                className={cn(
+                                    "relative p-2 rounded-xl border cursor-pointer transition-all flex flex-col justify-center",
+                                    isSelected
+                                        ? "bg-indigo-50 border-indigo-500 ring-1 ring-indigo-500"
+                                        : "bg-white border-gray-200 hover:border-indigo-300 hover:shadow-sm"
+                                )}
+                            >
+                                <div className={cn("font-bold text-center text-sm", isSelected ? "text-indigo-900" : "text-gray-800")}>
+                                    {slot.startTime}
+                                </div>
+                                {slot.endTime && !slot.startTime.includes("~") && (
+                                    <div className={cn("text-[10px] text-center mt-0.5", isSelected ? "text-indigo-700" : "text-gray-500")}>
+                                        ~ {slot.endTime}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         );
     };
 
     return (
-        <div className="space-y-3">
-            {firstRank && renderSlot(firstRank, 0, true)}
+        <div className="space-y-6">
+            {/* Main Group (Max Count) */}
+            {maxCount !== undefined && groupedSlots[maxCount] && renderGroup(maxCount, groupedSlots[maxCount])}
 
-            {otherRanks.length > 0 && (
-                <div className="space-y-2 pt-2">
-                    {expanded && otherRanks.map((slot, i) => renderSlot(slot, i + 1))}
+            {/* Other Groups (Collapsible) */}
+            {otherCounts.length > 0 && (
+                <div className="space-y-4">
+                    {!expanded && (
+                        <button
+                            onClick={() => setExpanded(true)}
+                            className="flex items-center justify-center w-full py-3 text-sm font-medium text-gray-500 hover:text-gray-700 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                        >
+                            <ChevronDown className="w-4 h-4 mr-1" /> 다른 일정 더보기 ({otherCounts.reduce((acc, c) => acc + (groupedSlots[c]?.length || 0), 0)}개)
+                        </button>
+                    )}
 
-                    <button
-                        onClick={() => setExpanded(!expanded)}
-                        className="flex items-center justify-center w-full py-3 text-sm font-medium text-gray-500 hover:text-gray-700 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-                    >
-                        {expanded ? (
-                            <>
+                    {expanded && (
+                        <div className="space-y-6 animation-fade-in">
+                            {otherCounts.map(count => (
+                                groupedSlots[count] && renderGroup(count, groupedSlots[count])
+                            ))}
+
+                            <button
+                                onClick={() => setExpanded(false)}
+                                className="flex items-center justify-center w-full py-3 text-sm font-medium text-gray-500 hover:text-gray-700 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                            >
                                 <ChevronUp className="w-4 h-4 mr-1" /> 접기
-                            </>
-                        ) : (
-                            <>
-                                <ChevronDown className="w-4 h-4 mr-1" /> 다른 일정 더보기
-                            </>
-                        )}
-                    </button>
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

@@ -35,6 +35,7 @@ export function useSelectAction(
                     guestSessions[id] = guestPin;
                     localStorage.setItem("guest_sessions", JSON.stringify(guestSessions));
                     useGuestStore.getState().clearPendingGuest();
+                    replace("Status", { id: event.id });
                 } else {
                     alert(result.error || "게스트 생성 실패");
                     return;

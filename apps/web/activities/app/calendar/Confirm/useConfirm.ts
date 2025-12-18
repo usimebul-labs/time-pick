@@ -165,7 +165,7 @@ export function useConfirm(id: string) {
                 return a.startTime.localeCompare(b.startTime);
             });
 
-            return candidates.map((c, i) => ({ ...c, rank: i + 1 })).slice(0, 3);
+            return candidates.map((c, i) => ({ ...c, rank: i + 1 }));
 
         } else {
             // Weekly Logic
@@ -268,7 +268,7 @@ export function useConfirm(id: string) {
                 return a.startISO.localeCompare(b.startISO);
             });
 
-            return ranges.map((r, i) => ({ ...r, rank: i + 1 })).slice(0, 3);
+            return ranges.map((r, i) => ({ ...r, rank: i + 1 }));
         }
 
     }, [event, participants, selectedParticipantIds, duration]);
