@@ -15,6 +15,8 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
         setDuration,
         selectedTime,
         setSelectedTime,
+        selectedEndTime,
+        setSelectedEndTime,
         additionalInfo,
         setAdditionalInfo,
         rankedSlots,
@@ -94,12 +96,12 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                     {/* 2. Time/Duration Setting */}
                     {event.type === 'monthly' &&
                         <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                                <span>⏰</span> 시간 설정
-                            </h2>
+                            {/* Header moved inside component */}
                             <MonthlyTimeSelector
-                                time={selectedTime}
-                                onTimeChange={setSelectedTime}
+                                startTime={selectedTime}
+                                onStartTimeChange={setSelectedTime}
+                                endTime={selectedEndTime}
+                                onEndTimeChange={setSelectedEndTime}
                             />
                         </section>
                     }

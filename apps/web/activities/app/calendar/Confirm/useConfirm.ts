@@ -27,7 +27,9 @@ export function useConfirm(id: string) {
     // For weekly: duration in hours. Default 1.
     const [duration, setDuration] = useState<number>(1);
     // For monthly: specific time string "HH:mm"
-    const [selectedTime, setSelectedTime] = useState<string>("12:00");
+    const [selectedTime, setSelectedTime] = useState<string>("12:00"); // Start Time
+    const [selectedEndTime, setSelectedEndTime] = useState<string>(""); // End Time (optional)
+
     const [selectedRankIndex, setSelectedRankIndex] = useState<number | null>(0); // Default to 1st rank
 
     // Additional Info State
@@ -284,13 +286,15 @@ export function useConfirm(id: string) {
 
         if (event.type === 'monthly') {
             // Combine date (YYYY-MM-DD) with selectedTime (HH:mm)
-            // selectedSlot.startISO is YYYY-MM-DD string
-            const combined = new Date(`${selectedSlot.startISO}T${selectedTime}:00`);
-            finalStart = combined.toISOString();
-            // End time is optional or derived? logic in confirmEvent can handle null end for monthly?
-            // Or set to +1 hour default?
-            // Let's set end as same for now or +1h?
-            // If I leave undefined, confirmAction logic handles it (single date).
+            const combinedStart = new Date(`${selectedSlot.startISO}T${selectedTime}:00`);
+            finalStart = combinedStart.toISOString();
+
+            if (selectedEndTime) {
+                const combinedEnd = new Date(`${selectedSlot.startISO}T${selectedEndTime}:00`);
+                finalEnd = combinedEnd.toISOString();
+            } else {
+                finalEnd = undefined; // Or handle as null? confirmEvent action likely expects string | undefined
+            }
         }
 
         const result = await confirmEvent(id, {
@@ -314,8 +318,10 @@ export function useConfirm(id: string) {
         clearParticipants,
         duration,
         setDuration,
-        selectedTime,
+        selectedTime, // Start Time
         setSelectedTime,
+        selectedEndTime, // End Time
+        setSelectedEndTime,
         additionalInfo,
         setAdditionalInfo,
         rankedSlots,
