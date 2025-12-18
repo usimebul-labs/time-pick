@@ -51,23 +51,27 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                     </div>
 
                     {/* 1. Participant List */}
-                    <ParticipantSelector
-                        participants={participants}
-                        selectedIds={selectedParticipantIds}
-                        onToggle={toggleParticipant}
-                        onClear={clearParticipants}
-                    />
+                    <section className="space-y-4">
+                        <ParticipantSelector
+                            participants={participants}
+                            selectedIds={selectedParticipantIds}
+                            onToggle={toggleParticipant}
+                            onClear={clearParticipants}
+                        />
+                    </section>
 
                     {/* 2. Time/Duration Setting */}
-                    {event.type === 'weekly' && <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <span>⏰</span> 소요시간
-                        </h2>
-                        <WeeklyTimeSelector
-                            duration={duration}
-                            onDurationChange={setDuration}
-                        />
-                    </section>}
+                    {event.type === 'weekly' &&
+                        <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                <span>⏰</span> 소요시간
+                            </h2>
+                            <WeeklyTimeSelector
+                                duration={duration}
+                                onDurationChange={setDuration}
+                            />
+                        </section>
+                    }
 
                     {/* 3. Ranked Schedules */}
                     <section className="space-y-4">
@@ -83,15 +87,17 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
 
 
                     {/* 2. Time/Duration Setting */}
-                    {event.type === 'monthly' && <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <span>⏰</span> 시간 설정
-                        </h2>
-                        <MonthlyTimeSelector
-                            time={selectedTime}
-                            onTimeChange={setSelectedTime}
-                        />
-                    </section>}
+                    {event.type === 'monthly' &&
+                        <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                <span>⏰</span> 시간 설정
+                            </h2>
+                            <MonthlyTimeSelector
+                                time={selectedTime}
+                                onTimeChange={setSelectedTime}
+                            />
+                        </section>
+                    }
 
 
                     {/* 4. Additional Info */}
