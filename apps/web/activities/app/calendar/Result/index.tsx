@@ -18,6 +18,7 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
             <AppScreen>
                 <div className="flex flex-col items-center justify-center flex-1 h-screen bg-[#F8F9FA]">
                     <Loader2 className="animate-spin text-gray-400 w-8 h-8" />
+
                 </div>
             </AppScreen>
         );
