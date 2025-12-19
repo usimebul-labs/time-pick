@@ -41,7 +41,22 @@ model Event {
   host          Profile? @relation(fields: [hostId], references: [id])
   participants  Participant[]
   availabilities Availability[]
+  confirmation  EventConfirmation?
   @@map("events")
+}
+
+model EventConfirmation {
+  id             String   @id @default(uuid())
+  eventId        String   @unique @map("event_id")
+  startAt        DateTime @map("start_at")
+  endAt          DateTime @map("end_at")
+  message        String?
+  participantIds String[] @map("participant_ids")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
+  event          Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_confirmations")
 }
 
 model Participant {
