@@ -4,12 +4,13 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { useResult } from "./useResult";
 import { Loader2, Calendar, MapPin, Share2, Plus, ChevronDown, ChevronUp, Clock, Info } from "lucide-react";
-import { cn, ShareCalendarDialog } from "@repo/ui";
+import { cn } from "@repo/ui";
 import { useFlow } from "@/stackflow";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { SharedParticipantList, SharedParticipant } from "@/components/common/SharedParticipantList";
+import { EventShareSheet } from "./components/EventShareSheet";
 
 export default function Result({ params: { id } }: { params: { id: string } }) {
     const { event, confirmation, participants, isLoading, error } = useResult(id);
@@ -189,8 +190,8 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
                     </button>
                 </div>
 
-                {/* Share Dialog */}
-                <ShareCalendarDialog
+                {/* Share Sheet */}
+                <EventShareSheet
                     isOpen={isShareOpen}
                     onClose={() => setIsShareOpen(false)}
                     link={typeof window !== 'undefined' ? window.location.href : ''}
