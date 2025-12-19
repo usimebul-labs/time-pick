@@ -1,10 +1,8 @@
-
 import { useState, useEffect } from "react";
-import { getEventWithParticipation, EventDetail, ParticipantSummary } from "@/app/actions/calendar";
+import { getConfirmedEventResult, ConfirmedEventResult } from "@/app/actions/calendar";
 
 export function useResult(eventId: string) {
-    const [event, setEvent] = useState<EventDetail | null>(null);
-    const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
+    const [resultData, setResultData] = useState<ConfirmedEventResult | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -13,14 +11,13 @@ export function useResult(eventId: string) {
 
         async function fetchEvent() {
             try {
-                const { event, participants, error } = await getEventWithParticipation(eventId);
+                const { data, error } = await getConfirmedEventResult(eventId);
 
                 if (isMounted) {
                     if (error) {
                         setError(error);
-                    } else if (event) {
-                        setEvent(event);
-                        setParticipants(participants);
+                    } else if (data) {
+                        setResultData(data);
                     }
                 }
             } catch (e) {
@@ -40,7 +37,6 @@ export function useResult(eventId: string) {
     const handleShare = async () => {
         try {
             await navigator.clipboard.writeText(window.location.href);
-            // Could return specific feedback state here if needed
             return true;
         } catch (err) {
             console.error("Failed to copy link:", err);
@@ -49,8 +45,9 @@ export function useResult(eventId: string) {
     };
 
     return {
-        event,
-        participants,
+        event: resultData?.event || null,
+        confirmation: resultData?.confirmation || null,
+        participants: resultData?.participants || [],
         isLoading,
         error,
         handleShare

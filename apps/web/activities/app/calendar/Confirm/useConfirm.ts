@@ -298,7 +298,7 @@ export function useConfirm(id: string) {
         const result = await confirmEvent(id, {
             startTime: finalStart,
             endTime: finalEnd
-        }, additionalInfo);
+        }, selectedSlot.participants, additionalInfo);
 
         if (result.success) {
             replace("Result", { id });

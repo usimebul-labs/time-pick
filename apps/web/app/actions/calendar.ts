@@ -775,6 +775,7 @@ export type ConfirmEventState = {
 export async function confirmEvent(
     eventId: string,
     finalSlot: { startTime: string; endTime?: string },
+    participantIds: string[],
     additionalInfo: {
         location: string;
         transport: string;
@@ -783,7 +784,6 @@ export async function confirmEvent(
         bank: string;
         inquiry: string;
         memo: string;
-
     }
 ): Promise<ConfirmEventState> {
     const supabase = await createClient();
@@ -801,53 +801,67 @@ export async function confirmEvent(
         if (!event) return { error: "일정을 찾을 수 없습니다." };
         if (event.hostId !== user.id) return { error: "권한이 없습니다." };
 
-        let newDescription = event.description || "";
-        newDescription += "\n\n--- 확정 안내 ---\n";
-        if (additionalInfo.location) newDescription += `📍 장소: ${additionalInfo.location}\n`;
-        if (additionalInfo.transport) newDescription += `🚇 교통: ${additionalInfo.transport}\n`;
-        if (additionalInfo.parking) newDescription += `🅿️ 주차: ${additionalInfo.parking}\n`;
-        if (additionalInfo.fee) newDescription += `💰 회비: ${additionalInfo.fee}\n`;
-        if (additionalInfo.bank) newDescription += `🏦 계좌: ${additionalInfo.bank}\n`;
-        if (additionalInfo.inquiry) newDescription += `📞 문의: ${additionalInfo.inquiry}\n`;
-        if (additionalInfo.memo) newDescription += `📝 메모: ${additionalInfo.memo}\n`;
-
-        // Determine Start/End Date/Time
-        // If Monthly selection was just a Date, we need to know the specific Time set by user.
-        // So `finalSlot` argument needs to be processed by caller to provide exact ISOs?
-        // OR we trust `startTime` / `endTime` passed here are properly formatted to update the DB fields.
-
-        // Event model has: startDate, endDate (Date), startTime, endTime (Time).
-        // If Weekly range (e.g. 2023-12-25 10:00 ~ 12:00), we should update:
-        // startDate = 2023-12-25, endDate = 2023-12-25
-        // startTime = 10:00, endTime = 12:00
-
-        // If we want to strictly follow schema.
-
         const start = new Date(finalSlot.startTime);
-        const end = finalSlot.endTime ? new Date(finalSlot.endTime) : null;
+        let end = finalSlot.endTime ? new Date(finalSlot.endTime) : null;
 
-        // Update DB
-        const updateData: any = {
-            isConfirmed: true,
-            description: newDescription,
-            startDate: start,
-            endDate: end || start // if monthly date only, end is same as start
-        };
+        // Monthly Event logic: If no specific time provided (just date), verify if we need to set default logic
+        if (event.type === 'monthly') {
+            // If caller passed only Date part (no specific time selected by user logic?), 
+            // but `finalSlot.startTime` should normally include time if `selectedTime` was combined.
+            // If validation needed:
+            // The requirement says: "If time info not entered for monthly... set start to day start, end to day end"
+            // In `useConfirm`, we combine date + time. 
+            // IF `useConfirm` passed a time-less ISO (e.g. just YYYY-MM-DDT00:00:00.000Z due to some logic), we treat it here?
+            // Actually `useConfirm` guarantees `selectedTime` default "12:00". 
+            // BUT, if we want to be safe or if the unique requirement implies "If user didn't pick time" (checking if explicit time set?)...
+            // Let's assume if endTime is missing for Monthly, we set it to end of day of the start date.
 
-        if (event.type === 'weekly' && end) {
-            updateData.startTime = start; // Prisma handles extracting time part
-            updateData.endTime = end;
-        } else if (event.type === 'monthly') {
-            // If caller passed a full datetime (Date + Time), we set startTime/endTime
-            // The input string should be ISO.
-            updateData.startTime = start;
-            // If no end time specified for monthly, maybe default to +1 hour or null?
-            // Schema allows null.
+            if (!end) {
+                end = new Date(start);
+                end.setHours(23, 59, 59, 999);
+
+                // Also ensure start is at 00:00:00 if it was meant to be "Whole Day" or "Date Only"
+                // But current UI forces a time selection. 
+                // The prompt says: "When monthly calendar... if time info NOT entered...".
+                // Detailed implementation: We'll ensure `end` is set.
+            }
+        } else {
+            // Weekly
+            if (!end) {
+                // Should not happen for weekly, but safe fallback?
+                end = new Date(start.getTime() + 60 * 60 * 1000); // +1 hour
+            }
         }
 
-        await prisma.event.update({
-            where: { id: eventId },
-            data: updateData
+        // Transaction: Update Event status AND Create Confirmation
+        await prisma.$transaction(async (tx) => {
+            // 1. Update Event
+            await tx.event.update({
+                where: { id: eventId },
+                data: {
+                    isConfirmed: true,
+                    // We DO NOT overwrite startDate/endDate of the original proposal
+                }
+            });
+
+            // 2. Upsert Confirmation (in case of re-confirm?)
+            // Schema has 1-1 relation. 
+            await tx.eventConfirmation.upsert({
+                where: { eventId: eventId },
+                create: {
+                    eventId: eventId,
+                    startAt: start,
+                    endAt: end!,
+                    message: JSON.stringify(additionalInfo),
+                    participantIds: participantIds
+                },
+                update: {
+                    startAt: start,
+                    endAt: end!,
+                    message: JSON.stringify(additionalInfo),
+                    participantIds: participantIds
+                }
+            });
         });
 
         revalidatePath(`/app/dashboard`);
@@ -859,5 +873,94 @@ export async function confirmEvent(
     } catch (e) {
         console.error("Error confirming event:", e);
         return { error: "일정 확정 중 오류가 발생했습니다." };
+    }
+}
+
+export type ConfirmedEventResult = {
+    event: {
+        id: string;
+        title: string;
+        description: string | null;
+    };
+    confirmation: {
+        startAt: string; // ISO
+        endAt: string;   // ISO
+        message: {
+            location?: string;
+            transport?: string;
+            parking?: string;
+            fee?: string;
+            bank?: string;
+            inquiry?: string;
+            memo?: string;
+        } | null;
+    };
+    participants: ParticipantSummary[]; // Only those in confirmation.participantIds
+};
+
+export async function getConfirmedEventResult(eventId: string): Promise<{
+    data: ConfirmedEventResult | null;
+    error?: string;
+}> {
+    try {
+        const event = await prisma.event.findUnique({
+            where: { id: eventId },
+            include: {
+                confirmation: true,
+                participants: {
+                    include: { user: true, availabilities: true } // Need user info for avatar
+                }
+            }
+        });
+
+        if (!event) return { data: null, error: "일정을 찾을 수 없습니다." };
+        if (!event.isConfirmed || !event.confirmation) {
+            return { data: null, error: "아직 확정되지 않은 일정입니다." };
+        }
+
+        // Parse message
+        let messageData = null;
+        try {
+            if (event.confirmation.message) {
+                messageData = JSON.parse(event.confirmation.message);
+            }
+        } catch (e) {
+            // fallback if raw string or error
+            console.warn("Failed to parse confirmation message:", e);
+        }
+
+        // Filter participants
+        const confirmedIds = new Set(event.confirmation.participantIds);
+        const confirmedParticipants = event.participants
+            .filter(p => confirmedIds.has(p.id))
+            .map(p => ({
+                id: p.id,
+                name: p.name,
+                avatarUrl: p.user?.avatarUrl || null,
+                isGuest: !p.userId,
+                availabilities: p.availabilities.map(a => a.slot.toISOString()),
+                email: p.user?.email,
+                createdAt: p.createdAt.toISOString()
+            }));
+
+        return {
+            data: {
+                event: {
+                    id: event.id,
+                    title: event.title,
+                    description: event.description
+                },
+                confirmation: {
+                    startAt: event.confirmation.startAt.toISOString(),
+                    endAt: event.confirmation.endAt.toISOString(),
+                    message: messageData
+                },
+                participants: confirmedParticipants
+            }
+        };
+
+    } catch (e) {
+        console.error("Error fetching confirmed event result:", e);
+        return { data: null, error: "확정 정보를 불러오는 중 오류가 발생했습니다." };
     }
 }
