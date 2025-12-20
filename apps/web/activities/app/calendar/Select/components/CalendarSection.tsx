@@ -7,11 +7,10 @@ interface CalendarSectionProps {
     participants: ParticipantSummary[];
 }
 
-export function CalendarSection({
-    event,
-    participants
-}: CalendarSectionProps) {
+export function CalendarSection({ event, participants }: CalendarSectionProps) {
     const { selectedDates, onSelectDates, selectedParticipantIds } = useCalendarSection();
+
+    console.log(event)
 
     return (
         <div>
@@ -20,6 +19,7 @@ export function CalendarSection({
                     {event.type === 'monthly' ? "언제 시간이 되시나요?" : "가능한 시간을 알려주세요"}
                 </h2>
             </div>
+
             <Calendar
                 type={event.type}
                 startDate={new Date(event.startDate)}
