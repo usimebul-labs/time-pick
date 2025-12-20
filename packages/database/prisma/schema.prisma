@@ -41,11 +41,11 @@ model Calendar {
   host          Profile? @relation(fields: [hostId], references: [id])
   participants  Participant[]
   availabilities Availability[]
-  confirmation  EventConfirmation?
+  event         Event?
   @@map("calendars")
 }
 
-model EventConfirmation {
+model Event {
   id             String   @id @default(uuid())
   calendarId     String   @unique @map("calendar_id")
   startAt        DateTime @map("start_at")
@@ -56,7 +56,7 @@ model EventConfirmation {
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
   calendar       Calendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
 
-  @@map("event_confirmations")
+  @@map("events")
 }
 
 model Participant {

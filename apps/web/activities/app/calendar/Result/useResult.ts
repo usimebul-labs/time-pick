@@ -46,7 +46,7 @@ export function useResult(calendarId: string) {
 
     return {
         calendar: resultData?.calendar || null,
-        confirmation: resultData?.confirmation || null,
+        event: resultData?.event || null,
         participants: resultData?.participants || [],
         isLoading,
         error,

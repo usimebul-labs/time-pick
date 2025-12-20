@@ -13,7 +13,7 @@ import { SharedParticipantList, SharedParticipant } from "@/components/common/Sh
 import { EventShareSheet } from "./components/EventShareSheet";
 
 export default function Result({ params: { id } }: { params: { id: string } }) {
-    const { calendar, confirmation, participants, isLoading, error } = useResult(id);
+    const { calendar, event, participants, isLoading, error } = useResult(id);
     const { replace } = useFlow();
 
     // UI States
@@ -30,7 +30,7 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
         );
     }
 
-    if (error || !calendar || !confirmation) {
+    if (error || !calendar || !event) {
         return (
             <AppScreen>
                 <div className="flex flex-col items-center justify-center flex-1 h-screen bg-slate-50 p-6 text-center">
@@ -47,7 +47,7 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
         );
     }
 
-    const { startAt, endAt, message } = confirmation;
+    const { startAt, endAt, message } = event;
 
     // Logic for Monthly All-Day check
     const sDate = new Date(startAt);

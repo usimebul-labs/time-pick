@@ -73,7 +73,7 @@ export type ConfirmedCalendarResult = {
         title: string;
         description: string | null;
     };
-    confirmation: {
+    event: {
         startAt: string; // ISO
         endAt: string;   // ISO
         message: {

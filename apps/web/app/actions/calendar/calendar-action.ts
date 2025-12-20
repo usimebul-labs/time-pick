@@ -490,7 +490,7 @@ export async function confirmCalendar(
 
             // 2. Upsert Confirmation (in case of re-confirm?)
             // Schema has 1-1 relation. 
-            await tx.eventConfirmation.upsert({
+            await tx.event.upsert({
                 where: { calendarId: calendarId },
                 create: {
                     calendarId: calendarId,
@@ -528,7 +528,7 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
         const calendar = await prisma.calendar.findUnique({
             where: { id: calendarId },
             include: {
-                confirmation: true,
+                event: true,
                 participants: {
                     include: { user: true, availabilities: true } // Need user info for avatar
                 }
@@ -536,15 +536,15 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
         });
 
         if (!calendar) return { data: null, error: "일정을 찾을 수 없습니다." };
-        if (!calendar.isConfirmed || !calendar.confirmation) {
+        if (!calendar.isConfirmed || !calendar.event) {
             return { data: null, error: "아직 확정되지 않은 일정입니다." };
         }
 
         // Parse message
         let messageData = null;
         try {
-            if (calendar.confirmation.message) {
-                messageData = JSON.parse(calendar.confirmation.message);
+            if (calendar.event.message) {
+                messageData = JSON.parse(calendar.event.message);
             }
         } catch (e) {
             // fallback if raw string or error
@@ -552,7 +552,7 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
         }
 
         // Filter participants
-        const confirmedIds = new Set(calendar.confirmation.participantIds);
+        const confirmedIds = new Set(calendar.event.participantIds);
         const confirmedParticipants = calendar.participants
             .filter(p => confirmedIds.has(p.id))
             .map(p => ({
@@ -572,9 +572,9 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
                     title: calendar.title,
                     description: calendar.description
                 },
-                confirmation: {
-                    startAt: calendar.confirmation.startAt.toISOString(),
-                    endAt: calendar.confirmation.endAt.toISOString(),
+                event: {
+                    startAt: calendar.event.startAt.toISOString(),
+                    endAt: calendar.event.endAt.toISOString(),
                     message: messageData
                 },
                 participants: confirmedParticipants
