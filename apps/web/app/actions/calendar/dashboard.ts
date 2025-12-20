@@ -2,14 +2,14 @@
 
 import { prisma } from "@repo/database";
 import { User } from "@supabase/supabase-js";
-import { DashboardEvent } from "./types";
+import { DashboardCalendar } from "./types";
 
-export async function getMySchedules(user: User): Promise<{ schedules: DashboardEvent[]; error?: string; }> {
+export async function getMySchedules(user: User): Promise<{ schedules: DashboardCalendar[]; error?: string; }> {
 
     if (!user) return { schedules: [] };
     try {
 
-        const myEvents = await prisma.event.findMany({
+        const myCalendars = await prisma.calendar.findMany({
             where: {
                 hostId: user.id
             },
@@ -29,12 +29,12 @@ export async function getMySchedules(user: User): Promise<{ schedules: Dashboard
             }
         });
 
-        const schedules: DashboardEvent[] = myEvents.map(event => ({
-            id: event.id,
-            title: event.title,
-            deadline: (event.deadline ? event.deadline.toISOString().split('T')[0] : null) as string | null,
-            isConfirmed: event.isConfirmed,
-            participants: event.participants.map(p => ({
+        const schedules: DashboardCalendar[] = myCalendars.map(calendar => ({
+            id: calendar.id,
+            title: calendar.title,
+            deadline: (calendar.deadline ? calendar.deadline.toISOString().split('T')[0] : null) as string | null,
+            isConfirmed: calendar.isConfirmed,
+            participants: calendar.participants.map(p => ({
                 name: p.name,
                 avatarUrl: p.user?.avatarUrl || null,
                 userId: p.userId
@@ -49,19 +49,19 @@ export async function getMySchedules(user: User): Promise<{ schedules: Dashboard
     }
 }
 
-export async function getJoinedSchedules(user: User): Promise<{ schedules: DashboardEvent[]; error?: string; }> {
+export async function getJoinedSchedules(user: User): Promise<{ schedules: DashboardCalendar[]; error?: string; }> {
     try {
         const participations = await prisma.participant.findMany({
             where: {
                 userId: user.id,
-                event: {
+                calendar: {
                     hostId: {
                         not: user.id
                     }
                 }
             },
             include: {
-                event: {
+                calendar: {
                     include: {
                         participants: {
                             include: {
@@ -79,12 +79,12 @@ export async function getJoinedSchedules(user: User): Promise<{ schedules: Dashb
             }
         });
 
-        const schedules: DashboardEvent[] = participations.map(p => ({
-            id: p.event.id,
-            title: p.event.title,
-            deadline: (p.event.deadline ? p.event.deadline.toISOString().split('T')[0] : null) as string | null,
-            isConfirmed: p.event.isConfirmed,
-            participants: p.event.participants.map(ep => ({
+        const schedules: DashboardCalendar[] = participations.map(p => ({
+            id: p.calendar.id,
+            title: p.calendar.title,
+            deadline: (p.calendar.deadline ? p.calendar.deadline.toISOString().split('T')[0] : null) as string | null,
+            isConfirmed: p.calendar.isConfirmed,
+            participants: p.calendar.participants.map(ep => ({
                 name: ep.name,
                 avatarUrl: ep.user?.avatarUrl || null,
                 userId: ep.userId

@@ -5,12 +5,12 @@ import { prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
 import {
     CreateCalendarState,
-    EventDetail,
+    CalendarDetail,
     ParticipantDetail,
     ParticipantSummary,
-    UpdateEventState,
-    ConfirmEventState,
-    ConfirmedEventResult
+    UpdateCalendarState,
+    ConfirmCalendarState,
+    ConfirmedCalendarResult
 } from "./types";
 
 export async function createCalendar(prevState: CreateCalendarState, formData: FormData): Promise<CreateCalendarState> {
@@ -87,7 +87,7 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
         // 5. Host ID logic
         // We need to map Supabase User ID to our Profile ID if possible, 
         // or if we use UUID for both, just use it.
-        // The schema says Event.hostId references Profile.id.
+        // The schema says Calendar.hostId references Profile.id.
         // We must ensure a Profile exists for this user.
         let hostId: string | null = null;
 
@@ -107,8 +107,8 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
             hostId = profile.id;
         }
 
-        // 6. Create Event
-        const event = await prisma.event.create({
+        // 6. Create Calendar
+        const calendar = await prisma.calendar.create({
             data: {
                 host: hostId ? { connect: { id: hostId } } : undefined,
                 title,
@@ -124,7 +124,7 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
         });
 
         revalidatePath('/app/dashboard');
-        return { message: "Success", eventId: event.id };
+        return { message: "Success", calendarId: calendar.id };
 
     } catch (e) {
         console.error(e);
@@ -132,8 +132,8 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
     }
 }
 
-export async function getEventWithParticipation(eventId: string, guestPin?: string): Promise<{
-    event: EventDetail | null;
+export async function getCalendarWithParticipation(calendarId: string, guestPin?: string): Promise<{
+    calendar: CalendarDetail | null;
     participation: ParticipantDetail | null;
     participants: ParticipantSummary[];
     isLoggedIn: boolean;
@@ -143,13 +143,13 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
     const { data: { user } } = await supabase.auth.getUser();
 
     try {
-        const event = await prisma.event.findUnique({
-            where: { id: eventId },
+        const calendar = await prisma.calendar.findUnique({
+            where: { id: calendarId },
             include: { host: true }
         });
 
-        if (!event) {
-            return { event: null, participation: null, participants: [], isLoggedIn: !!user, error: "일정을 찾을 수 없습니다." };
+        if (!calendar) {
+            return { calendar: null, participation: null, participants: [], isLoggedIn: !!user, error: "일정을 찾을 수 없습니다." };
         }
 
         let participation: ParticipantDetail | null = null;
@@ -158,8 +158,8 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
         if (user) {
             const p = await prisma.participant.findUnique({
                 where: {
-                    eventId_userId: {
-                        eventId: eventId,
+                    calendarId_userId: {
+                        calendarId: calendarId,
                         userId: user.id
                     }
                 },
@@ -181,7 +181,7 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
         if (!participation && guestPin) {
             const p = await prisma.participant.findFirst({
                 where: {
-                    eventId: eventId,
+                    calendarId: calendarId,
                     guestPin: guestPin
                 },
                 include: {
@@ -199,7 +199,7 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
         }
 
         const allParticipants = await prisma.participant.findMany({
-            where: { eventId: eventId },
+            where: { calendarId: calendarId },
             include: {
                 user: true,
                 availabilities: true
@@ -217,21 +217,21 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
         }));
 
         return {
-            event: {
-                id: event.id,
-                title: event.title,
-                description: event.description,
-                type: event.type,
-                startDate: event.startDate.toISOString().split('T')[0]!,
-                endDate: event.endDate.toISOString().split('T')[0]!,
-                startTime: event.startTime ? event.startTime.toISOString().split('T')[1]!.substring(0, 5) : null,
-                endTime: event.endTime ? event.endTime.toISOString().split('T')[1]!.substring(0, 5) : null,
-                excludedDays: event.excludedDays,
-                deadline: event.deadline ? event.deadline.toISOString() : null,
-                hostId: event.hostId,
-                hostName: event.host?.fullName || null,
-                hostAvatarUrl: event.host?.avatarUrl || null,
-                isConfirmed: event.isConfirmed
+            calendar: {
+                id: calendar.id,
+                title: calendar.title,
+                description: calendar.description,
+                type: calendar.type,
+                startDate: calendar.startDate.toISOString().split('T')[0]!,
+                endDate: calendar.endDate.toISOString().split('T')[0]!,
+                startTime: calendar.startTime ? calendar.startTime.toISOString().split('T')[1]!.substring(0, 5) : null,
+                endTime: calendar.endTime ? calendar.endTime.toISOString().split('T')[1]!.substring(0, 5) : null,
+                excludedDays: calendar.excludedDays,
+                deadline: calendar.deadline ? calendar.deadline.toISOString() : null,
+                hostId: calendar.hostId,
+                hostName: calendar.host?.fullName || null,
+                hostAvatarUrl: calendar.host?.avatarUrl || null,
+                isConfirmed: calendar.isConfirmed
             },
             participation,
             participants,
@@ -239,12 +239,12 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
         };
 
     } catch (e) {
-        console.error("Error fetching event details:", e);
-        return { event: null, participation: null, participants: [], isLoggedIn: false, error: "상세 정보를 불러오는 중 오류가 발생했습니다." };
+        console.error("Error fetching calendar details:", e);
+        return { calendar: null, participation: null, participants: [], isLoggedIn: false, error: "상세 정보를 불러오는 중 오류가 발생했습니다." };
     }
 }
 
-export async function deleteEvent(eventId: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteCalendar(calendarId: string): Promise<{ success: boolean; error?: string }> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -253,35 +253,35 @@ export async function deleteEvent(eventId: string): Promise<{ success: boolean; 
     }
 
     try {
-        const event = await prisma.event.findUnique({
-            where: { id: eventId }
+        const calendar = await prisma.calendar.findUnique({
+            where: { id: calendarId }
         });
 
-        if (!event) {
+        if (!calendar) {
             return { success: false, error: "일정을 찾을 수 없습니다." };
         }
 
-        if (event.hostId !== user.id) {
+        if (calendar.hostId !== user.id) {
             return { success: false, error: "권한이 없습니다." };
         }
 
-        await prisma.event.delete({
-            where: { id: eventId }
+        await prisma.calendar.delete({
+            where: { id: calendarId }
         });
 
         revalidatePath('/app/dashboard');
         return { success: true };
     } catch (e) {
-        console.error("Error deleting event:", e);
+        console.error("Error deleting calendar:", e);
         return { success: false, error: "일정 삭제 중 오류가 발생했습니다." };
     }
 }
 
-export async function updateEvent(
-    eventId: string,
+export async function updateCalendar(
+    calendarId: string,
     formData: FormData,
     confirmDelete: boolean = false
-): Promise<UpdateEventState> {
+): Promise<UpdateCalendarState> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -305,8 +305,8 @@ export async function updateEvent(
     }
 
     try {
-        const oldEvent = await prisma.event.findUnique({
-            where: { id: eventId },
+        const oldCalendar = await prisma.calendar.findUnique({
+            where: { id: calendarId },
             include: {
                 participants: {
                     include: { availabilities: true }
@@ -314,8 +314,8 @@ export async function updateEvent(
             }
         });
 
-        if (!oldEvent) return { error: "일정을 찾을 수 없습니다." };
-        if (oldEvent.hostId !== user.id) return { error: "권한이 없습니다." };
+        if (!oldCalendar) return { error: "일정을 찾을 수 없습니다." };
+        if (oldCalendar.hostId !== user.id) return { error: "권한이 없습니다." };
 
         const startDate = new Date(startDateStr);
         const endDate = new Date(endDateStr);
@@ -323,8 +323,8 @@ export async function updateEvent(
         let startTime: Date | null = null;
         let endTime: Date | null = null;
 
-        if (oldEvent.type === 'weekly' && startHour !== null && endHour !== null) {
-            if (oldEvent.type === 'weekly') {
+        if (oldCalendar.type === 'weekly' && startHour !== null && endHour !== null) {
+            if (oldCalendar.type === 'weekly') {
                 startTime = new Date();
                 startTime.setUTCHours(startHour, 0, 0, 0);
                 endTime = new Date();
@@ -352,7 +352,7 @@ export async function updateEvent(
 
         const conflictedParticipants = new Set<string>();
 
-        for (const p of oldEvent.participants) {
+        for (const p of oldCalendar.participants) {
             let isValid = true;
             if (p.availabilities.length === 0) continue;
 
@@ -372,7 +372,7 @@ export async function updateEvent(
                     isValid = false; break;
                 }
 
-                if (oldEvent.type === 'weekly' && startHour !== null && endHour !== null) {
+                if (oldCalendar.type === 'weekly' && startHour !== null && endHour !== null) {
                     const hour = slotDate.getHours();
                     if (hour < startHour || hour >= endHour) {
                         isValid = false; break;
@@ -385,7 +385,7 @@ export async function updateEvent(
             }
         }
 
-        const conflictedList = oldEvent.participants
+        const conflictedList = oldCalendar.participants
             .filter(p => conflictedParticipants.has(p.id))
             .map(p => ({ id: p.id, name: p.name }));
 
@@ -398,8 +398,8 @@ export async function updateEvent(
         }
 
         await prisma.$transaction(async (tx) => {
-            await tx.event.update({
-                where: { id: eventId },
+            await tx.calendar.update({
+                where: { id: calendarId },
                 data: {
                     title,
                     description,
@@ -422,17 +422,17 @@ export async function updateEvent(
         });
 
         revalidatePath(`/app/dashboard`);
-        revalidatePath(`/app/calendar/${eventId}`);
+        revalidatePath(`/app/calendar/${calendarId}`);
         return { success: true };
 
     } catch (e) {
-        console.error("Error updating event:", e);
+        console.error("Error updating calendar:", e);
         return { error: "일정 수정 중 오류가 발생했습니다." };
     }
 }
 
-export async function confirmEvent(
-    eventId: string,
+export async function confirmCalendar(
+    calendarId: string,
     finalSlot: { startTime: string; endTime?: string },
     participantIds: string[],
     additionalInfo: {
@@ -444,7 +444,7 @@ export async function confirmEvent(
         inquiry: string;
         memo: string;
     }
-): Promise<ConfirmEventState> {
+): Promise<ConfirmCalendarState> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -453,18 +453,18 @@ export async function confirmEvent(
     }
 
     try {
-        const event = await prisma.event.findUnique({
-            where: { id: eventId }
+        const calendar = await prisma.calendar.findUnique({
+            where: { id: calendarId }
         });
 
-        if (!event) return { error: "일정을 찾을 수 없습니다." };
-        if (event.hostId !== user.id) return { error: "권한이 없습니다." };
+        if (!calendar) return { error: "일정을 찾을 수 없습니다." };
+        if (calendar.hostId !== user.id) return { error: "권한이 없습니다." };
 
         const start = new Date(finalSlot.startTime);
         let end = finalSlot.endTime ? new Date(finalSlot.endTime) : null;
 
-        // Monthly Event logic: If no specific time provided (just date), verify if we need to set default logic
-        if (event.type === 'monthly') {
+        // Monthly Calendar logic: If no specific time provided (just date), verify if we need to set default logic
+        if (calendar.type === 'monthly') {
             if (!end) {
                 end = new Date(start);
                 end.setHours(23, 59, 59, 999);
@@ -477,11 +477,11 @@ export async function confirmEvent(
             }
         }
 
-        // Transaction: Update Event status AND Create Confirmation
+        // Transaction: Update Calendar status AND Create Confirmation
         await prisma.$transaction(async (tx) => {
-            // 1. Update Event
-            await tx.event.update({
-                where: { id: eventId },
+            // 1. Update Calendar
+            await tx.calendar.update({
+                where: { id: calendarId },
                 data: {
                     isConfirmed: true,
                     // We DO NOT overwrite startDate/endDate of the original proposal
@@ -491,9 +491,9 @@ export async function confirmEvent(
             // 2. Upsert Confirmation (in case of re-confirm?)
             // Schema has 1-1 relation. 
             await tx.eventConfirmation.upsert({
-                where: { eventId: eventId },
+                where: { calendarId: calendarId },
                 create: {
-                    eventId: eventId,
+                    calendarId: calendarId,
                     startAt: start,
                     endAt: end!,
                     message: JSON.stringify(additionalInfo),
@@ -509,24 +509,24 @@ export async function confirmEvent(
         });
 
         revalidatePath(`/app/dashboard`);
-        revalidatePath(`/app/calendar/${eventId}`);
-        revalidatePath(`/app/calendar/${eventId}/confirm`);
+        revalidatePath(`/app/calendar/${calendarId}`);
+        revalidatePath(`/app/calendar/${calendarId}/confirm`);
 
         return { success: true };
 
     } catch (e) {
-        console.error("Error confirming event:", e);
+        console.error("Error confirming calendar:", e);
         return { error: "일정 확정 중 오류가 발생했습니다." };
     }
 }
 
-export async function getConfirmedEventResult(eventId: string): Promise<{
-    data: ConfirmedEventResult | null;
+export async function getConfirmedCalendarResult(calendarId: string): Promise<{
+    data: ConfirmedCalendarResult | null;
     error?: string;
 }> {
     try {
-        const event = await prisma.event.findUnique({
-            where: { id: eventId },
+        const calendar = await prisma.calendar.findUnique({
+            where: { id: calendarId },
             include: {
                 confirmation: true,
                 participants: {
@@ -535,16 +535,16 @@ export async function getConfirmedEventResult(eventId: string): Promise<{
             }
         });
 
-        if (!event) return { data: null, error: "일정을 찾을 수 없습니다." };
-        if (!event.isConfirmed || !event.confirmation) {
+        if (!calendar) return { data: null, error: "일정을 찾을 수 없습니다." };
+        if (!calendar.isConfirmed || !calendar.confirmation) {
             return { data: null, error: "아직 확정되지 않은 일정입니다." };
         }
 
         // Parse message
         let messageData = null;
         try {
-            if (event.confirmation.message) {
-                messageData = JSON.parse(event.confirmation.message);
+            if (calendar.confirmation.message) {
+                messageData = JSON.parse(calendar.confirmation.message);
             }
         } catch (e) {
             // fallback if raw string or error
@@ -552,8 +552,8 @@ export async function getConfirmedEventResult(eventId: string): Promise<{
         }
 
         // Filter participants
-        const confirmedIds = new Set(event.confirmation.participantIds);
-        const confirmedParticipants = event.participants
+        const confirmedIds = new Set(calendar.confirmation.participantIds);
+        const confirmedParticipants = calendar.participants
             .filter(p => confirmedIds.has(p.id))
             .map(p => ({
                 id: p.id,
@@ -567,14 +567,14 @@ export async function getConfirmedEventResult(eventId: string): Promise<{
 
         return {
             data: {
-                event: {
-                    id: event.id,
-                    title: event.title,
-                    description: event.description
+                calendar: {
+                    id: calendar.id,
+                    title: calendar.title,
+                    description: calendar.description
                 },
                 confirmation: {
-                    startAt: event.confirmation.startAt.toISOString(),
-                    endAt: event.confirmation.endAt.toISOString(),
+                    startAt: calendar.confirmation.startAt.toISOString(),
+                    endAt: calendar.confirmation.endAt.toISOString(),
                     message: messageData
                 },
                 participants: confirmedParticipants
@@ -582,7 +582,7 @@ export async function getConfirmedEventResult(eventId: string): Promise<{
         };
 
     } catch (e) {
-        console.error("Error fetching confirmed event result:", e);
+        console.error("Error fetching confirmed calendar result:", e);
         return { data: null, error: "확정 정보를 불러오는 중 오류가 발생했습니다." };
     }
 }

@@ -6,7 +6,7 @@ import { Calendar, Sparkles } from "lucide-react";
 import { DashboardHeader } from "./components/DashboardHeader";
 import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
-import { EventList } from "./components/EventList";
+import { CalendarList } from "./components/CalendarList";
 import { useDashboard } from "./hooks/useDashboard";
 import { useDashboardStore } from "./hooks/useDashboardStore";
 
@@ -36,7 +36,7 @@ export default function Dashboard() {
                                 내 일정
                             </h2>
                         </div>
-                        <EventList user={user} type="my" />
+                        <CalendarList user={user} type="my" />
                     </section>
 
                     <section>
@@ -46,7 +46,7 @@ export default function Dashboard() {
                                 참여 중인 일정
                             </h2>
                         </div>
-                        <EventList user={user} type="joined" />
+                        <CalendarList user={user} type="joined" />
                     </section>
                 </div>
             </div>

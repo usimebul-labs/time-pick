@@ -1,6 +1,6 @@
 import { startTransition, useEffect, useState } from "react";
 import { useFlow } from "@/stackflow";
-import { getEventWithParticipation, updateEvent, deleteParticipant, EventDetail, ParticipantSummary } from "@/app/actions/calendar";
+import { getCalendarWithParticipation, updateCalendar, deleteParticipant, CalendarDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { ModifyFormState, ConflictedParticipant } from "./types";
 
 export function useModify(id: string) {
@@ -8,7 +8,7 @@ export function useModify(id: string) {
 
     // Data State
     const [loading, setLoading] = useState(true);
-    const [event, setEvent] = useState<EventDetail | null>(null);
+    const [calendar, setCalendar] = useState<CalendarDetail | null>(null);
     const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
 
     // Form State
@@ -37,30 +37,30 @@ export function useModify(id: string) {
 
     useEffect(() => {
         const init = async () => {
-            const { event, participants, error } = await getEventWithParticipation(id);
-            if (error || !event) {
+            const { calendar, participants, error } = await getCalendarWithParticipation(id);
+            if (error || !calendar) {
                 alert(error || "일정을 불러올 수 없습니다.");
                 pop();
                 return;
             }
 
-            setEvent(event);
+            setCalendar(calendar);
             setParticipants(participants);
 
             // Initialize Form
             const allDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            const enabled = allDays.filter((_, idx) => !event.excludedDays.includes(idx));
+            const enabled = allDays.filter((_, idx) => !calendar.excludedDays.includes(idx));
 
             setFormState({
-                title: event.title,
-                description: event.description || "",
-                scheduleType: event.type === 'monthly' ? 'date' : 'datetime',
-                startDate: event.startDate,
-                endDate: event.endDate,
-                startHour: event.startTime ? Number(event.startTime.split(':')[0]) : 9,
-                endHour: event.endTime ? Number(event.endTime.split(':')[0]) : 18,
+                title: calendar.title,
+                description: calendar.description || "",
+                scheduleType: calendar.type === 'monthly' ? 'date' : 'datetime',
+                startDate: calendar.startDate,
+                endDate: calendar.endDate,
+                startHour: calendar.startTime ? Number(calendar.startTime.split(':')[0]) : 9,
+                endHour: calendar.endTime ? Number(calendar.endTime.split(':')[0]) : 18,
                 enabledDays: enabled,
-                deadline: event.deadline ? event.deadline.substring(0, 16) : "",
+                deadline: calendar.deadline ? calendar.deadline.substring(0, 16) : "",
             });
 
             setLoading(false);
@@ -93,7 +93,7 @@ export function useModify(id: string) {
         setIsPending(true);
         startTransition(async () => {
             console.log("Submitting form data...");
-            const result = await updateEvent(id, formData, false); // First try without confirm
+            const result = await updateCalendar(id, formData, false); // First try without confirm
             console.log("Update result:", result);
 
             if (result.requiresConfirmation && result.conflictedParticipants) {
@@ -117,7 +117,7 @@ export function useModify(id: string) {
         setIsPending(true);
 
         startTransition(async () => {
-            const result = await updateEvent(id, pendingFormData, true); // Confirm delete
+            const result = await updateCalendar(id, pendingFormData, true); // Confirm delete
             console.log("Confirm result:", result);
             if (result.success) {
                 setIsPending(false);

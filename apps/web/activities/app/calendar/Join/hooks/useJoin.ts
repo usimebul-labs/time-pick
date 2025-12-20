@@ -1,4 +1,4 @@
-import { useEventQuery } from "@/hooks/queries/useEventQuery";
+import { useCalendarQuery } from "@/hooks/queries/useCalendarQuery";
 import { useFlow } from "@/stackflow";
 import { useGuestStore } from "@/stores/guest";
 import { useEffect, useState } from "react";
@@ -7,20 +7,20 @@ export function useJoin(id: string) {
     const { replace } = useFlow();
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
-    const [eventTitle, setEventTitle] = useState<string>("");
+    const [calendarTitle, setCalendarTitle] = useState<string>("");
     const [hostName, setHostName] = useState<string>("");
     const [hostAvatar, setHostAvatar] = useState<string>("");
 
-    const { data } = useEventQuery(id);
-    const event = data?.event;
+    const { data } = useCalendarQuery(id);
+    const calendar = data?.calendar;
 
     useEffect(() => {
-        if (event) {
-            setEventTitle(event.title);
-            setHostName(event.hostName || "");
-            setHostAvatar(event.hostAvatarUrl || "");
+        if (calendar) {
+            setCalendarTitle(calendar.title);
+            setHostName(calendar.hostName || "");
+            setHostAvatar(calendar.hostAvatarUrl || "");
         }
-    }, [event]);
+    }, [calendar]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,7 +40,7 @@ export function useJoin(id: string) {
         name,
         setName,
         loading,
-        eventTitle,
+        calendarTitle,
         hostName,
         hostAvatar,
         handleSubmit,

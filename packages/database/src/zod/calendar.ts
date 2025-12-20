@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { EventType } from "../../generated/prisma/client";
 
-export const eventSchema = z.object({
+export const calendarSchema = z.object({
   id: z.cuid(),
   title: z.string().min(1, "제목을 입력해주세요."),
   description: z.string().nullish(),
@@ -13,7 +13,7 @@ export const eventSchema = z.object({
 });
 
 
-export const createEventSchema = eventSchema.omit({
+export const createCalendarSchema = calendarSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -23,5 +23,5 @@ export const createEventSchema = eventSchema.omit({
   path: ["endTime"],
 });
 
-export type EventSchema = z.infer<typeof eventSchema>;
-export type CreateEventInput = z.infer<typeof createEventSchema>;
+export type CalendarSchema = z.infer<typeof calendarSchema>;
+export type CreateCalendarInput = z.infer<typeof createCalendarSchema>;

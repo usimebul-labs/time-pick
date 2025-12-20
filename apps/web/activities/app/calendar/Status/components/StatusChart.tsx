@@ -2,7 +2,7 @@ import { format, parseISO } from "date-fns";
 import { useRef, useState, useEffect } from "react";
 import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChartDataPoint, SelectedSlot } from "../useStatus";
-import { ParticipantSummary, EventDetail } from "@/app/actions/calendar";
+import { ParticipantSummary, CalendarDetail } from "@/app/actions/calendar";
 
 // Custom Tooltip for Recharts
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -25,7 +25,7 @@ interface StatusChartProps {
     setSelectedSlot: (slot: SelectedSlot | null) => void;
     selectedVipIds: Set<string>;
     participants: ParticipantSummary[];
-    event: EventDetail;
+    calendar: CalendarDetail;
 }
 
 export function StatusChart({
@@ -36,7 +36,7 @@ export function StatusChart({
     setSelectedSlot,
     selectedVipIds,
     participants,
-    event
+    calendar
 }: StatusChartProps) {
     const chartRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -292,7 +292,7 @@ export function StatusChart({
                 return p.availabilities.some(iso => {
                     const date = parseISO(iso);
                     let key;
-                    if (event?.type === 'monthly') key = format(date, "MM/dd");
+                    if (calendar?.type === 'monthly') key = format(date, "MM/dd");
                     else key = format(date, "MM/dd HH:mm");
                     return key === targetSlot.time;
                 });

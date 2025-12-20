@@ -5,7 +5,7 @@ import { useConfirm } from "./useConfirm";
 
 export default function Confirm({ params: { id } }: { params: { id: string } }) {
     const {
-        event,
+        calendar,
         isLoading,
         participants,
         selectedParticipantIds,
@@ -35,10 +35,10 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
         );
     }
 
-    if (!event) {
+    if (!calendar) {
         return (
             <AppScreen>
-                <div className="p-4">Event not found</div>
+                <div className="p-4">Calendar not found</div>
             </AppScreen>
         );
     }
@@ -48,8 +48,8 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
             <div className="flex flex-col flex-1 bg-slate-50 text-slate-900 overflow-y-auto pb-24">
                 <div className="flex-1 px-5 py-6 space-y-8">
                     <div className="space-y-2">
-                        <h1 className="text-2xl font-bold text-slate-900 leading-tight">{event.title}</h1>
-                        <p className="text-slate-500 text-sm">{event.description || "확정을 위해 세부 내용을 입력해주세요"}</p>
+                        <h1 className="text-2xl font-bold text-slate-900 leading-tight">{calendar.title}</h1>
+                        <p className="text-slate-500 text-sm">{calendar.description || "확정을 위해 세부 내용을 입력해주세요"}</p>
                     </div>
 
                     {/* 1. Participant List */}
@@ -68,7 +68,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                     </section>
 
                     {/* 2. Duration Setting */}
-                    {event.type === 'weekly' &&
+                    {calendar.type === 'weekly' &&
                         <section className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
                             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <span>⏰</span> 소요시간
@@ -101,7 +101,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                         <AdditionalInfoForm
                             info={additionalInfo}
                             onChange={setAdditionalInfo}
-                            monthlyTimeProps={event.type === 'monthly' ? {
+                            monthlyTimeProps={calendar.type === 'monthly' ? {
                                 startTime: selectedTime,
                                 onStartTimeChange: setSelectedTime,
                                 endTime: selectedEndTime,

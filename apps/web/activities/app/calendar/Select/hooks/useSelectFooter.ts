@@ -2,18 +2,18 @@
 
 import { useSelectStore } from "./useSelectStore";
 import { useSelectAction } from "./useSelectAction";
-import { EventDetail, ParticipantDetail } from "@/app/actions/calendar";
+import { CalendarDetail, ParticipantDetail } from "@/app/actions/calendar";
 
 export function useSelectFooter(
     id: string,
-    event: EventDetail | null,
+    calendar: CalendarDetail | null,
     participation: ParticipantDetail | null,
     isLoggedIn: boolean
 ) {
     const { selectedDates } = useSelectStore();
 
     // Reuse the existing action logic, injecting the store state
-    const { handleComplete } = useSelectAction(id, event, participation, isLoggedIn, selectedDates);
+    const { handleComplete } = useSelectAction(id, calendar, participation, isLoggedIn, selectedDates);
 
     return {
         selectedCount: selectedDates.length,

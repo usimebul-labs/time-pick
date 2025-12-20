@@ -1,4 +1,4 @@
-import { DashboardEvent } from "@/app/actions/calendar";
+import { DashboardCalendar } from "@/app/actions/calendar";
 import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 import { MoreVertical, Share2 } from "lucide-react";
@@ -26,34 +26,34 @@ const DDay = ({ deadline }: { deadline: string }) => {
     );
 }
 
-interface EventItemProps {
-    event: DashboardEvent;
+interface CalendarItemProps {
+    calendar: DashboardCalendar;
     user: User;
     type: "my" | "joined";
 }
 
-export function EventItem({ event, user, type }: EventItemProps) {
+export function CalendarItem({ calendar, user, type }: CalendarItemProps) {
     const { push } = useFlow();
     const { openShare, openMenu, openParticipant } = useDashboardStore();
 
     const handleSelect: MouseEventHandler<HTMLDivElement> = (e) => {
         e.stopPropagation();
-        push("Select", { id: event.id });
+        push("Select", { id: calendar.id });
     }
 
     const handleShare: MouseEventHandler<HTMLButtonElement> = (e) => {
         e.stopPropagation();
-        openShare(event.id);
+        openShare(calendar.id);
     }
 
     const handleMenuOpen: MouseEventHandler<HTMLButtonElement> = (e) => {
         e.stopPropagation();
-        openMenu(event.id);
+        openMenu(calendar.id);
     }
 
     const handleShowParticipants: MouseEventHandler<HTMLDivElement> = (e) => {
         e.stopPropagation();
-        openParticipant(event.participants, event.participants.length);
+        openParticipant(calendar.participants, calendar.participants.length);
     }
 
     return (
@@ -78,27 +78,27 @@ export function EventItem({ event, user, type }: EventItemProps) {
             }
 
             <h3 className="text-[17px] font-bold text-slate-900 mb-1 pr-16 leading-tight line-clamp-1">
-                {event.title}
+                {calendar.title}
             </h3>
             <p className="text-xs text-slate-500 font-medium mb-4 flex items-center">
-                {event.deadline ? (
+                {calendar.deadline ? (
                     <>
-                        {event.deadline} 마감 <DDay deadline={event.deadline} />
+                        {calendar.deadline} 마감 <DDay deadline={calendar.deadline} />
                     </>
                 ) : "마감일 없음"}
             </p>
 
             <div className="flex justify-between items-center pt-2 border-t border-slate-50">
                 <div className="flex items-center gap-2">
-                    {event.participants.length > 0 ?
-                        <ParticipantFacepile participants={event.participants} totalCount={event.participants.length} user={user} clickHandler={handleShowParticipants} /> :
+                    {calendar.participants.length > 0 ?
+                        <ParticipantFacepile participants={calendar.participants} totalCount={calendar.participants.length} user={user} clickHandler={handleShowParticipants} /> :
                         <span className="text-xs text-slate-400 font-medium">아직 참여자가 없어요</span>
                     }
                 </div>
 
-                {event.participants.length > 0 &&
+                {calendar.participants.length > 0 &&
                     <span className="text-xs text-indigo-600 font-semibold bg-indigo-50 px-2 py-1 rounded-md">
-                        {event.participants.length}명 참여 중
+                        {calendar.participants.length}명 참여 중
                     </span>
                 }
             </div>

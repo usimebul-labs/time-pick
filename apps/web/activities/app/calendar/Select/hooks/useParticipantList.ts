@@ -1,11 +1,11 @@
 "use client";
 
 import { useSelectStore } from "./useSelectStore";
-import { EventDetail, ParticipantSummary } from "@/app/actions/calendar";
+import { CalendarDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { parseISO, isSameDay } from "date-fns";
 
 export function useParticipantList(
-    event: EventDetail | null,
+    calendar: CalendarDetail | null,
     participants: ParticipantSummary[]
 ) {
     const {
@@ -21,7 +21,7 @@ export function useParticipantList(
 
         let additionalDates: Date[] = [];
 
-        if (event?.type === 'monthly') {
+        if (calendar?.type === 'monthly') {
             const baseUser = selectedUsers[0];
             const candidateDays = baseUser?.availabilities.map(a => parseISO(a)) || [];
 
@@ -46,7 +46,7 @@ export function useParticipantList(
         setSelectedDates((prev: Date[]) => {
             const newSelection = [...prev];
             additionalDates.forEach(newDate => {
-                const exists = event?.type === 'monthly'
+                const exists = calendar?.type === 'monthly'
                     ? newSelection.some(d => isSameDay(d, newDate))
                     : newSelection.some(d => d.toISOString() === newDate.toISOString());
 

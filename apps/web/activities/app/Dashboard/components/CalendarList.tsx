@@ -2,11 +2,8 @@ import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
-import { useEvents } from "../hooks/useEvents";
-import { EventItem } from "./EventItem";
-
-
-
+import { useCalendars } from "../hooks/useCalendars";
+import { CalendarItem } from "./CalendarItem";
 
 const Empty = () => {
     return <div className="flex flex-col items-center justify-center py-10 bg-white rounded-lg border border-dashed border-slate-200">
@@ -40,28 +37,27 @@ const Loading = () => {
     );
 }
 
-
-interface Events {
+interface CalendarListProps {
     user: User;
     type: "my" | "joined";
 }
 
 const initCount = 3;
-export function EventList({ user, type }: Events) {
-    const { events, loading, error } = useEvents(user, type);
+export function CalendarList({ user, type }: CalendarListProps) {
+    const { calendars, loading, error } = useCalendars(user, type);
     const [showAll, setShowAll] = useState(false);
 
     if (loading) return <Loading />
     if (error) return <div>에러: {error}</div>
-    if (events.length === 0) return <Empty />
+    if (calendars.length === 0) return <Empty />
 
     return (
         <div className="space-y-4">
-            {events.map((event) => (
-                <EventItem key={event.id} event={event} user={user} type={type} />
+            {calendars.map((calendar) => (
+                <CalendarItem key={calendar.id} calendar={calendar} user={user} type={type} />
             ))}
 
-            {events.length > initCount && (
+            {calendars.length > initCount && (
                 <div className="flex justify-center mt-2">
                     <Button variant="ghost"
                         className="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 text-sm font-medium gap-1"
@@ -69,7 +65,7 @@ export function EventList({ user, type }: Events) {
                     >
                         {showAll ?
                             <>접기 <ChevronUp className="w-4 h-4" strokeWidth={1.5} /></> :
-                            <>더 보기 ({events.length - initCount}) <ChevronDown className="w-4 h-4" strokeWidth={1.5} /></>
+                            <>더 보기 ({calendars.length - initCount}) <ChevronDown className="w-4 h-4" strokeWidth={1.5} /></>
                         }
                     </Button>
                 </div>

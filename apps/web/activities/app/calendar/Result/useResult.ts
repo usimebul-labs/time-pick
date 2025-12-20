@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { getConfirmedEventResult, ConfirmedEventResult } from "@/app/actions/calendar";
+import { getConfirmedCalendarResult, ConfirmedCalendarResult } from "@/app/actions/calendar";
 
-export function useResult(eventId: string) {
-    const [resultData, setResultData] = useState<ConfirmedEventResult | null>(null);
+export function useResult(calendarId: string) {
+    const [resultData, setResultData] = useState<ConfirmedCalendarResult | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         let isMounted = true;
 
-        async function fetchEvent() {
+        async function fetchResult() {
             try {
-                const { data, error } = await getConfirmedEventResult(eventId);
+                const { data, error } = await getConfirmedCalendarResult(calendarId);
 
                 if (isMounted) {
                     if (error) {
@@ -27,12 +27,12 @@ export function useResult(eventId: string) {
             }
         }
 
-        fetchEvent();
+        fetchResult();
 
         return () => {
             isMounted = false;
         };
-    }, [eventId]);
+    }, [calendarId]);
 
     const handleShare = async () => {
         try {
@@ -45,7 +45,7 @@ export function useResult(eventId: string) {
     };
 
     return {
-        event: resultData?.event || null,
+        calendar: resultData?.calendar || null,
         confirmation: resultData?.confirmation || null,
         participants: resultData?.participants || [],
         isLoading,

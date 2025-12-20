@@ -2,16 +2,16 @@ import { SharedParticipantList } from "@/components/common/SharedParticipantList
 import { ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { User } from "lucide-react";
 import { useParticipantList } from "../hooks/useParticipantList";
-import { EventDetail } from "@/app/actions/calendar";
+import { CalendarDetail } from "@/app/actions/calendar";
 
 interface ParticipantListProps {
-    event: EventDetail;
+    calendar: CalendarDetail;
     participants: ParticipantSummary[];
     participation: ParticipantDetail | null;
 }
 
 export function ParticipantList({
-    event,
+    calendar,
     participants,
     participation,
 }: ParticipantListProps) {
@@ -19,7 +19,7 @@ export function ParticipantList({
         selectedParticipantIds,
         onToggleParticipant,
         onSelectHighlighted
-    } = useParticipantList(event, participants);
+    } = useParticipantList(calendar, participants);
 
     return (
         <div className="mb-8">

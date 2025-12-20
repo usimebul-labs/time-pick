@@ -1,17 +1,15 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { useGuestStore } from "@/stores/guest";
-import { useEventQuery } from "@/hooks/queries/useEventQuery";
+import { useCalendarQuery } from "@/hooks/queries/useCalendarQuery";
 import { useFlow } from "@/stackflow";
 import { useActivity } from "@stackflow/react";
-import { EventDetail, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
+import { CalendarDetail, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 
 export function useSelectData(id: string) {
     const { replace } = useFlow();
     const activity = useActivity();
 
-    const [event, setEvent] = useState<EventDetail | null>(null);
+    const [calendar, setCalendar] = useState<CalendarDetail | null>(null);
     const [participation, setParticipation] = useState<ParticipantDetail | null>(null);
     const [participants, setParticipants] = useState<ParticipantSummary[]>([]);
     const [loading, setLoading] = useState(true);
@@ -26,19 +24,19 @@ export function useSelectData(id: string) {
     }, [id]);
 
     // Use Query hook
-    const { data } = useEventQuery(id, guestPin);
+    const { data } = useCalendarQuery(id, guestPin);
 
     // Derived state from query data
     useEffect(() => {
         if (!data) return;
-        const { event, participation, participants, isLoggedIn, error } = data;
+        const { calendar, participation, participants, isLoggedIn, error } = data;
 
         if (error) {
             setError(error);
         } else {
             // Redirect logic
             const pendingGuest = useGuestStore.getState().pendingGuest;
-            const isPendingGuest = pendingGuest && pendingGuest.eventId === id;
+            const isPendingGuest = pendingGuest && pendingGuest.calendarId === id;
 
             if (!isLoggedIn && !participation && !isPendingGuest) {
                 replace("Join", { id });
@@ -50,7 +48,7 @@ export function useSelectData(id: string) {
                 return;
             }
 
-            setEvent(event);
+            setCalendar(calendar);
             setParticipation(participation);
             setIsLoggedIn(isLoggedIn);
         }
@@ -77,7 +75,7 @@ export function useSelectData(id: string) {
     }, [data?.participants, data?.participation]);
 
     return {
-        event,
+        calendar,
         participation,
         participants,
         loading,

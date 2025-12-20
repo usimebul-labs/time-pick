@@ -9,7 +9,7 @@ import { useStatus } from "./useStatus";
 
 export default function Status({ params: { id } }: { params: { id: string } }) {
     const {
-        event,
+        calendar,
         participants,
         loading,
         error,
@@ -33,7 +33,7 @@ export default function Status({ params: { id } }: { params: { id: string } }) {
         </AppScreen>
     );
 
-    if (error || !event) return (
+    if (error || !calendar) return (
         <AppScreen>
             <div className="flex flex-col justify-center items-center h-screen p-4 text-center bg-slate-50">
                 <h2 className="text-lg font-bold mb-1 text-slate-900">오류가 발생했습니다</h2>
@@ -43,7 +43,7 @@ export default function Status({ params: { id } }: { params: { id: string } }) {
     );
 
     return (
-        <AppScreen appBar={{ title: event.title }}>
+        <AppScreen appBar={{ title: calendar.title }}>
             <div className="flex flex-col h-full bg-white relative">
                 {/* Scrollable Content Area */}
                 <div className="flex-1 overflow-y-auto pb-32">
@@ -55,7 +55,7 @@ export default function Status({ params: { id } }: { params: { id: string } }) {
                         setSelectedSlot={setSelectedSlot}
                         selectedVipIds={selectedVipIds}
                         participants={participants}
-                        event={event}
+                        calendar={calendar}
                     />
 
                     <div className="h-2 bg-gray-50 my-2" />

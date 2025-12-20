@@ -1,4 +1,4 @@
-import { useEventQuery } from "@/hooks/queries/useEventQuery";
+import { useCalendarQuery } from "@/hooks/queries/useCalendarQuery";
 import { ParticipantSummary } from "@/app/actions/calendar";
 import { addMinutes, eachDayOfInterval, format, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
@@ -27,9 +27,9 @@ export function useStatus(id: string) {
         setGuestPin(guestSessions[id]);
     }, [id]);
 
-    const { data, isLoading, error: queryError } = useEventQuery(id, guestPin);
+    const { data, isLoading, error: queryError } = useCalendarQuery(id, guestPin);
 
-    const event = data?.event || null;
+    const calendar = data?.calendar || null;
     const participants = data?.participants || [];
     const error = data?.error || queryError?.message || null;
 
@@ -54,27 +54,27 @@ export function useStatus(id: string) {
 
     // Graph Data Processing
     const chartData = useMemo(() => {
-        if (!event) return [];
+        if (!calendar) return [];
 
         const slotData: Record<string, { time: string, count: number, vipCount: number }> = {};
-        const startDate = new Date(event.startDate);
-        const endDate = new Date(event.endDate);
+        const startDate = new Date(calendar.startDate);
+        const endDate = new Date(calendar.endDate);
 
         // 1. Initialize all slots with 0
-        if (event.type === 'monthly') {
+        if (calendar.type === 'monthly') {
             const allDays = eachDayOfInterval({ start: startDate, end: endDate });
             allDays.forEach(day => {
                 const key = format(day, "MM/dd");
                 slotData[key] = { time: key, count: 0, vipCount: 0 };
             });
         } else {
-            if (event.startTime && event.endTime) {
-                const startHour = parseInt(event.startTime.split(':')[0]!);
-                const endHour = parseInt(event.endTime.split(':')[0]!);
+            if (calendar.startTime && calendar.endTime) {
+                const startHour = parseInt(calendar.startTime.split(':')[0]!);
+                const endHour = parseInt(calendar.endTime.split(':')[0]!);
                 const allDays = eachDayOfInterval({ start: startDate, end: endDate });
 
                 allDays.forEach(day => {
-                    if (event.excludedDays.includes(day.getDay())) return;
+                    if (calendar.excludedDays.includes(day.getDay())) return;
 
                     let current = new Date(day);
                     current.setHours(startHour, 0, 0, 0);
@@ -97,7 +97,7 @@ export function useStatus(id: string) {
                 p.availabilities.forEach(iso => {
                     const date = parseISO(iso);
                     let key;
-                    if (event.type === 'monthly') {
+                    if (calendar.type === 'monthly') {
                         key = format(date, "MM/dd");
                     } else {
                         key = format(date, "MM/dd HH:mm");
@@ -114,7 +114,7 @@ export function useStatus(id: string) {
         }
 
         return Object.values(slotData).sort((a, b) => a.time.localeCompare(b.time));
-    }, [event, participants, selectedVipIds]);
+    }, [calendar, participants, selectedVipIds]);
 
     const handleEdit = () => {
         replace("SelectEdit", { id });
@@ -134,7 +134,7 @@ export function useStatus(id: string) {
     };
 
     return {
-        event,
+        calendar,
         participants,
         loading: isLoading,
         error,

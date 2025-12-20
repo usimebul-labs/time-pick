@@ -1,10 +1,10 @@
 interface JoinHeaderProps {
     hostAvatar: string;
     hostName: string;
-    eventTitle: string;
+    calendarTitle: string;
 }
 
-export function JoinHeader({ hostAvatar, hostName, eventTitle }: JoinHeaderProps) {
+export function JoinHeader({ hostAvatar, hostName, calendarTitle }: JoinHeaderProps) {
     return (
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center mb-8">
             {hostAvatar ? (
@@ -26,7 +26,7 @@ export function JoinHeader({ hostAvatar, hostName, eventTitle }: JoinHeaderProps
                     </p>
                 )}
                 <h2 className="text-2xl font-bold text-gray-900 leading-tight break-keep">
-                    {eventTitle || "로딩 중..."}
+                    {calendarTitle || "로딩 중..."}
                 </h2>
             </div>
 

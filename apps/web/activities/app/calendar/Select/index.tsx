@@ -7,14 +7,14 @@ import { useSelectStore } from "./hooks/useSelectStore";
 import { useSelectData } from "./hooks/useSelectData";
 import { CalendarSection } from "./components/CalendarSection";
 import { ParticipantList } from "./components/ParticipantList";
-import { EventDetails } from "./components/EventDetails";
+import { CalendarDetails } from "./components/CalendarDetails";
 import { SelectFooter } from "./components/SelectFooter";
 import { SelectShareDialog } from "./components/SelectShareDialog";
 import { SelectLoading } from "./components/SelectLoading";
 import { SelectError } from "./components/SelectError";
 
 export default function Select({ params: { id } }: { params: { id: string } }) {
-    const { event, loading, error, participants, participation, isLoggedIn } = useSelectData(id);
+    const { calendar, loading, error, participants, participation, isLoggedIn } = useSelectData(id);
     const reset = useSelectStore((state) => state.reset);
 
     useEffect(() => {
@@ -22,7 +22,7 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
     }, [reset]);
 
     if (loading) return <SelectLoading />;
-    if (error || !event) return <SelectError message={error ?? undefined} />;
+    if (error || !calendar) return <SelectError message={error ?? undefined} />;
 
 
     return (
@@ -32,16 +32,16 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
 
             <div className="flex flex-col h-full bg-white">
                 <div className="flex-1 overflow-y-auto p-4 pb-32">
-                    <CalendarSection event={event} participants={participants} />
+                    <CalendarSection calendar={calendar} participants={participants} />
 
                     <div className="w-full h-px bg-gray-100 mt-3 mb-6"></div>
-                    <ParticipantList event={event} participants={participants} participation={participation} />
-                    <EventDetails event={event} />
+                    <ParticipantList calendar={calendar} participants={participants} participation={participation} />
+                    <CalendarDetails calendar={calendar} />
                 </div>
 
                 <SelectFooter
                     id={id}
-                    event={event}
+                    calendar={calendar}
                     participation={participation}
                     isLoggedIn={isLoggedIn}
                 />

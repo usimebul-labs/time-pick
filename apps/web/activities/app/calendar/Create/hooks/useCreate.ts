@@ -71,7 +71,7 @@ export const useCreate = () => {
 
     // Effect for Submission Success
     useEffect(() => {
-        if (state.message === "Success" && state.eventId) {
+        if (state.message === "Success" && state.calendarId) {
             setShowShareDialog(true);
         } else if (state.error) {
             alert(state.error);
@@ -80,8 +80,8 @@ export const useCreate = () => {
 
     const handleShareClose = () => {
         setShowShareDialog(false);
-        if (state.eventId) {
-            replace("Join", { id: state.eventId });
+        if (state.calendarId) {
+            replace("Join", { id: state.calendarId });
         }
     };
 
@@ -120,6 +120,6 @@ export const useCreate = () => {
         state,
         showShareDialog,
         handleShareClose,
-        eventId: state.eventId,
+        calendarId: state.calendarId,
     };
 };

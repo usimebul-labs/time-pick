@@ -1,19 +1,19 @@
-import { EventDetail } from "@/app/actions/calendar";
+import { CalendarDetail } from "@/app/actions/calendar";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { format } from "date-fns";
 import { AlignLeft, Calendar as CalendarIcon, ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { useState } from "react";
 
-interface EventDetailsProps {
-    event: EventDetail;
+interface CalendarDetailsProps {
+    calendar: CalendarDetail;
 }
 
-export function EventDetails({ event }: EventDetailsProps) {
+export function CalendarDetails({ calendar }: CalendarDetailsProps) {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
     const getDeadlineInfo = () => {
-        if (!event?.deadline) return null;
-        const deadlineDate = parseISO(event.deadline);
+        if (!calendar?.deadline) return null;
+        const deadlineDate = parseISO(calendar.deadline);
         const diff = differenceInCalendarDays(deadlineDate, new Date());
 
         let dDayText = "";
@@ -33,7 +33,7 @@ export function EventDetails({ event }: EventDetailsProps) {
                 onClick={() => setIsDetailsOpen(!isDetailsOpen)}
             >
                 <h3 className="text-base font-bold text-gray-700 uppercase tracking-wider flex items-center">
-                    {event.title}
+                    {calendar.title}
                     <span className="ml-2 text-xs font-normal text-gray-400 normal-case tracking-normal">(상세 보기)</span>
                 </h3>
                 {isDetailsOpen ? (
@@ -47,26 +47,26 @@ export function EventDetails({ event }: EventDetailsProps) {
             {isDetailsOpen && (
                 <div className="px-5 pb-5 space-y-3 border-t border-gray-200/50 pt-4 animate-in fade-in slide-in-from-top-1 duration-200">
                     {/* Description */}
-                    {event.description && (
+                    {calendar.description && (
                         <div className="flex items-start">
                             <AlignLeft className="w-4 h-4 text-gray-400 mr-3 mt-0.5 flex-shrink-0" />
                             <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                                {event.description}
+                                {calendar.description}
                             </p>
                         </div>
                     )}
 
                     {/* Date/Time */}
-                    {event.startDate && event.endDate && (
+                    {calendar.startDate && calendar.endDate && (
                         <div className="flex items-start">
                             <CalendarIcon className="w-4 h-4 text-gray-400 mr-3 mt-0.5 flex-shrink-0" />
                             <div className="text-sm text-gray-700">
                                 <div className="font-medium">
-                                    {event.startDate} ~ {event.endDate}
+                                    {calendar.startDate} ~ {calendar.endDate}
                                 </div>
-                                {event.startTime && (
+                                {calendar.startTime && (
                                     <div className="text-gray-500 text-xs mt-1">
-                                        {event.startTime} ~ {event.endTime}
+                                        {calendar.startTime} ~ {calendar.endTime}
                                     </div>
                                 )}
                             </div>

@@ -13,7 +13,7 @@ import { SharedParticipantList, SharedParticipant } from "@/components/common/Sh
 import { EventShareSheet } from "./components/EventShareSheet";
 
 export default function Result({ params: { id } }: { params: { id: string } }) {
-    const { event, confirmation, participants, isLoading, error } = useResult(id);
+    const { calendar, confirmation, participants, isLoading, error } = useResult(id);
     const { replace } = useFlow();
 
     // UI States
@@ -30,7 +30,7 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
         );
     }
 
-    if (error || !event || !confirmation) {
+    if (error || !calendar || !confirmation) {
         return (
             <AppScreen>
                 <div className="flex flex-col items-center justify-center flex-1 h-screen bg-slate-50 p-6 text-center">
@@ -105,7 +105,7 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
                 {/* 1. Header: Title & Description */}
                 <div className="px-6 pt-8 pb-6">
                     <h1 className="text-xl font-bold text-slate-900 leading-tight mb-3">
-                        {event.title}
+                        {calendar.title}
                     </h1>
                     <div className="mb-4">
                         <div className="text-base font-bold text-slate-900">{dateStr}</div>
@@ -131,9 +131,9 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
                         />
                     </div>
 
-                    {event.description && (
+                    {calendar.description && (
                         <p className="text-slate-500 text-sm leading-relaxed whitespace-pre-wrap">
-                            {event.description}
+                            {calendar.description}
                         </p>
                     )}
                 </div>

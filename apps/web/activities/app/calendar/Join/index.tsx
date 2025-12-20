@@ -10,7 +10,7 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
         name,
         setName,
         loading,
-        eventTitle,
+        calendarTitle,
         hostName,
         hostAvatar,
         handleSubmit,
@@ -24,7 +24,7 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
                     <JoinHeader
                         hostAvatar={hostAvatar}
                         hostName={hostName}
-                        eventTitle={eventTitle}
+                        calendarTitle={calendarTitle}
                     />
 
                     <GuestForm

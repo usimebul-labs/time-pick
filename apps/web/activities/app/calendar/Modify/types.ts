@@ -1,4 +1,4 @@
-import { EventDetail, ParticipantSummary } from "@/app/actions/calendar";
+import { CalendarDetail, ParticipantSummary } from "@/app/actions/calendar";
 
 export interface ModifyFormState {
     title: string;

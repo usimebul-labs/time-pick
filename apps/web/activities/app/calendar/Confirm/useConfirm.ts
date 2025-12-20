@@ -1,10 +1,10 @@
 
-import { useEventQuery } from "@/hooks/queries/useEventQuery";
+import { useCalendarQuery } from "@/hooks/queries/useCalendarQuery";
 import { useCallback, useMemo, useState } from "react";
 import { useFlow } from "@/stackflow";
 import { ParticipantSummary } from "@/app/actions/calendar";
 import { addMinutes, eachDayOfInterval, format, parseISO } from "date-fns";
-import { confirmEvent } from "@/app/actions/calendar";
+import { confirmCalendar } from "@/app/actions/calendar";
 import { formatISO } from "date-fns";
 
 export type RankedSlot = {
@@ -18,8 +18,8 @@ export type RankedSlot = {
 };
 
 export function useConfirm(id: string) {
-    const { data, isLoading } = useEventQuery(id);
-    const event = data?.event;
+    const { data, isLoading } = useCalendarQuery(id);
+    const calendar = data?.calendar;
     const participants = data?.participants || [];
 
     // State
@@ -82,7 +82,7 @@ export function useConfirm(id: string) {
 
     // Ranking Logic
     const rankedSlots = useMemo<RankedSlot[]>(() => {
-        if (!event || participants.length === 0) return [];
+        if (!calendar || participants.length === 0) return [];
 
         // 1. Map all slots to available participants
         // Map: Slot Key -> Set<ParticipantID>
@@ -92,7 +92,7 @@ export function useConfirm(id: string) {
             p.availabilities.forEach(iso => {
                 if (!iso) return;
                 let key = iso;
-                if (event.type === 'monthly') {
+                if (calendar.type === 'monthly') {
                     key = iso.split('T')[0]!; // YYYY-MM-DD only
                 }
 
@@ -113,7 +113,7 @@ export function useConfirm(id: string) {
         // If no selection: All slots are candidates.
         const isSelectedMode = selectedParticipantIds.size > 0;
 
-        if (event.type === 'monthly') {
+        if (calendar.type === 'monthly') {
             const candidates = sortedKeys.map(date => {
                 const availableSet = getParticipantsForSlot(date);
 
@@ -271,10 +271,10 @@ export function useConfirm(id: string) {
             return ranges.map((r, i) => ({ ...r, rank: i + 1 }));
         }
 
-    }, [event, participants, selectedParticipantIds, duration]);
+    }, [calendar, participants, selectedParticipantIds, duration]);
 
     const handleConfirm = async () => {
-        if (!event || selectedRankIndex === null) return;
+        if (!calendar || selectedRankIndex === null) return;
 
         const selectedSlot = rankedSlots[selectedRankIndex];
         if (!selectedSlot) return; // Should not happen
@@ -282,7 +282,7 @@ export function useConfirm(id: string) {
         let finalStart = selectedSlot.startISO;
         let finalEnd = selectedSlot.endISO;
 
-        if (event.type === 'monthly') {
+        if (calendar.type === 'monthly') {
             // Combine date (YYYY-MM-DD) with selectedTime (HH:mm)
             const combinedStart = new Date(`${selectedSlot.startISO}T${selectedTime}:00`);
             finalStart = combinedStart.toISOString();
@@ -291,11 +291,11 @@ export function useConfirm(id: string) {
                 const combinedEnd = new Date(`${selectedSlot.startISO}T${selectedEndTime}:00`);
                 finalEnd = combinedEnd.toISOString();
             } else {
-                finalEnd = undefined; // Or handle as null? confirmEvent action likely expects string | undefined
+                finalEnd = undefined; // Or handle as null? confirmCalendar action likely expects string | undefined
             }
         }
 
-        const result = await confirmEvent(id, {
+        const result = await confirmCalendar(id, {
             startTime: finalStart,
             endTime: finalEnd
         }, selectedSlot.participants, additionalInfo);
@@ -308,7 +308,7 @@ export function useConfirm(id: string) {
     };
 
     return {
-        event,
+        calendar,
         participants,
         isLoading,
         selectedParticipantIds,

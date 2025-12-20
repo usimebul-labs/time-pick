@@ -35,11 +35,11 @@ export function useDeadline() {
         startTransition(async () => {
             const result = await createCalendar({ message: "", error: "" }, formData);
 
-            if (result.message === "Success" && result.eventId) {
+            if (result.message === "Success" && result.calendarId) {
                 if (typeof window !== "undefined") {
-                    sessionStorage.setItem("lastCreatedEventId", result.eventId);
+                    sessionStorage.setItem("lastCreatedEventId", result.calendarId);
                 }
-                replace("Select", { id: result.eventId });
+                replace("Select", { id: result.calendarId });
             } else if (result.error) {
                 alert(result.error);
             }

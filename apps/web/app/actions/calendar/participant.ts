@@ -5,7 +5,7 @@ import { prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
 
 export async function joinSchedule(
-    eventId: string,
+    calendarId: string,
     selectedSlots: string[], // ISO strings
     guestInfo?: { name?: string; pin?: string }
 ): Promise<{ success: boolean; error?: string }> {
@@ -20,8 +20,8 @@ export async function joinSchedule(
             // Find or create participant linked to user
             const existing = await prisma.participant.findUnique({
                 where: {
-                    eventId_userId: {
-                        eventId,
+                    calendarId_userId: {
+                        calendarId,
                         userId: user.id
                     }
                 }
@@ -44,7 +44,7 @@ export async function joinSchedule(
 
                 const newParticipant = await prisma.participant.create({
                     data: {
-                        eventId,
+                        calendarId,
                         userId: user.id,
                         name: user.user_metadata.full_name || "익명",
                     }
@@ -57,7 +57,7 @@ export async function joinSchedule(
                 // Try to find existing guest by PIN
                 const existing = await prisma.participant.findFirst({
                     where: {
-                        eventId,
+                        calendarId,
                         guestPin: guestInfo.pin
                     }
                 });
@@ -72,7 +72,7 @@ export async function joinSchedule(
                 // Create new guest participant
                 const newParticipant = await prisma.participant.create({
                     data: {
-                        eventId,
+                        calendarId,
                         name: guestInfo.name,
                         guestPin: guestInfo.pin // Optional
                     }
@@ -95,7 +95,7 @@ export async function joinSchedule(
             if (selectedSlots.length > 0) {
                 await tx.availability.createMany({
                     data: selectedSlots.map(slot => ({
-                        eventId,
+                        calendarId,
                         participantId,
                         slot: new Date(slot)
                     }))
@@ -104,7 +104,7 @@ export async function joinSchedule(
         });
 
         revalidatePath('/app/dashboard');
-        revalidatePath(`/app/calendar/${eventId}`);
+        revalidatePath(`/app/calendar/${calendarId}`);
         return { success: true };
 
     } catch (e) {
@@ -113,14 +113,14 @@ export async function joinSchedule(
     }
 }
 
-export async function createGuestParticipant(eventId: string, name: string): Promise<{ success: boolean; pin?: string; error?: string }> {
+export async function createGuestParticipant(calendarId: string, name: string): Promise<{ success: boolean; pin?: string; error?: string }> {
     try {
         // Generate 6-digit PIN
         const pin = Math.floor(100000 + Math.random() * 900000).toString();
 
         await prisma.participant.create({
             data: {
-                eventId,
+                calendarId,
                 name,
                 guestPin: pin
             }
@@ -133,11 +133,11 @@ export async function createGuestParticipant(eventId: string, name: string): Pro
     }
 }
 
-export async function loginGuestParticipant(eventId: string, pin: string): Promise<{ success: boolean; error?: string }> {
+export async function loginGuestParticipant(calendarId: string, pin: string): Promise<{ success: boolean; error?: string }> {
     try {
         const participant = await prisma.participant.findFirst({
             where: {
-                eventId,
+                calendarId,
                 guestPin: pin
             }
         });
@@ -164,14 +164,14 @@ export async function deleteParticipant(participantId: string): Promise<{ succes
     try {
         const participant = await prisma.participant.findUnique({
             where: { id: participantId },
-            include: { event: true }
+            include: { calendar: true }
         });
 
         if (!participant) {
             return { success: false, error: "참여자를 찾을 수 없습니다." };
         }
 
-        if (participant.event.hostId !== user.id) {
+        if (participant.calendar.hostId !== user.id) {
             return { success: false, error: "권한이 없습니다." };
         }
 
@@ -179,7 +179,7 @@ export async function deleteParticipant(participantId: string): Promise<{ succes
             where: { id: participantId }
         });
 
-        revalidatePath(`/app/calendar/${participant.eventId}`);
+        revalidatePath(`/app/calendar/${participant.calendarId}`);
         revalidatePath('/app/dashboard');
         return { success: true };
 

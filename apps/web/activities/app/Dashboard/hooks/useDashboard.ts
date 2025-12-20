@@ -1,4 +1,4 @@
-import { DashboardEvent, deleteEvent } from "@/app/actions/calendar";
+import { DashboardCalendar, deleteCalendar } from "@/app/actions/calendar";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
@@ -44,7 +44,7 @@ export function useDashboard() {
 
     const handleDelete = async (id: string) => {
         if (confirm("정말로 이 일정을 삭제하시겠습니까?")) {
-            const { success, error } = await deleteEvent(id);
+            const { success, error } = await deleteCalendar(id);
             if (success) {
                 // setMySchedules(prev => prev.filter(s => s.id !== id));
                 triggerRefresh();

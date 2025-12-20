@@ -7,10 +7,10 @@ export type CreateCalendarState = {
         startDate?: string[];
         endDate?: string[];
     };
-    eventId?: string;
+    calendarId?: string;
 };
 
-export type DashboardEvent = {
+export type DashboardCalendar = {
     id: string;
     title: string;
     deadline: string | null;
@@ -22,7 +22,7 @@ export type DashboardEvent = {
     }[];
 };
 
-export type EventDetail = {
+export type CalendarDetail = {
     id: string;
     title: string;
     description: string | null;
@@ -55,20 +55,20 @@ export type ParticipantSummary = {
     createdAt: string;
 };
 
-export type UpdateEventState = {
+export type UpdateCalendarState = {
     success?: boolean;
     error?: string;
     conflictedParticipants?: { id: string; name: string }[];
     requiresConfirmation?: boolean;
 };
 
-export type ConfirmEventState = {
+export type ConfirmCalendarState = {
     success?: boolean;
     error?: string;
 };
 
-export type ConfirmedEventResult = {
-    event: {
+export type ConfirmedCalendarResult = {
+    calendar: {
         id: string;
         title: string;
         description: string | null;
