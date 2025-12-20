@@ -2,19 +2,16 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@repo/database";
-import { User } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
-
-export type CreateCalendarState = {
-    message?: string;
-    error?: string;
-    fieldErrors?: {
-        title?: string[];
-        startDate?: string[];
-        endDate?: string[];
-    };
-    eventId?: string;
-};
+import {
+    CreateCalendarState,
+    EventDetail,
+    ParticipantDetail,
+    ParticipantSummary,
+    UpdateEventState,
+    ConfirmEventState,
+    ConfirmedEventResult
+} from "./types";
 
 export async function createCalendar(prevState: CreateCalendarState, formData: FormData): Promise<CreateCalendarState> {
     const supabase = await createClient();
@@ -135,147 +132,6 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
     }
 }
 
-export type DashboardEvent = {
-    id: string;
-    title: string;
-    deadline: string | null;
-    isConfirmed: boolean;
-    participants: {
-        name: string;
-        avatarUrl: string | null;
-        userId: string | null;
-    }[];
-};
-
-export async function getMySchedules(user: User): Promise<{ schedules: DashboardEvent[]; error?: string; }> {
-
-    if (!user) return { schedules: [] };
-    try {
-
-        const myEvents = await prisma.event.findMany({
-            where: {
-                hostId: user.id
-            },
-
-            include: {
-                participants: {
-                    include: {
-                        user: true
-                    },
-                    orderBy: {
-                        createdAt: 'asc'
-                    }
-                }
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        });
-
-        const schedules: DashboardEvent[] = myEvents.map(event => ({
-            id: event.id,
-            title: event.title,
-            deadline: (event.deadline ? event.deadline.toISOString().split('T')[0] : null) as string | null,
-            isConfirmed: event.isConfirmed,
-            participants: event.participants.map(p => ({
-                name: p.name,
-                avatarUrl: p.user?.avatarUrl || null,
-                userId: p.userId
-            }))
-        }));
-
-        return { schedules };
-
-    } catch (e) {
-        console.error("Error fetching my schedules:", e);
-        return { schedules: [], error: "내 일정을 불러오는 중 오류가 발생했습니다." };
-    }
-}
-
-export async function getJoinedSchedules(user: User): Promise<{ schedules: DashboardEvent[]; error?: string; }> {
-    try {
-        const participations = await prisma.participant.findMany({
-            where: {
-                userId: user.id,
-                event: {
-                    hostId: {
-                        not: user.id
-                    }
-                }
-            },
-            include: {
-                event: {
-                    include: {
-                        participants: {
-                            include: {
-                                user: true
-                            },
-                            orderBy: {
-                                createdAt: 'asc'
-                            }
-                        }
-                    }
-                }
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        });
-
-        const schedules: DashboardEvent[] = participations.map(p => ({
-            id: p.event.id,
-            title: p.event.title,
-            deadline: (p.event.deadline ? p.event.deadline.toISOString().split('T')[0] : null) as string | null,
-            isConfirmed: p.event.isConfirmed,
-            participants: p.event.participants.map(ep => ({
-                name: ep.name,
-                avatarUrl: ep.user?.avatarUrl || null,
-                userId: ep.userId
-            }))
-        }));
-
-        return { schedules };
-    } catch (e) {
-        console.error("Error fetching joined schedules:", e);
-        return { schedules: [], error: "참여한 일정을 불러오는 중 오류가 발생했습니다." };
-    }
-}
-
-
-
-export type EventDetail = {
-    id: string;
-    title: string;
-    description: string | null;
-    type: "monthly" | "weekly";
-    startDate: string;
-    endDate: string;
-    startTime: string | null;
-    endTime: string | null;
-    excludedDays: number[];
-    deadline: string | null;
-    hostId: string | null;
-    hostName: string | null;
-    hostAvatarUrl: string | null;
-    isConfirmed: boolean;
-};
-
-export type ParticipantDetail = {
-    id: string;
-    name: string;
-    availabilities: string[]; // Store slots as ISO strings
-};
-
-export type ParticipantSummary = {
-    id: string;
-    name: string;
-    avatarUrl: string | null;
-    isGuest: boolean;
-    availabilities: string[];
-    email?: string | null;
-    createdAt: string;
-};
-
 export async function getEventWithParticipation(eventId: string, guestPin?: string): Promise<{
     event: EventDetail | null;
     participation: ParticipantDetail | null;
@@ -388,191 +244,6 @@ export async function getEventWithParticipation(eventId: string, guestPin?: stri
     }
 }
 
-export async function joinSchedule(
-    eventId: string,
-    selectedSlots: string[], // ISO strings
-    guestInfo?: { name?: string; pin?: string }
-): Promise<{ success: boolean; error?: string }> {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    try {
-        let participantId: string;
-
-        if (user) {
-            // 1. User is logged in
-            // Find or create participant linked to user
-            const existing = await prisma.participant.findUnique({
-                where: {
-                    eventId_userId: {
-                        eventId,
-                        userId: user.id
-                    }
-                }
-            });
-
-            if (existing) {
-                participantId = existing.id;
-            } else {
-                // Ensure profile exists
-                await prisma.profile.upsert({
-                    where: { id: user.id },
-                    update: {},
-                    create: {
-                        id: user.id,
-                        email: user.email,
-                        fullName: user.user_metadata.full_name,
-                        avatarUrl: user.user_metadata.avatar_url
-                    }
-                });
-
-                const newParticipant = await prisma.participant.create({
-                    data: {
-                        eventId,
-                        userId: user.id,
-                        name: user.user_metadata.full_name || "익명",
-                    }
-                });
-                participantId = newParticipant.id;
-            }
-        } else {
-            // 2. Guest User
-            if (guestInfo?.pin) {
-                // Try to find existing guest by PIN
-                const existing = await prisma.participant.findFirst({
-                    where: {
-                        eventId,
-                        guestPin: guestInfo.pin
-                    }
-                });
-
-                if (existing) {
-                    participantId = existing.id;
-                } else {
-                    return { success: false, error: "유효하지 않은 게스트 PIN입니다." };
-                }
-            } else if (guestInfo?.name) {
-                // Legacy support or if we want to allow name-only creation (though we force login now)
-                // Create new guest participant
-                const newParticipant = await prisma.participant.create({
-                    data: {
-                        eventId,
-                        name: guestInfo.name,
-                        guestPin: guestInfo.pin // Optional
-                    }
-                });
-                participantId = newParticipant.id;
-            } else {
-                return { success: false, error: "게스트 정보가 필요합니다." };
-            }
-        }
-
-        // 3. Save Availability
-        // Transaction to replace all availabilities
-        await prisma.$transaction(async (tx) => {
-            // Delete existing
-            await tx.availability.deleteMany({
-                where: { participantId }
-            });
-
-            // Create new
-            if (selectedSlots.length > 0) {
-                await tx.availability.createMany({
-                    data: selectedSlots.map(slot => ({
-                        eventId,
-                        participantId,
-                        slot: new Date(slot)
-                    }))
-                });
-            }
-        });
-
-        revalidatePath('/app/dashboard');
-        revalidatePath(`/app/calendar/${eventId}`);
-        return { success: true };
-
-    } catch (e) {
-        console.error("Error joining schedule:", e);
-        return { success: false, error: "일정 등록 중 오류가 발생했습니다." };
-    }
-}
-
-export async function createGuestParticipant(eventId: string, name: string): Promise<{ success: boolean; pin?: string; error?: string }> {
-    try {
-        // Generate 6-digit PIN
-        const pin = Math.floor(100000 + Math.random() * 900000).toString();
-
-        await prisma.participant.create({
-            data: {
-                eventId,
-                name,
-                guestPin: pin
-            }
-        });
-
-        return { success: true, pin };
-    } catch (e) {
-        console.error("Error creating guest:", e);
-        return { success: false, error: "게스트 생성 중 오류가 발생했습니다." };
-    }
-}
-
-export async function loginGuestParticipant(eventId: string, pin: string): Promise<{ success: boolean; error?: string }> {
-    try {
-        const participant = await prisma.participant.findFirst({
-            where: {
-                eventId,
-                guestPin: pin
-            }
-        });
-
-        if (participant) {
-            return { success: true };
-        } else {
-            return { success: false, error: "잘못된 입장 코드입니다." };
-        }
-    } catch (e) {
-        console.error("Error logging in guest:", e);
-        return { success: false, error: "로그인 중 오류가 발생했습니다." };
-    }
-}
-
-export async function deleteParticipant(participantId: string): Promise<{ success: boolean; error?: string }> {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-        return { success: false, error: "로그인이 필요합니다." };
-    }
-
-    try {
-        const participant = await prisma.participant.findUnique({
-            where: { id: participantId },
-            include: { event: true }
-        });
-
-        if (!participant) {
-            return { success: false, error: "참여자를 찾을 수 없습니다." };
-        }
-
-        if (participant.event.hostId !== user.id) {
-            return { success: false, error: "권한이 없습니다." };
-        }
-
-        await prisma.participant.delete({
-            where: { id: participantId }
-        });
-
-        revalidatePath(`/app/calendar/${participant.eventId}`);
-        revalidatePath('/app/dashboard');
-        return { success: true };
-
-    } catch (e) {
-        console.error("Error deleting participant:", e);
-        return { success: false, error: "참여자 삭제 중 오류가 발생했습니다." };
-    }
-}
-
 export async function deleteEvent(eventId: string): Promise<{ success: boolean; error?: string }> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -605,14 +276,6 @@ export async function deleteEvent(eventId: string): Promise<{ success: boolean; 
         return { success: false, error: "일정 삭제 중 오류가 발생했습니다." };
     }
 }
-
-
-export type UpdateEventState = {
-    success?: boolean;
-    error?: string;
-    conflictedParticipants?: { id: string; name: string }[];
-    requiresConfirmation?: boolean;
-};
 
 export async function updateEvent(
     eventId: string,
@@ -767,10 +430,6 @@ export async function updateEvent(
         return { error: "일정 수정 중 오류가 발생했습니다." };
     }
 }
-export type ConfirmEventState = {
-    success?: boolean;
-    error?: string;
-};
 
 export async function confirmEvent(
     eventId: string,
@@ -806,24 +465,9 @@ export async function confirmEvent(
 
         // Monthly Event logic: If no specific time provided (just date), verify if we need to set default logic
         if (event.type === 'monthly') {
-            // If caller passed only Date part (no specific time selected by user logic?), 
-            // but `finalSlot.startTime` should normally include time if `selectedTime` was combined.
-            // If validation needed:
-            // The requirement says: "If time info not entered for monthly... set start to day start, end to day end"
-            // In `useConfirm`, we combine date + time. 
-            // IF `useConfirm` passed a time-less ISO (e.g. just YYYY-MM-DDT00:00:00.000Z due to some logic), we treat it here?
-            // Actually `useConfirm` guarantees `selectedTime` default "12:00". 
-            // BUT, if we want to be safe or if the unique requirement implies "If user didn't pick time" (checking if explicit time set?)...
-            // Let's assume if endTime is missing for Monthly, we set it to end of day of the start date.
-
             if (!end) {
                 end = new Date(start);
                 end.setHours(23, 59, 59, 999);
-
-                // Also ensure start is at 00:00:00 if it was meant to be "Whole Day" or "Date Only"
-                // But current UI forces a time selection. 
-                // The prompt says: "When monthly calendar... if time info NOT entered...".
-                // Detailed implementation: We'll ensure `end` is set.
             }
         } else {
             // Weekly
@@ -875,28 +519,6 @@ export async function confirmEvent(
         return { error: "일정 확정 중 오류가 발생했습니다." };
     }
 }
-
-export type ConfirmedEventResult = {
-    event: {
-        id: string;
-        title: string;
-        description: string | null;
-    };
-    confirmation: {
-        startAt: string; // ISO
-        endAt: string;   // ISO
-        message: {
-            location?: string;
-            transport?: string;
-            parking?: string;
-            fee?: string;
-            bank?: string;
-            inquiry?: string;
-            memo?: string;
-        } | null;
-    };
-    participants: ParticipantSummary[]; // Only those in confirmation.participantIds
-};
 
 export async function getConfirmedEventResult(eventId: string): Promise<{
     data: ConfirmedEventResult | null;

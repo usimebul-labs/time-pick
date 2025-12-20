@@ -25,6 +25,7 @@ interface DashboardState {
     selectedParticipantCount: number;
     openParticipant: (participants: Participant[], count: number) => void;
     closeParticipant: () => void;
+
     // Refresh Trigger
     refreshTrigger: number;
     triggerRefresh: () => void;
