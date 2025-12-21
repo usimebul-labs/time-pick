@@ -15,8 +15,8 @@ export interface WeeklyCalendarProps extends Omit<MonthlyCalendarProps, 'calenda
   selectedParticipantIds?: string[];
 }
 
-export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, endDate, startDate, startHour, endHour, excludedDays, participants = [], selectedParticipantIds = [] }: WeeklyCalendarProps) {
-  const { days, hours, isDisabled, isSelected } = useCalendar({ type: 'weekly', calendarDate, selectedDates, startHour, endHour, startDate, endDate, excludedDays });
+export function WeeklyCalendar({ calendarDate, selectedDates, onSelectDates, endDate, startDate, startHour, endHour, excludedDays, participants = [], selectedParticipantIds = [], disableHolidays, disabledDates = [] }: WeeklyCalendarProps) {
+  const { days, hours, isDisabled, isSelected } = useCalendar({ type: 'weekly', calendarDate, selectedDates, startHour, endHour, startDate, endDate, excludedDays, disableHolidays, disabledDates });
 
   return (
     <>

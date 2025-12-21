@@ -1,7 +1,6 @@
-import { addDays, eachDayOfInterval, endOfDay, endOfMonth, endOfWeek, format, isAfter, isBefore, isSameMinute, isSameMonth, startOfDay, startOfMonth, startOfWeek } from "date-fns";
+import { addDays, eachDayOfInterval, endOfDay, endOfMonth, endOfWeek, isAfter, isBefore, isSameDay, isSameMinute, isSameMonth, startOfDay, startOfMonth, startOfWeek } from "date-fns";
 import { useCallback } from "react";
-
-
+import { getHoliday } from "../../../lib/holidays";
 
 interface UseCalendarProps {
   type: 'monthly' | 'weekly';
@@ -12,9 +11,11 @@ interface UseCalendarProps {
   startDate?: Date;
   endDate?: Date;
   excludedDays?: number[];
+  disableHolidays?: boolean;
+  disabledDates?: Date[];
 }
 
-export function useCalendar({ type, calendarDate, selectedDates, startHour = 9, endHour = 18, startDate, endDate, excludedDays }: UseCalendarProps) {
+export function useCalendar({ type, calendarDate, selectedDates, startHour = 9, endHour = 18, startDate, endDate, excludedDays, disableHolidays, disabledDates = [] }: UseCalendarProps) {
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
   const days = type === 'monthly' ? getMonthDays(calendarDate) : getWeekDays(calendarDate);
 
@@ -27,8 +28,18 @@ export function useCalendar({ type, calendarDate, selectedDates, startHour = 9, 
       if (excludedDays.includes(dayIndex)) return true;
     }
 
+    if (disableHolidays && getHoliday(date)) {
+      return true;
+    }
+
+    if (disabledDates && disabledDates.length > 0) {
+      if (disabledDates.some(d => isSameDay(d, date))) {
+        return true;
+      }
+    }
+
     return false;
-  }, [startDate, endDate, excludedDays]);
+  }, [startDate, endDate, excludedDays, disableHolidays, disabledDates]);
 
   const isSelected = useCallback((date: Date) => {
     return selectedDates.some(d => isSameMinute(d, date));

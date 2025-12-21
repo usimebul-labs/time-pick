@@ -27,9 +27,11 @@ export interface CalendarProps {
   excludedDays?: number[];
   participants?: CalendarParticipant[];
   selectedParticipantIds?: string[];
+  disableHolidays?: boolean;
+  disabledDates?: Date[];
 }
 
-export function Calendar({ type, selectedDates, onSelectDates, startDate, endDate, startHour, endHour, excludedDays, participants = [], selectedParticipantIds = [] }: CalendarProps) {
+export function Calendar({ type, selectedDates, onSelectDates, startDate, endDate, startHour, endHour, excludedDays, participants = [], selectedParticipantIds = [], disableHolidays, disabledDates = [] }: CalendarProps) {
 
   const { calendarDate, canNext, canPrev, goToNext, goToPrev, goToToday } = useCalendarHeader({ type, startDate, endDate });
 
@@ -48,6 +50,9 @@ export function Calendar({ type, selectedDates, onSelectDates, startDate, endDat
           excludedDays={excludedDays}
           participants={participants}
           selectedParticipantIds={selectedParticipantIds}
+          // Note: Weekly might need to handle these props if implemented there too, usually yes.
+          disableHolidays={disableHolidays}
+          disabledDates={disabledDates}
         />
       ) : (
         <MonthlyCalendar
@@ -59,6 +64,8 @@ export function Calendar({ type, selectedDates, onSelectDates, startDate, endDat
           excludedDays={excludedDays}
           participants={participants}
           selectedParticipantIds={selectedParticipantIds}
+          disableHolidays={disableHolidays}
+          disabledDates={disabledDates}
         />
       )}
     </div>

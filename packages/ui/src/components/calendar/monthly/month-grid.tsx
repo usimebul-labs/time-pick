@@ -2,6 +2,7 @@ import { isToday, isSameDay, parseISO } from 'date-fns';
 import { useCalendarDrag } from '../hook/use-calendar-drag';
 import { cn } from '../../../lib/utils';
 import { CalendarParticipant } from '../index';
+import { getHoliday } from '../../../lib/holidays';
 
 interface MonthlyGridProps {
   selectedDates: Date[];
@@ -30,6 +31,12 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
           const disabled = isDisabled(day);
           const selected = isSelected(day);
           const currentMonth = isCurrentMonth(day);
+
+          // Holiday Check
+          const holidayName = getHoliday(day);
+          const isHoliday = !!holidayName;
+          const isSunday = day.getDay() === 0;
+          const isSaturday = day.getDay() === 6;
 
           // Calculate participants for this day
           const dayParticipants = participants.filter(p =>
@@ -63,9 +70,18 @@ export function MonthGrid({ selectedDates, onSelectDates, days, isDisabled, isSe
                 !disabled && [
                   !currentMonth && 'text-muted-foreground/30',
                   currentMonth && 'text-foreground',
+
+                  // Text Color Logic (Holidays & Weekends)
+                  // Only apply if NOT selected (selected has white text)
+                  !selected && [
+                    (isHoliday || isSunday) && 'text-red-500 font-medium',
+                    !isHoliday && isSaturday && 'text-blue-500 font-medium',
+                  ],
+
                   'hover:bg-accent hover:text-accent-foreground',
                   selected && 'bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary/90 hover:text-primary-foreground',
                   isToday(day) && !selected && 'bg-accent/50 text-accent-foreground font-semibold ring-1 ring-inset ring-accent-foreground/20',
+
                   // Highlight if all selected participants (or all if none selected) are available
                   isHighlight && 'ring-2 ring-inset ring-green-500/50',
                   !selected && isHighlight && 'bg-green-50/50',

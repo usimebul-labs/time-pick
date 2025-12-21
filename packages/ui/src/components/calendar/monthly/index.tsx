@@ -15,10 +15,12 @@ export interface MonthlyCalendarProps {
   excludedDays?: number[];
   participants?: CalendarParticipant[];
   selectedParticipantIds?: string[];
+  disableHolidays?: boolean;
+  disabledDates?: Date[];
 }
 
-export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, startDate, endDate, excludedDays, participants = [], selectedParticipantIds = [] }: MonthlyCalendarProps) {
-  const { days, isDisabled, isSelected, isCurrentMonth } = useCalendar({ type: 'monthly', calendarDate, selectedDates, startDate, endDate, excludedDays });
+export function MonthlyCalendar({ calendarDate, selectedDates, onSelectDates, startDate, endDate, excludedDays, participants = [], selectedParticipantIds = [], disableHolidays, disabledDates = [] }: MonthlyCalendarProps) {
+  const { days, isDisabled, isSelected, isCurrentMonth } = useCalendar({ type: 'monthly', calendarDate, selectedDates, startDate, endDate, excludedDays, disableHolidays, disabledDates });
 
   return (
     <div className="flex flex-col gap-2 select-none">
