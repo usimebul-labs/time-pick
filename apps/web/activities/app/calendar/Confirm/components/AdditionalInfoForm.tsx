@@ -1,10 +1,11 @@
 import { Input } from "@repo/ui";
 import { Textarea } from "@repo/ui";
 import { Button } from "@repo/ui";
-import { MapPin, Bus, Car, Coins, CreditCard, Phone, X, Clock } from "lucide-react";
+import { MapPin, Bus, Car, Coins, CreditCard, Phone, X, Clock, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Label } from "@repo/ui";
 import { cn } from "@repo/ui";
+import { LocationSearchDialog } from "./LocationSearchDialog";
 
 
 export type AdditionalInfo = {
@@ -41,6 +42,8 @@ const FIELD_CONFIG: { key: InfoKey; label: string; placeholder: string; icon: Re
 ];
 
 export function AdditionalInfoForm({ info, onChange, monthlyTimeProps }: AdditionalInfoFormProps) {
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+
     // Initialize active keys based on existing values
     const [activeKeys, setActiveKeys] = useState<Set<InfoKey>>(() => {
         const initial = new Set<InfoKey>();
@@ -249,8 +252,14 @@ export function AdditionalInfoForm({ info, onChange, monthlyTimeProps }: Additio
                                     autoFocus
                                 />
                                 {key === 'location' && (
-                                    <Button variant="outline" size="icon" onClick={handleMapCheck} title="지도 확인" className="h-11 w-11 shrink-0 rounded-xl border-gray-200 hover:bg-gray-50">
-                                        <MapPin className="h-5 w-5 text-gray-600" />
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => setIsSearchOpen(true)}
+                                        title="장소 검색"
+                                        className="h-11 w-11 shrink-0 rounded-xl border-gray-200 hover:bg-gray-50 text-indigo-600"
+                                    >
+                                        <Search className="h-5 w-5" />
                                     </Button>
                                 )}
                             </div>
@@ -269,6 +278,12 @@ export function AdditionalInfoForm({ info, onChange, monthlyTimeProps }: Additio
                     placeholder="친구들에게 남길 말을 적어주세요."
                 />
             </div>
+
+            <LocationSearchDialog
+                isOpen={isSearchOpen}
+                onClose={() => setIsSearchOpen(false)}
+                onSelect={(location) => handleChange('location', location)}
+            />
         </div>
     );
 }
