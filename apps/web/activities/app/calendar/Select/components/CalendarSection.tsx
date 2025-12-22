@@ -1,3 +1,4 @@
+import React from "react";
 import { CalendarDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { Calendar } from "@repo/ui";
 import { useCalendarSection } from "../hooks/useCalendarSection";
@@ -10,7 +11,22 @@ interface CalendarSectionProps {
 export function CalendarSection({ calendar, participants }: CalendarSectionProps) {
     const { selectedDates, onSelectDates, selectedParticipantIds } = useCalendarSection();
 
-    console.log(calendar)
+    // Memoize derived props to prevent unnecessary re-renders of the Calendar component
+    // especially during drag selection updates which trigger this component to re-render.
+    const startDate = React.useMemo(() => new Date(calendar.startDate), [calendar.startDate]);
+    const endDate = React.useMemo(() => new Date(calendar.endDate), [calendar.endDate]);
+    const disabledDates = React.useMemo(() =>
+        calendar.excludedDates.map(d => new Date(d)),
+        [calendar.excludedDates]
+    );
+    const startHour = React.useMemo(() =>
+        calendar.startTime ? parseInt(calendar.startTime.split(':')[0]!) : undefined,
+        [calendar.startTime]
+    );
+    const endHour = React.useMemo(() =>
+        calendar.endTime ? parseInt(calendar.endTime.split(':')[0]!) : undefined,
+        [calendar.endTime]
+    );
 
     return (
         <div>
@@ -22,17 +38,17 @@ export function CalendarSection({ calendar, participants }: CalendarSectionProps
 
             <Calendar
                 type={calendar.type}
-                startDate={new Date(calendar.startDate)}
-                endDate={new Date(calendar.endDate)}
+                startDate={startDate}
+                endDate={endDate}
                 excludedDays={calendar.excludedDays}
-                startHour={calendar.startTime ? parseInt(calendar.startTime.split(':')[0]!) : undefined}
-                endHour={calendar.endTime ? parseInt(calendar.endTime.split(':')[0]!) : undefined}
+                startHour={startHour}
+                endHour={endHour}
                 selectedDates={selectedDates}
                 onSelectDates={onSelectDates}
                 participants={participants}
                 selectedParticipantIds={selectedParticipantIds}
                 disableHolidays={calendar.excludeHolidays}
-                disabledDates={calendar.excludedDates.map(d => new Date(d))}
+                disabledDates={disabledDates}
             />
 
             <div className="flex justify-end mt-2 h-6">
