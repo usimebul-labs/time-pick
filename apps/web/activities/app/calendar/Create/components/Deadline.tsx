@@ -76,6 +76,11 @@ export default function CreateDeadline() {
                         name="excludedDates"
                         value={JSON.stringify(data.excludedDates)}
                     />
+                    <input
+                        type="hidden"
+                        name="excludeHolidays"
+                        value={String(data.excludeHolidays)}
+                    />
                     {data.deadline && (
                         <input type="hidden" name="deadline" value={data.deadline} />
                     )}

@@ -15,6 +15,7 @@ export default function CreateExclusions() {
         addExcludedDate,
         removeExcludedDate,
         handleNext,
+        toggleHolidays,
     } = useExclusions();
 
     return (
@@ -86,8 +87,9 @@ export default function CreateExclusions() {
                         </p>
                     </div>
                     <Checkbox
-                        disabled // Not implemented yet logic-wise
-                        className="w-5 h-5 border-slate-300"
+                        checked={data.excludeHolidays}
+                        onCheckedChange={(checked) => toggleHolidays(checked === true)}
+                        className="w-5 h-5 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
                     />
                 </div>
 

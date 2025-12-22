@@ -31,6 +31,8 @@ export function CalendarSection({ calendar, participants }: CalendarSectionProps
                 onSelectDates={onSelectDates}
                 participants={participants}
                 selectedParticipantIds={selectedParticipantIds}
+                disableHolidays={calendar.excludeHolidays}
+                disabledDates={calendar.excludedDates.map(d => new Date(d))}
             />
 
             <div className="flex justify-end mt-2 h-6">

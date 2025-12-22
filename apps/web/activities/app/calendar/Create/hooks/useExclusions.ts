@@ -51,6 +51,10 @@ export function useExclusions() {
         });
     };
 
+    const toggleHolidays = (checked: boolean) => {
+        updateData({ excludeHolidays: checked });
+    };
+
     const handleNext = () => {
         push("CreateDeadline", {});
     };
@@ -64,5 +68,6 @@ export function useExclusions() {
         addExcludedDate,
         removeExcludedDate,
         handleNext,
+        toggleHolidays,
     };
 }

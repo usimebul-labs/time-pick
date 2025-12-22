@@ -34,6 +34,8 @@ model Calendar {
   startTime    DateTime? @db.Time @map("start_time")
   endTime      DateTime? @db.Time @map("end_time")
   excludedDays Int[]     @default([]) @map("excluded_days")
+  excludeHolidays Boolean @default(false) @map("exclude_holidays")
+  excludedDates   String[] @default([]) @map("excluded_dates")
   deadline     DateTime? @map("deadline")
   isConfirmed  Boolean   @default(false) @map("is_confirmed")
   createdAt    DateTime  @default(now()) @map("created_at")

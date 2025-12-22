@@ -27,6 +27,8 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
     const endHour = formData.get("endHour") ? Number(formData.get("endHour")) : null;
 
     const enabledDaysStr = formData.get("enabledDays") as string; // JSON string of string[]
+    const excludeHolidays = formData.get("excludeHolidays") === "true";
+    const excludedDatesStr = formData.get("excludedDates") as string; // JSON string of string[]
     const deadlineStr = formData.get("deadline") as string;
 
     // Validation
@@ -84,6 +86,8 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
             .map(day => dayMap[day])
             .filter((d): d is number => d !== undefined);
 
+        const excludedDates = excludedDatesStr ? JSON.parse(excludedDatesStr) as string[] : [];
+
         // 5. Host ID logic
         // We need to map Supabase User ID to our Profile ID if possible, 
         // or if we use UUID for both, just use it.
@@ -119,6 +123,8 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
                 startTime,
                 endTime,
                 excludedDays,
+                excludeHolidays,
+                excludedDates,
                 deadline
             }
         });
@@ -227,6 +233,8 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
                 startTime: calendar.startTime ? calendar.startTime.toISOString().split('T')[1]!.substring(0, 5) : null,
                 endTime: calendar.endTime ? calendar.endTime.toISOString().split('T')[1]!.substring(0, 5) : null,
                 excludedDays: calendar.excludedDays,
+                excludeHolidays: calendar.excludeHolidays,
+                excludedDates: calendar.excludedDates,
                 deadline: calendar.deadline ? calendar.deadline.toISOString() : null,
                 hostId: calendar.hostId,
                 hostName: calendar.host?.fullName || null,
@@ -298,6 +306,8 @@ export async function updateCalendar(
     const endHour = formData.get("endHour") ? Number(formData.get("endHour")) : null;
 
     const enabledDaysStr = formData.get("enabledDays") as string;
+    const excludeHolidays = formData.get("excludeHolidays") === "true";
+    const excludedDatesStr = formData.get("excludedDates") as string;
     const deadlineStr = formData.get("deadline") as string;
 
     if (!title || !startDateStr || !endDateStr) {
@@ -349,6 +359,8 @@ export async function updateCalendar(
             .filter(day => !enabledDays.includes(day))
             .map(day => dayMap[day])
             .filter((d): d is number => d !== undefined);
+
+        const excludedDates = excludedDatesStr ? JSON.parse(excludedDatesStr) as string[] : [];
 
         const conflictedParticipants = new Set<string>();
 
@@ -408,6 +420,8 @@ export async function updateCalendar(
                     startTime,
                     endTime,
                     excludedDays,
+                    excludeHolidays,
+                    excludedDates,
                     deadline
                 }
             });

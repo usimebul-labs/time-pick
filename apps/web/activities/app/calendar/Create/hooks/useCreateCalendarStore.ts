@@ -29,6 +29,7 @@ const initialData: CreateCalendarData = {
     startHour: 9,
     endHour: 18,
     enabledDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    excludeHolidays: false,
     excludedDates: [],
     deadline: `${getLastDayOfMonthStr()}T23:59`, // Default deadline
 };

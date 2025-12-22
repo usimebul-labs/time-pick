@@ -8,6 +8,7 @@ export interface CreateCalendarData {
     startHour?: number;
     endHour?: number;
     enabledDays: string[];
+    excludeHolidays: boolean;
     excludedDates?: string[];
     deadline?: string;
 }

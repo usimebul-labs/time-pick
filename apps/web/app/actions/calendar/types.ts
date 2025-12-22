@@ -32,6 +32,8 @@ export type CalendarDetail = {
     startTime: string | null;
     endTime: string | null;
     excludedDays: number[];
+    excludeHolidays: boolean;
+    excludedDates: string[];
     deadline: string | null;
     hostId: string | null;
     hostName: string | null;
