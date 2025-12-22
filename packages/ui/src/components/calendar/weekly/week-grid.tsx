@@ -62,7 +62,7 @@ export function WeekGrid({ selectedDates, onSelectDates, hours, days, isDisabled
                   }}
                   onMouseEnter={() => onDragOver(datetime)}
                   className={cn(
-                    'col-span-1 h-8 border-b relative transition-colors duration-75 flex items-end justify-center pb-1',
+                    'col-span-1 h-8 border-b relative transition-colors duration-75 flex items-end justify-center pb-1 touch-none',
                     disabled && 'bg-gray-50 cursor-not-allowed text-muted-foreground line-through decoration-slate-400',
                     !disabled && [
                       'hover:bg-accent hover:text-accent-foreground',
