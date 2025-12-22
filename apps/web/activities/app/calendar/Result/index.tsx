@@ -3,7 +3,7 @@
 
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { useResult } from "./useResult";
-import { Loader2, Calendar, MapPin, Share2, Plus, ChevronDown, ChevronUp, Clock, Info } from "lucide-react";
+import { Loader2, Calendar, MapPin, Share2, Plus, ChevronDown, ChevronUp, Clock, Info, Train, SquareParking, Banknote, Landmark, Phone, FileText } from "lucide-react";
 import { cn } from "@repo/ui";
 import { useFlow } from "@/stackflow";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { SharedParticipantList, SharedParticipant } from "@/components/common/SharedParticipantList";
 import { EventShareSheet } from "./components/EventShareSheet";
+import { AppIcon } from "./components/AppIcon";
 
 export default function Result({ params: { id } }: { params: { id: string } }) {
     const { calendar, event, participants, isLoading, error } = useResult(id);
@@ -88,12 +89,18 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
     // Check if any additional info exists
     const hasAdditionalInfo = message && Object.values(message).some(v => v);
 
-    const InfoRow = ({ label, value }: { label: string, value?: string }) => {
+    const InfoRow = ({ icon: Icon, label, value, action }: { icon: any, label: string, value?: string, action?: React.ReactNode }) => {
         if (!value) return null;
         return (
-            <div className="flex flex-col gap-1 py-2 border-b border-slate-50 last:border-0">
-                <span className="text-xs font-bold text-slate-400">{label}</span>
-                <span className="text-slate-700 text-sm whitespace-pre-wrap leading-relaxed">{value}</span>
+            <div className="flex gap-3">
+                <div className="flex-shrink-0 mt-0.5">
+                    <Icon className="w-4 h-4 text-slate-400" />
+                </div>
+                <div className="flex flex-col gap-0.5 w-full">
+                    <span className="text-xs font-bold text-slate-500">{label}</span>
+                    <span className="text-slate-900 text-sm whitespace-pre-wrap leading-relaxed">{value}</span>
+                    {action}
+                </div>
             </div>
         );
     };
@@ -159,14 +166,51 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
                         </button>
 
                         {isInfoOpen && (
-                            <div className="bg-slate-50 rounded-xl p-5 space-y-1 animate-in slide-in-from-top-2 duration-200">
-                                <InfoRow label="📍 장소" value={message?.location} />
-                                <InfoRow label="🚇 교통" value={message?.transport} />
-                                <InfoRow label="🅿️ 주차" value={message?.parking} />
-                                <InfoRow label="💰 회비" value={message?.fee} />
-                                <InfoRow label="🏦 계좌" value={message?.bank} />
-                                <InfoRow label="📞 문의" value={message?.inquiry} />
-                                <InfoRow label="📝 메모" value={message?.memo} />
+                            <div className="bg-slate-50 rounded-xl p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                                <InfoRow
+                                    icon={MapPin}
+                                    label="장소"
+                                    value={message?.location}
+                                    action={
+                                        message?.location && (
+                                            <div className="flex gap-2 mt-2">
+                                                <a
+                                                    href={`https://map.naver.com/v5/search/${encodeURIComponent(message.location)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm hover:scale-105 transition-transform"
+                                                    aria-label="네이버 지도"
+                                                >
+                                                    <AppIcon appName="naver map" alt="Naver Map" className="w-full h-full" />
+                                                </a>
+                                                <a
+                                                    href={`https://map.kakao.com/link/search/${encodeURIComponent(message.location)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm hover:scale-105 transition-transform"
+                                                    aria-label="카카오 맵"
+                                                >
+                                                    <AppIcon appName="kakao map" alt="Kakao Map" className="w-full h-full" />
+                                                </a>
+                                                <a
+                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(message.location)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm hover:scale-105 transition-transform"
+                                                    aria-label="구글 지도"
+                                                >
+                                                    <AppIcon appName="google maps" alt="Google Maps" className="w-full h-full" />
+                                                </a>
+                                            </div>
+                                        )
+                                    }
+                                />
+                                <InfoRow icon={Train} label="교통" value={message?.transport} />
+                                <InfoRow icon={SquareParking} label="주차" value={message?.parking} />
+                                <InfoRow icon={Banknote} label="회비" value={message?.fee} />
+                                <InfoRow icon={Landmark} label="계좌" value={message?.bank} />
+                                <InfoRow icon={Phone} label="문의" value={message?.inquiry} />
+                                <InfoRow icon={FileText} label="메모" value={message?.memo} />
                             </div>
                         )}
                     </div>
