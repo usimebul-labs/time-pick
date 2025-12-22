@@ -5,6 +5,7 @@ import { useModify } from "./useModify";
 import { BasicInfoSection } from "./components/BasicInfoSection";
 import { DateRangeSection } from "./components/DateRangeSection";
 import { ExcludedDaysSection } from "./components/ExcludedDaysSection";
+import { ExclusionsSection } from "./components/ExclusionsSection";
 import { DeadlineSection } from "./components/DeadlineSection";
 import { ParticipantSection } from "./components/ParticipantSection";
 import { ModifyFooter } from "./components/ModifyFooter";
@@ -54,6 +55,7 @@ export default function Modify({ params: { id } }: { params: { id: string } }) {
                     <BasicInfoSection data={formState} onChange={updateForm} />
                     <DateRangeSection data={formState} onChange={updateForm} />
                     <ExcludedDaysSection data={formState} onChange={updateForm} />
+                    <ExclusionsSection data={formState} onChange={updateForm} />
                     <DeadlineSection data={formState} onChange={updateForm} />
                     <ParticipantSection participants={participants} onDelete={handleDeleteParticipant} />
                 </form>

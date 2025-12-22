@@ -9,6 +9,8 @@ export interface ModifyFormState {
     startHour: number;
     endHour: number;
     enabledDays: string[];
+    excludeHolidays: boolean;
+    excludedDates: string[];
     deadline: string;
 }
 

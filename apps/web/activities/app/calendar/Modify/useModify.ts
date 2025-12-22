@@ -21,6 +21,8 @@ export function useModify(id: string) {
         startHour: 9,
         endHour: 18,
         enabledDays: [],
+        excludeHolidays: false,
+        excludedDates: [],
         deadline: "",
     });
 
@@ -60,6 +62,8 @@ export function useModify(id: string) {
                 startHour: calendar.startTime ? Number(calendar.startTime.split(':')[0]) : 9,
                 endHour: calendar.endTime ? Number(calendar.endTime.split(':')[0]) : 18,
                 enabledDays: enabled,
+                excludeHolidays: calendar.excludeHolidays,
+                excludedDates: calendar.excludedDates,
                 deadline: calendar.deadline ? calendar.deadline.substring(0, 16) : "",
             });
 
@@ -86,6 +90,9 @@ export function useModify(id: string) {
             formData.set("endHour", formState.endHour.toString());
         }
         formData.set("enabledDays", JSON.stringify(formState.enabledDays));
+        formData.set("excludeHolidays", formState.excludeHolidays.toString());
+        formData.set("excludedDates", JSON.stringify(formState.excludedDates));
+
         if (formState.deadline) {
             formData.set("deadline", formState.deadline);
         }
