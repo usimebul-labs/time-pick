@@ -7,15 +7,11 @@ import { addMinutes, eachDayOfInterval, format, parseISO } from "date-fns";
 import { confirmCalendar } from "@/app/actions/calendar";
 import { formatISO } from "date-fns";
 
-export type RankedSlot = {
-    rank: number;
-    startTime: string; // Formatted for display
-    endTime?: string; // Formatted or raw? Let's use startISO/endISO for logic
-    startISO: string;
-    endISO?: string;
-    participants: string[];
-    count: number;
-};
+import { useWeeklyRecommendation } from "./hooks/useWeeklyRecommendation";
+import { RankedSlot } from "./types";
+
+// Removed local RankedSlot definition to avoiding conflict with imported type
+
 
 export function useConfirm(id: string) {
     const { data, isLoading } = useCalendarQuery(id);
@@ -80,10 +76,23 @@ export function useConfirm(id: string) {
         setSelectedParticipantIds(new Set());
     }, []);
 
+    // Weekly Recommendation Hook
+    const weeklyRankedSlots = useWeeklyRecommendation({
+        calendar,
+        participants,
+        selectedParticipantIds,
+        duration
+    });
+
     // Ranking Logic
     const rankedSlots = useMemo<RankedSlot[]>(() => {
         if (!calendar || participants.length === 0) return [];
 
+        if (calendar.type === 'weekly') {
+            return weeklyRankedSlots;
+        }
+
+        // Monthly Logic
         // 1. Map all slots to available participants
         // Map: Slot Key -> Set<ParticipantID>
         const slotMap: Record<string, Set<string>> = {};
@@ -91,10 +100,8 @@ export function useConfirm(id: string) {
         participants.forEach(p => {
             p.availabilities.forEach(iso => {
                 if (!iso) return;
-                let key = iso;
-                if (calendar.type === 'monthly') {
-                    key = iso.split('T')[0]!; // YYYY-MM-DD only
-                }
+                // For monthly, we group by Date (YYYY-MM-DD)
+                const key = iso.split('T')[0]!;
 
                 if (!slotMap[key]) {
                     slotMap[key] = new Set();
@@ -113,165 +120,60 @@ export function useConfirm(id: string) {
         // If no selection: All slots are candidates.
         const isSelectedMode = selectedParticipantIds.size > 0;
 
-        if (calendar.type === 'monthly') {
-            const candidates = sortedKeys.map(date => {
-                const availableSet = getParticipantsForSlot(date);
+        const candidates = sortedKeys.map(date => {
+            const availableSet = getParticipantsForSlot(date);
 
-                // Logic:
-                // 1. Calculate intersection with "Universe" (selectedIds or All)
-                // 2. If Selection Mode: Intersection must size == selectedIds.size
-                // 3. If Recommendation Mode: Just count size of availableSet (which is effectively intersection with All)
+            // Logic:
+            // 1. Calculate intersection with "Universe" (selectedIds or All)
+            // 2. If Selection Mode: Intersection must size == selectedIds.size
+            // 3. If Recommendation Mode: Just count size of availableSet (which is effectively intersection with All)
 
-                let matches = false;
-                let count = 0;
-                let participantIds: string[] = [];
+            let matches = false;
+            let count = 0;
+            let participantIds: string[] = [];
 
-                if (isSelectedMode) {
-                    // Check if all selected are present
-                    matches = true;
-                    for (const id of selectedParticipantIds) {
-                        if (!availableSet.has(id)) {
-                            matches = false;
-                            break;
-                        }
+            if (isSelectedMode) {
+                // Check if all selected are present
+                matches = true;
+                for (const id of selectedParticipantIds) {
+                    if (!availableSet.has(id)) {
+                        matches = false;
+                        break;
                     }
-                    if (matches) {
-                        count = availableSet.size;
-                        participantIds = Array.from(availableSet);
-                    }
-                } else {
-                    // No selection -> everyone available in this slot is a candidate group
-                    matches = availableSet.size > 0;
+                }
+                if (matches) {
                     count = availableSet.size;
                     participantIds = Array.from(availableSet);
                 }
-
-                if (!matches) return null;
-
-                return {
-                    rank: 0,
-                    startTime: format(parseISO(date), "yyyy.MM.dd"),
-                    startISO: date,
-                    participants: participantIds,
-                    count
-                };
-            }).filter((item): item is RankedSlot => item !== null);
-
-            // Sort logic
-            candidates.sort((a, b) => {
-                // Primary: Count DESC
-                if (b.count !== a.count) return b.count - a.count;
-                // Secondary: Time ASC (already sorted by keys, but map/filter preserves order usually? Array sort is robust)
-                return a.startTime.localeCompare(b.startTime);
-            });
-
-            return candidates.map((c, i) => ({ ...c, rank: i + 1 }));
-
-        } else {
-            // Weekly Logic
-            // Need consecutive slots of 'duration' (hours)
-            // 1 hour = 2 slots (assuming 30 mins)
-            const slotsRequired = duration * 2;
-            const slotTimestamps = sortedKeys.map(k => new Date(k).getTime());
-
-            const ranges: RankedSlot[] = [];
-
-            for (let i = 0; i < slotTimestamps.length; i++) {
-                // Define window [i, i+1, ..., i+slotsRequired-1]
-                const windowIndices: number[] = [];
-                let validSequence = true;
-
-                for (let j = 0; j < slotsRequired; j++) {
-                    const idx = i + j;
-                    if (idx >= slotTimestamps.length) {
-                        validSequence = false;
-                        break;
-                    }
-                    // Check continuity (30m steps)
-                    if (j > 0) {
-                        const prev = slotTimestamps[i + j - 1]!;
-                        const curr = slotTimestamps[idx]!;
-                        if (curr !== prev + 30 * 60 * 1000) {
-                            validSequence = false;
-                            break;
-                        }
-                    }
-                    windowIndices.push(idx);
-                }
-
-                if (!validSequence) continue; // Skip to next i
-
-                // Calculate intersection for this window
-                // Start with participants of first slot
-                const firstKey = sortedKeys[i]!;
-                let interactionSet = new Set(getParticipantsForSlot(firstKey));
-
-                // Intersect with remaining slots in window
-                for (let j = 1; j < windowIndices.length; j++) {
-                    const key = sortedKeys[windowIndices[j]!]!;
-                    const slotParticipants = getParticipantsForSlot(key);
-
-                    // Intersection
-                    for (const id of interactionSet) {
-                        if (!slotParticipants.has(id)) {
-                            interactionSet.delete(id);
-                        }
-                    }
-                    if (interactionSet.size === 0) break;
-                }
-
-                // If InteractionSet empty, no shared availability for this range
-                if (interactionSet.size === 0) continue;
-
-                // Check Selection Constraint
-                if (isSelectedMode) {
-                    let hasAllSelected = true;
-                    for (const id of selectedParticipantIds) {
-                        if (!interactionSet.has(id)) {
-                            hasAllSelected = false;
-                            break;
-                        }
-                    }
-                    if (!hasAllSelected) continue; // This range doesn't work for selected group
-                }
-
-                const startDate = new Date(slotTimestamps[i]!); // Use ! assertion as i is within bounds
-                const endDate = new Date(slotTimestamps[i]! + duration * 60 * 60 * 1000);
-
-                // Format: "yyyy.MM.dd HH:mm"
-                const formatted = format(startDate, "yyyy.MM.dd HH:mm") + " ~ " + format(endDate, "HH:mm");
-
-                ranges.push({
-                    rank: 0,
-                    startTime: formatted,
-                    endTime: endDate.toISOString(),
-                    startISO: startDate.toISOString(),
-                    endISO: endDate.toISOString(),
-                    participants: Array.from(isSelectedMode ? selectedParticipantIds : interactionSet), // If selected mode, we essentially confirm the *selected* people can make it. If recommendation mode, we confirm *whoever* is in interactionSet.
-                    // Actually, even in selected mode, we might want to show if *more* people can make it? 
-                    // Requirement: "Recommend slots with most participants if no selection".
-                    // If selection exists, usually we focus on that group.
-                    // Let's stick to returning the full set of available people for that slot, it's more informative.
-                    count: isSelectedMode ? interactionSet.size : interactionSet.size // Always use actual available count for sorting
-                    // Wait, if I use interactionSet for participants list, make sure to update `participants` field too.
-                });
-
-                // Fix participants field to be interactionSet for correct display of "Who is available"
-                ranges[ranges.length - 1]!.participants = Array.from(interactionSet);
+            } else {
+                // No selection -> everyone available in this slot is a candidate group
+                matches = availableSet.size > 0;
+                count = availableSet.size;
+                participantIds = Array.from(availableSet);
             }
 
-            // Sort ranges
-            ranges.sort((a, b) => {
-                // Primary: Count DESC
-                if (b.count !== a.count) return b.count - a.count;
-                // Secondary: Time ASC
-                return a.startISO.localeCompare(b.startISO);
-            });
+            if (!matches) return null;
 
-            return ranges.map((r, i) => ({ ...r, rank: i + 1 }));
-        }
+            return {
+                rank: 0,
+                startTime: format(parseISO(date), "yyyy.MM.dd"),
+                startISO: date,
+                participants: participantIds,
+                count
+            };
+        }).filter((item): item is RankedSlot => item !== null);
 
-    }, [calendar, participants, selectedParticipantIds, duration]);
+        // Sort logic
+        candidates.sort((a, b) => {
+            // Primary: Count DESC
+            if (b.count !== a.count) return b.count - a.count;
+            // Secondary: Time ASC (already sorted by keys, but map/filter preserves order usually? Array sort is robust)
+            return a.startTime.localeCompare(b.startTime);
+        });
+
+        return candidates.map((c, i) => ({ ...c, rank: i + 1 }));
+
+    }, [calendar, participants, selectedParticipantIds, weeklyRankedSlots]);
 
     const handleConfirm = async () => {
         if (!calendar || selectedRankIndex === null) return;

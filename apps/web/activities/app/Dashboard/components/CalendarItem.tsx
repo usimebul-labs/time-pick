@@ -56,9 +56,33 @@ export function CalendarItem({ calendar, user, type }: CalendarItemProps) {
         openParticipant(calendar.participants, calendar.participants.length);
     }
 
+    const getStatusStyles = () => {
+        if (calendar.isConfirmed) {
+            return {
+                border: "border-l-4 border-l-green-500",
+                badgeText: "확정됨",
+                badgeColor: "text-green-600"
+            };
+        }
+        if (type === "my") {
+            return {
+                border: "border-l-4 border-l-indigo-500",
+                badgeText: "내가 만든",
+                badgeColor: "text-indigo-600"
+            };
+        }
+        return {
+            border: "border-l-4 border-l-slate-300",
+            badgeText: "참여 중",
+            badgeColor: "text-slate-500"
+        };
+    };
+
+    const styles = getStatusStyles();
+
     return (
         <div
-            className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-200 active:scale-[0.99] group relative"
+            className={`bg-white rounded-xl p-4 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-200 active:scale-[0.99] group relative ${styles.border}`}
             onClick={handleSelect}
         >
             {type === "my" &&
@@ -69,19 +93,26 @@ export function CalendarItem({ calendar, user, type }: CalendarItemProps) {
                         <Share2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                     </Button>
 
-                    <Button variant="ghost" size="icon"
-                        className="h-7 w-7 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
-                        onClick={handleMenuOpen}>
-                        <MoreVertical className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    </Button>
+                    {!calendar.isConfirmed && (
+                        <Button variant="ghost" size="icon"
+                            className="h-7 w-7 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
+                            onClick={handleMenuOpen}>
+                            <MoreVertical className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        </Button>
+                    )}
                 </div>
             }
 
-            <h3 className="text-base font-bold text-slate-900 mb-0.5 pr-14 leading-tight line-clamp-1">
+            <h3 className="text-base font-bold text-slate-900 mb-0.5 pr-12 leading-tight line-clamp-1">
                 {calendar.title}
             </h3>
             <div className="flex justify-between items-center mt-2">
                 <span className="text-[11px] text-slate-500 font-medium flex items-center">
+                    <span className={`font-bold mr-2 ${styles.badgeColor}`}>
+                        {styles.badgeText}
+                    </span>
+                    <span className="w-px h-2.5 bg-slate-200 mr-2"></span>
+
                     {format(parseISO(calendar.startDate), "MM.dd")} ~ {format(parseISO(calendar.endDate), "MM.dd")}
                     {calendar.deadline && (
                         <>

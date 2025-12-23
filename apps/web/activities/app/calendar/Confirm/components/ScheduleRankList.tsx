@@ -1,5 +1,5 @@
 
-import { RankedSlot } from "../useConfirm";
+import { RankedSlot } from "../types";
 import { cn } from "@repo/ui";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -63,7 +63,7 @@ export function ScheduleRankList({ slots, selectedSlotIndex, onSelect }: Schedul
                                         : "bg-white border-gray-200 hover:border-indigo-300 hover:shadow-sm"
                                 )}
                             >
-                                <div className={cn("font-bold text-center text-xs break-keep", isSelected ? "text-indigo-900" : "text-gray-800")}>
+                                <div className={cn("font-bold text-center text-xs break-keep whitespace-pre-line", isSelected ? "text-indigo-900" : "text-gray-800")}>
                                     {slot.startTime} {slot.endTime && !slot.startTime.includes("~") ? `~ ${slot.endTime}` : ""}
                                 </div>
                             </div>

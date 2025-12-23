@@ -1,7 +1,7 @@
 import { User } from "@supabase/supabase-js";
 import { Calendar } from "lucide-react";
-import { useCalendars } from "../hooks/useCalendars";
 import { CalendarItem } from "./CalendarItem";
+import { DashboardCalendar } from "@/app/actions/calendar/types";
 
 const Empty = () => {
     return <div className="flex flex-col items-center justify-center py-10 bg-white rounded-lg border border-dashed border-slate-200">
@@ -12,45 +12,25 @@ const Empty = () => {
     </div>
 }
 
-const Loading = () => {
-    return (
-        <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-lg p-5 shadow-sm border border-slate-200">
-                    <div className="flex justify-between items-start mb-2">
-                        <div className="h-5 bg-slate-100 rounded w-3/4 animate-pulse" />
-                    </div>
-                    <div className="h-4 bg-slate-100 rounded w-1/4 animate-pulse mb-4" />
-                    <div className="flex justify-between items-center pt-2 border-t border-slate-50">
-                        <div className="flex -space-x-2">
-                            {[1, 2, 3].map((j) => (
-                                <div key={j} className="w-8 h-8 bg-slate-100 rounded-full ring-2 ring-white animate-pulse" />
-                            ))}
-                        </div>
-                        <div className="h-6 w-16 bg-slate-100 rounded animate-pulse" />
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
+// const Loading = () => { ... } // Loading will be handled in parent
 
 interface CalendarListProps {
     user: User;
-    type: "my" | "joined";
+    calendars: DashboardCalendar[];
 }
 
-export function CalendarList({ user, type }: CalendarListProps) {
-    const { calendars, loading, error } = useCalendars(user, type);
-
-    if (loading) return <Loading />
-    if (error) return <div>에러: {error}</div>
+export function CalendarList({ user, calendars }: CalendarListProps) {
     if (calendars.length === 0) return <Empty />
 
     return (
-        <div className="space-y-4 max-h-[300px] overflow-y-auto px-1 pb-1">
+        <div className="space-y-4 max-h-[calc(100vh-250px)] overflow-y-auto px-1 pb-20">
             {calendars.map((calendar) => (
-                <CalendarItem key={calendar.id} calendar={calendar} user={user} type={type} />
+                <CalendarItem
+                    key={calendar.id}
+                    calendar={calendar}
+                    user={user}
+                    type={calendar.isHost ? "my" : "joined"}
+                />
             ))}
         </div>
     );

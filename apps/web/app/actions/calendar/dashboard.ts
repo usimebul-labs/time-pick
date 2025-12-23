@@ -36,6 +36,8 @@ export async function getMySchedules(user: User): Promise<{ schedules: Dashboard
             endDate: calendar.endDate.toISOString().split('T')[0]!,
             deadline: (calendar.deadline ? calendar.deadline.toISOString().split('T')[0] : null) as string | null,
             isConfirmed: calendar.isConfirmed,
+            isHost: true,
+            createdAt: calendar.createdAt.toISOString(),
             participants: calendar.participants.map(p => ({
                 name: p.name,
                 avatarUrl: p.user?.avatarUrl || null,
@@ -88,6 +90,8 @@ export async function getJoinedSchedules(user: User): Promise<{ schedules: Dashb
             endDate: p.calendar.endDate.toISOString().split('T')[0]!,
             deadline: (p.calendar.deadline ? p.calendar.deadline.toISOString().split('T')[0] : null) as string | null,
             isConfirmed: p.calendar.isConfirmed,
+            isHost: false,
+            createdAt: p.calendar.createdAt.toISOString(),
             participants: p.calendar.participants.map(ep => ({
                 name: ep.name,
                 avatarUrl: ep.user?.avatarUrl || null,

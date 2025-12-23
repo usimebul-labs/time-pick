@@ -26,6 +26,12 @@ interface DashboardState {
     openParticipant: (participants: Participant[], count: number) => void;
     closeParticipant: () => void;
 
+    // List Filter & Sort
+    filter: 'all' | 'host' | 'joined' | 'confirmed';
+    sort: 'created' | 'deadline';
+    setFilter: (filter: 'all' | 'host' | 'joined' | 'confirmed') => void;
+    setSort: (sort: 'created' | 'deadline') => void;
+
     // Refresh Trigger
     refreshTrigger: number;
     triggerRefresh: () => void;
@@ -58,6 +64,13 @@ export const useDashboardStore = create<DashboardState>((set) => ({
         selectedParticipants: [],
         selectedParticipantCount: 0
     }),
+
+    // List Filter & Sort
+    filter: 'all',
+    sort: 'created',
+    setFilter: (filter) => set({ filter }),
+    setSort: (sort) => set({ sort }),
+
     // Refresh Trigger
     refreshTrigger: 0,
     triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),

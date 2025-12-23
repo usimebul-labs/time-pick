@@ -17,6 +17,8 @@ export type DashboardCalendar = {
     endDate: string;
     deadline: string | null;
     isConfirmed: boolean;
+    isHost: boolean;
+    createdAt: string;
     participants: {
         name: string;
         avatarUrl: string | null;
