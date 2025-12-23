@@ -13,11 +13,11 @@ export const LandingHero = ({ user }: LandingHeroProps) => {
         <main className="flex-1">
             <Section className="pt-20 md:pt-32 pb-16 md:pb-24">
                 <div className="flex flex-col items-center text-center space-y-8">
-                    <div className="space-y-4 max-w-3xl">
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl xl:text-6xl/none">
+                    <div className="space-y-4 max-w-3xl lg:max-w-5xl">
+                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl xl:text-6xl/none break-keep">
                             일정 조율, 이제 고민하지 마세요
                         </h1>
-                        <p className="mx-auto max-w-[700px] text-slate-600 text-sm sm:text-base md:text-xl leading-relaxed">
+                        <p className="mx-auto max-w-[700px] lg:max-w-4xl text-slate-600 text-sm sm:text-base md:text-xl leading-relaxed">
                             <span className="break-keep">
                                 수십 번 오가는 이메일과 메시지 없이, <br className="inline md:hidden" />링크 하나로 완벽한 미팅 시간을 정해보세요.
                             </span>

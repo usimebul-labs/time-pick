@@ -19,3 +19,4 @@ export * from "./components/radio-group"
 
 export * from "./components/skeleton"
 export * from "./components/alert-dialog"
+export * from "./components/dropdown-menu"

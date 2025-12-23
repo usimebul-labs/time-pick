@@ -13,7 +13,7 @@ interface DashboardMenuSheetProps {
 export function DashboardMenuSheet({ open, onOpenChange, eventId, onModify, onConfirm, onDelete }: DashboardMenuSheetProps) {
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="bottom" className="rounded-t-xl p-0 overflow-hidden bg-white">
+            <SheetContent portal={false} side="bottom" className="rounded-t-xl p-0 overflow-hidden bg-white">
                 <SheetHeader className="p-6 pb-2 text-left">
                     <SheetTitle className="text-xl font-bold">일정 더보기</SheetTitle>
                     <SheetDescription className="text-sm text-slate-500">

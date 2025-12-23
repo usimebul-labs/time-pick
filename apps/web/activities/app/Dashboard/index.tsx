@@ -1,8 +1,8 @@
 import Loading from "@/common/components/Loading";
 import { useEffect } from "react";
-import { ShareCalendarDialog } from "@repo/ui";
+import { ShareCalendarDialog, Button } from "@repo/ui";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
-import { Calendar, Sparkles } from "lucide-react";
+import { Calendar, Sparkles, Plus } from "lucide-react";
 import { DashboardHeader } from "./components/DashboardHeader";
 import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
@@ -25,8 +25,8 @@ export default function Dashboard() {
 
     return (
         <AppScreen>
-            <div className="flex flex-col flex-1 bg-slate-50 min-h-screen h-full pb-20">
-                <DashboardHeader user={user} onCreateSchedule={handleCreateSchedule} />
+            <div className="flex flex-col flex-1 bg-slate-50 min-h-screen h-full pb-32 relative">
+                <DashboardHeader user={user} />
 
                 <div className="flex-1 p-5 space-y-8 overflow-y-auto">
                     <section>
@@ -49,12 +49,23 @@ export default function Dashboard() {
                         <CalendarList user={user} type="joined" />
                     </section>
                 </div>
+
+                <div className="absolute bottom-0 left-0 right-0 p-5 pb-8 pt-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent z-10">
+                    <Button
+                        size="xl"
+                        className="w-full font-bold shadow-lg rounded-xl"
+                        onClick={handleCreateSchedule}
+                    >
+                        <Plus className="mr-2 h-5 w-5" strokeWidth={2.5} /> 새 일정 만들기
+                    </Button>
+                </div>
             </div>
 
             <ShareCalendarDialog
                 isOpen={isShareOpen}
                 onClose={closeShare}
                 link={shareEventId ? `${window.location.origin}/app/calendar/${shareEventId}` : ''}
+                portal={false}
             />
 
             <DashboardMenuSheet

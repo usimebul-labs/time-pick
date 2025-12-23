@@ -18,9 +18,10 @@ interface ShareCalendarDialogProps {
     isOpen: boolean;
     onClose: () => void;
     link: string;
+    portal?: boolean;
 }
 
-export function ShareCalendarDialog({ isOpen, onClose, link }: ShareCalendarDialogProps) {
+export function ShareCalendarDialog({ isOpen, onClose, link, portal = true }: ShareCalendarDialogProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -52,7 +53,7 @@ export function ShareCalendarDialog({ isOpen, onClose, link }: ShareCalendarDial
 
     return (
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent side="bottom" className="rounded-t-xl">
+            <SheetContent side="bottom" className="rounded-t-xl" portal={portal}>
                 <SheetHeader className="text-left mb-4">
                     <SheetTitle>일정 공유하기</SheetTitle>
                     <SheetDescription>
