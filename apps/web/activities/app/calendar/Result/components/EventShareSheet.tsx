@@ -43,7 +43,7 @@ export function EventShareSheet({ isOpen, onClose, link }: EventShareSheetProps)
 
     return (
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent side="bottom" className="rounded-t-xl">
+            <SheetContent portal={false} side="bottom" className="rounded-t-xl">
                 <SheetHeader className="text-left mb-6">
                     <SheetTitle className="text-xl font-bold text-slate-900">일정 공유하기</SheetTitle>
                     <SheetDescription className="text-slate-500">

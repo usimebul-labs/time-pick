@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Input, Button } from "@repo/ui";
+import { Input, Button, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@repo/ui";
 import { MapPin, Search, Loader2 } from "lucide-react";
 
 interface LocationSearchDialogProps {
@@ -81,19 +81,25 @@ export function LocationSearchDialog({ isOpen, onClose, onSelect }: LocationSear
         });
     };
 
+    if (!isOpen) return null;
+
     return (
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-xl p-0">
-                <SheetHeader className="px-5 pt-5 pb-2 text-left">
-                    <SheetTitle className="text-lg font-bold">장소 검색</SheetTitle>
-                    <SheetDescription>
-                        키워드로 장소를 검색해보세요. (예: 강남역 스타벅스)
-                    </SheetDescription>
+            <SheetContent portal={false} side="bottom" className="rounded-t-2xl h-[65%] p-0 bg-white">
+                <SheetHeader className="px-5 pt-5 pb-2 text-left space-y-0">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <SheetTitle className="text-lg font-bold text-slate-900">장소 검색</SheetTitle>
+                            <SheetDescription className="text-sm text-slate-500 mt-1">
+                                키워드로 장소를 검색해보세요. (예: 강남역 스타벅스)
+                            </SheetDescription>
+                        </div>
+                    </div>
                 </SheetHeader>
 
                 <div className="flex flex-col h-full overflow-hidden">
                     {/* Search Input */}
-                    <div className="px-5 pb-4 border-b border-slate-100">
+                    <div className="px-5 pt-4 pb-4 border-b border-slate-100">
                         <form onSubmit={handleSearch} className="relative flex gap-2">
                             <div className="relative flex-1">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -102,7 +108,6 @@ export function LocationSearchDialog({ isOpen, onClose, onSelect }: LocationSear
                                     onChange={(e) => setKeyword(e.target.value)}
                                     placeholder="장소, 주소, 건물명 검색"
                                     className="pl-9 h-11 bg-slate-50 border-slate-200 focus:bg-white"
-                                    autoFocus
                                 />
                             </div>
                             <Button
@@ -117,7 +122,7 @@ export function LocationSearchDialog({ isOpen, onClose, onSelect }: LocationSear
                     </div>
 
                     {/* Results List */}
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto pb-6 overscroll-y-none">
                         {isLoading ? (
                             <div className="flex justify-center items-center py-20">
                                 <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />

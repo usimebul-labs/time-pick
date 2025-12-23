@@ -150,7 +150,7 @@ export function useConfirm(id: string) {
 
                 return {
                     rank: 0,
-                    startTime: date,
+                    startTime: format(parseISO(date), "yyyy.MM.dd"),
                     startISO: date,
                     participants: participantIds,
                     count
@@ -238,8 +238,8 @@ export function useConfirm(id: string) {
                 const startDate = new Date(slotTimestamps[i]!); // Use ! assertion as i is within bounds
                 const endDate = new Date(slotTimestamps[i]! + duration * 60 * 60 * 1000);
 
-                // Format: "MM/dd HH:mm"
-                const formatted = format(startDate, "MM/dd HH:mm") + " ~ " + format(endDate, "HH:mm");
+                // Format: "yyyy.MM.dd HH:mm"
+                const formatted = format(startDate, "yyyy.MM.dd HH:mm") + " ~ " + format(endDate, "HH:mm");
 
                 ranges.push({
                     rank: 0,

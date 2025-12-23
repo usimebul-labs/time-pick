@@ -3,7 +3,7 @@
 
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { useResult } from "./useResult";
-import { Loader2, Calendar, MapPin, Share2, Plus, ChevronDown, ChevronUp, Clock, Info, Train, SquareParking, Banknote, Landmark, Phone, FileText } from "lucide-react";
+import { Loader2, Calendar, MapPin, Share2, Plus, ChevronDown, ChevronUp, Clock, Info, Train, SquareParking, Banknote, Landmark, Phone, FileText, Home } from "lucide-react";
 import { cn } from "@repo/ui";
 import { useFlow } from "@/stackflow";
 import { useState } from "react";
@@ -12,10 +12,13 @@ import { ko } from "date-fns/locale";
 import { SharedParticipantList, SharedParticipant } from "@/components/common/SharedParticipantList";
 import { EventShareSheet } from "./components/EventShareSheet";
 import { AppIcon } from "./components/AppIcon";
+import { useLoginedUser } from "@/common/hooks/useLoginedUser";
+import { AppBar } from "@/common/components/AppBar";
 
 export default function Result({ params: { id } }: { params: { id: string } }) {
     const { calendar, event, participants, isLoading, error } = useResult(id);
-    const { replace } = useFlow();
+    const { user } = useLoginedUser();
+    const { replace, pop } = useFlow();
 
     // UI States
     const [isInfoOpen, setIsInfoOpen] = useState(false);
@@ -106,140 +109,157 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
     };
 
     return (
-        <AppScreen appBar={{ title: "일정 공유", backButton: { onClick: () => replace("Dashboard", {}) } }}>
-            <div className="flex flex-col flex-1 bg-white text-slate-900 overflow-y-auto pb-32">
+        <AppScreen>
+            <div className="flex flex-col flex-1 bg-white text-slate-900 overflow-y-auto h-full">
+                <AppBar
+                    title="일정 공유"
+                    onBack={pop}
+                    right={
+                        user ? (
+                            <button
+                                onClick={() => replace("Dashboard", {})}
+                                className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                            >
+                                <Home className="w-6 h-6" strokeWidth={1.5} />
+                            </button>
+                        ) : undefined
+                    }
+                />
 
-                {/* 1. Header: Title & Description */}
-                <div className="px-6 pt-8 pb-6">
-                    <h1 className="text-xl font-bold text-slate-900 leading-tight mb-3">
-                        {calendar.title}
-                    </h1>
-                    <div className="mb-4">
-                        <div className="text-base font-bold text-slate-900">{dateStr}</div>
-                        {/* Only show time if NOT all day */}
-                        {!isAllDay && <div className="text-sm text-slate-600 font-medium">{timeDisplay}</div>}
-                    </div>
+                <div className="flex-1 pb-32">
 
-
-                    <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-2">
-                            <h2 className="text-base font-bold text-slate-900">참여자</h2>
-                            <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs font-bold">
-                                {participants.length}
-                            </span>
+                    {/* 1. Header: Title & Description */}
+                    <div className="px-6 pt-8 pb-6">
+                        <h1 className="text-xl font-bold text-slate-900 leading-tight mb-3">
+                            {calendar.title}
+                        </h1>
+                        <div className="mb-4">
+                            <div className="text-base font-bold text-slate-900">{dateStr}</div>
+                            {/* Only show time if NOT all day */}
+                            {!isAllDay && <div className="text-sm text-slate-600 font-medium">{timeDisplay}</div>}
                         </div>
 
-                        <SharedParticipantList
-                            participants={sharedParticipants}
-                            mode="grid"
-                            interaction="readonly"
-                            className="gap-2"
-                            itemClassName="bg-white border border-slate-200 shadow-sm"
-                        />
-                    </div>
 
-                    {calendar.description && (
-                        <p className="text-slate-500 text-sm leading-relaxed whitespace-pre-wrap">
-                            {calendar.description}
-                        </p>
-                    )}
-                </div>
-
-                <div className="h-2 bg-slate-50/50" />
-
-                {/* 4. Additional Info (Collapsible) */}
-                {hasAdditionalInfo && (
-                    <div className="px-6 pb-6">
-                        <button
-                            onClick={() => setIsInfoOpen(!isInfoOpen)}
-                            className="flex items-center justify-between w-full py-4 border-t border-slate-100 group"
-                        >
-                            <div className="flex items-center gap-2">
-                                <Info className="w-5 h-5 text-slate-400" />
-                                <span className="font-bold text-slate-900">기타 안내 사항</span>
+                        <div className="mb-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <h2 className="text-base font-bold text-slate-900">참여자</h2>
+                                <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                                    {participants.length}
+                                </span>
                             </div>
-                            {isInfoOpen ? (
-                                <ChevronUp className="w-5 h-5 text-slate-400" />
-                            ) : (
-                                <ChevronDown className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
-                            )}
-                        </button>
 
-                        {isInfoOpen && (
-                            <div className="bg-slate-50 rounded-xl p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
-                                <InfoRow
-                                    icon={MapPin}
-                                    label="장소"
-                                    value={message?.location}
-                                    action={
-                                        message?.location && (
-                                            <div className="flex gap-2 mt-2">
-                                                <a
-                                                    href={`https://map.naver.com/v5/search/${encodeURIComponent(message.location)}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm hover:scale-105 transition-transform"
-                                                    aria-label="네이버 지도"
-                                                >
-                                                    <AppIcon appName="naver map" alt="Naver Map" className="w-full h-full" />
-                                                </a>
-                                                <a
-                                                    href={`https://map.kakao.com/link/search/${encodeURIComponent(message.location)}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm hover:scale-105 transition-transform"
-                                                    aria-label="카카오 맵"
-                                                >
-                                                    <AppIcon appName="kakao map" alt="Kakao Map" className="w-full h-full" />
-                                                </a>
-                                                <a
-                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(message.location)}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm hover:scale-105 transition-transform"
-                                                    aria-label="구글 지도"
-                                                >
-                                                    <AppIcon appName="google maps" alt="Google Maps" className="w-full h-full" />
-                                                </a>
-                                            </div>
-                                        )
-                                    }
-                                />
-                                <InfoRow icon={Train} label="교통" value={message?.transport} />
-                                <InfoRow icon={SquareParking} label="주차" value={message?.parking} />
-                                <InfoRow icon={Banknote} label="회비" value={message?.fee} />
-                                <InfoRow icon={Landmark} label="계좌" value={message?.bank} />
-                                <InfoRow icon={Phone} label="문의" value={message?.inquiry} />
-                                <InfoRow icon={FileText} label="메모" value={message?.memo} />
-                            </div>
+                            <SharedParticipantList
+                                participants={sharedParticipants}
+                                mode="grid"
+                                interaction="readonly"
+                                className="gap-2"
+                                itemClassName="bg-white border border-slate-200 shadow-sm"
+                            />
+                        </div>
+
+                        {calendar.description && (
+                            <p className="text-slate-500 text-sm leading-relaxed whitespace-pre-wrap">
+                                {calendar.description}
+                            </p>
                         )}
                     </div>
-                )}
+
+                    <div className="h-2 bg-slate-50/50" />
+
+                    {/* 4. Additional Info (Collapsible) */}
+                    {hasAdditionalInfo && (
+                        <div className="px-6 pb-6">
+                            <button
+                                onClick={() => setIsInfoOpen(!isInfoOpen)}
+                                className="flex items-center justify-between w-full py-4 border-t border-slate-100 group"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Info className="w-5 h-5 text-slate-400" />
+                                    <span className="font-bold text-slate-900">기타 안내 사항</span>
+                                </div>
+                                {isInfoOpen ? (
+                                    <ChevronUp className="w-5 h-5 text-slate-400" />
+                                ) : (
+                                    <ChevronDown className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
+                                )}
+                            </button>
+
+                            {isInfoOpen && (
+                                <div className="bg-slate-50 rounded-xl p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                                    <InfoRow
+                                        icon={MapPin}
+                                        label="장소"
+                                        value={message?.location}
+                                        action={
+                                            message?.location && (
+                                                <div className="flex gap-2 mt-2">
+                                                    <a
+                                                        href={`https://map.naver.com/v5/search/${encodeURIComponent(message.location)}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm hover:scale-105 transition-transform"
+                                                        aria-label="네이버 지도"
+                                                    >
+                                                        <AppIcon appName="naver map" alt="Naver Map" className="w-full h-full" />
+                                                    </a>
+                                                    <a
+                                                        href={`https://map.kakao.com/link/search/${encodeURIComponent(message.location)}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm hover:scale-105 transition-transform"
+                                                        aria-label="카카오 맵"
+                                                    >
+                                                        <AppIcon appName="kakao map" alt="Kakao Map" className="w-full h-full" />
+                                                    </a>
+                                                    <a
+                                                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(message.location)}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 shadow-sm hover:scale-105 transition-transform"
+                                                        aria-label="구글 지도"
+                                                    >
+                                                        <AppIcon appName="google maps" alt="Google Maps" className="w-full h-full" />
+                                                    </a>
+                                                </div>
+                                            )
+                                        }
+                                    />
+                                    <InfoRow icon={Train} label="교통" value={message?.transport} />
+                                    <InfoRow icon={SquareParking} label="주차" value={message?.parking} />
+                                    <InfoRow icon={Banknote} label="회비" value={message?.fee} />
+                                    <InfoRow icon={Landmark} label="계좌" value={message?.bank} />
+                                    <InfoRow icon={Phone} label="문의" value={message?.inquiry} />
+                                    <InfoRow icon={FileText} label="메모" value={message?.memo} />
+                                </div>
+                            )}
+                        </div>
+                    )}
 
 
-                {/* Bottom Actions */}
-                <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-md border-t border-slate-100 flex gap-3 z-50 safe-area-bottom">
-                    <button
-                        onClick={() => alert("준비 중인 기능입니다.")}
-                        className="flex-2 py-3.5 bg-slate-100 text-slate-700 rounded-xl font-bold text-base hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
-                    >
-                        <Plus className="w-4 h-4" />캘린더에 추가
-                    </button>
-                    <button
-                        onClick={() => setIsShareOpen(true)}
-                        className="flex-[1.5] py-3.5 bg-indigo-600 text-white rounded-xl font-bold text-base shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
-                    >
-                        <Share2 className="w-4 h-4" />
-                        공유하기
-                    </button>
+                    {/* Bottom Actions */}
+                    <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-md border-t border-slate-100 flex gap-3 z-50 safe-area-bottom">
+                        <button
+                            onClick={() => alert("준비 중인 기능입니다.")}
+                            className="flex-2 py-3.5 bg-slate-100 text-slate-700 rounded-xl font-bold text-base hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
+                        >
+                            <Plus className="w-4 h-4" />캘린더에 추가
+                        </button>
+                        <button
+                            onClick={() => setIsShareOpen(true)}
+                            className="flex-[1.5] py-3.5 bg-indigo-600 text-white rounded-xl font-bold text-base shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+                        >
+                            <Share2 className="w-4 h-4" />
+                            공유하기
+                        </button>
+                    </div>
+
+                    {/* Share Sheet */}
+                    <EventShareSheet
+                        isOpen={isShareOpen}
+                        onClose={() => setIsShareOpen(false)}
+                        link={typeof window !== 'undefined' ? window.location.href : ''}
+                    />
                 </div>
-
-                {/* Share Sheet */}
-                <EventShareSheet
-                    isOpen={isShareOpen}
-                    onClose={() => setIsShareOpen(false)}
-                    link={typeof window !== 'undefined' ? window.location.href : ''}
-                />
             </div>
         </AppScreen>
     );

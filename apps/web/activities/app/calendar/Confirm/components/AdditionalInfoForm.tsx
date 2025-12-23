@@ -5,7 +5,7 @@ import { MapPin, Bus, Car, Coins, CreditCard, Phone, X, Clock, Search } from "lu
 import { useState, useEffect } from "react";
 import { Label } from "@repo/ui";
 import { cn } from "@repo/ui";
-import { LocationSearchDialog } from "./LocationSearchDialog";
+
 
 
 export type AdditionalInfo = {
@@ -27,6 +27,7 @@ interface AdditionalInfoFormProps {
         endTime: string;
         onEndTimeChange: (val: string) => void;
     };
+    onOpenLocationSearch: () => void;
 }
 
 type InfoKey = keyof Omit<AdditionalInfo, 'memo'> | 'time';
@@ -41,27 +42,17 @@ const FIELD_CONFIG: { key: InfoKey; label: string; placeholder: string; icon: Re
     { key: 'inquiry', label: '문의처', placeholder: '연락처 입력', icon: <Phone className="w-4 h-4" /> },
 ];
 
-export function AdditionalInfoForm({ info, onChange, monthlyTimeProps }: AdditionalInfoFormProps) {
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
+export function AdditionalInfoForm({ info, onChange, monthlyTimeProps, onOpenLocationSearch }: AdditionalInfoFormProps) {
 
     // Initialize active keys based on existing values
     const [activeKeys, setActiveKeys] = useState<Set<InfoKey>>(() => {
         const initial = new Set<InfoKey>();
         FIELD_CONFIG.forEach(({ key }) => {
             if (key === 'time') {
-                // If implicit logic: if endTime is set? Or always false?
-                // User requirement: "Hidden by default" unless maybe already set?
-                // Let's assume false for 'time' unless purely strictly editing mode where we know it was set.
-                // But for now, sticking to "hidden by default" pattern.
-                // However, if a user *already* set a time, it should be visible.
-                // But `endTime` logic for "unspecified" returns empty string.
-                // Let's default 'time' to inactive unless strictly required.
                 if (monthlyTimeProps?.endTime) {
                     initial.add(key);
                 }
             } else {
-                // Determine if the key exists in info and is truthy
-                // 'time' is already handled, so key is strictly keyof AdditionalInfo (minus custom/memo)
                 const fieldKey = key as keyof AdditionalInfo;
                 if (info[fieldKey]) initial.add(key);
             }
@@ -255,7 +246,7 @@ export function AdditionalInfoForm({ info, onChange, monthlyTimeProps }: Additio
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        onClick={() => setIsSearchOpen(true)}
+                                        onClick={onOpenLocationSearch}
                                         title="장소 검색"
                                         className="h-11 w-11 shrink-0 rounded-xl border-gray-200 hover:bg-gray-50 text-indigo-600"
                                     >
@@ -278,12 +269,6 @@ export function AdditionalInfoForm({ info, onChange, monthlyTimeProps }: Additio
                     placeholder="친구들에게 남길 말을 적어주세요."
                 />
             </div>
-
-            <LocationSearchDialog
-                isOpen={isSearchOpen}
-                onClose={() => setIsSearchOpen(false)}
-                onSelect={(location) => handleChange('location', location)}
-            />
         </div>
     );
 }

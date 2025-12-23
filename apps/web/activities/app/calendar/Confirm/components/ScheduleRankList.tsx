@@ -47,7 +47,7 @@ export function ScheduleRankList({ slots, selectedSlotIndex, onSelect }: Schedul
                     </span>
                     {count === maxCount && <span className="text-xs text-indigo-600 font-medium">✨ 추천</span>}
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {groupSlots.map((slot, i) => {
                         const originalIndex = slots.findIndex(s => s === slot); // Find original index for selection
                         const isSelected = selectedSlotIndex === originalIndex;
@@ -57,20 +57,15 @@ export function ScheduleRankList({ slots, selectedSlotIndex, onSelect }: Schedul
                                 key={`${count}-${i}`}
                                 onClick={() => onSelect(originalIndex)}
                                 className={cn(
-                                    "relative p-2 rounded-xl border cursor-pointer transition-all flex flex-col justify-center",
+                                    "relative p-2 rounded-xl border cursor-pointer transition-all flex flex-col justify-center min-h-[50px]",
                                     isSelected
                                         ? "bg-indigo-50 border-indigo-500 ring-1 ring-indigo-500"
                                         : "bg-white border-gray-200 hover:border-indigo-300 hover:shadow-sm"
                                 )}
                             >
-                                <div className={cn("font-bold text-center text-sm", isSelected ? "text-indigo-900" : "text-gray-800")}>
-                                    {slot.startTime}
+                                <div className={cn("font-bold text-center text-xs break-keep", isSelected ? "text-indigo-900" : "text-gray-800")}>
+                                    {slot.startTime} {slot.endTime && !slot.startTime.includes("~") ? `~ ${slot.endTime}` : ""}
                                 </div>
-                                {slot.endTime && !slot.startTime.includes("~") && (
-                                    <div className={cn("text-[10px] text-center mt-0.5", isSelected ? "text-indigo-700" : "text-gray-500")}>
-                                        ~ {slot.endTime}
-                                    </div>
-                                )}
                             </div>
                         );
                     })}
