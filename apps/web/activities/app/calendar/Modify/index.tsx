@@ -1,6 +1,9 @@
 "use client";
 
+import { AppBar } from "@/common/components/AppBar";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { useFlow } from "@/stackflow";
+import { Home } from "lucide-react";
 import { useModify } from "./useModify";
 import { BasicInfoSection } from "./components/BasicInfoSection";
 import { DateRangeSection } from "./components/DateRangeSection";
@@ -13,6 +16,7 @@ import { ConflictDialog } from "./components/ConflictDialog";
 import { DeleteParticipantDialog } from "./components/DeleteParticipantDialog";
 
 export default function Modify({ params: { id } }: { params: { id: string } }) {
+    const { replace } = useFlow();
     const {
         loading,
         isPending,
@@ -42,21 +46,28 @@ export default function Modify({ params: { id } }: { params: { id: string } }) {
     }
 
     return (
-        <AppScreen
-            appBar={{
-                title: "일정 수정하기",
-                backButton: {
-                    onClick: () => pop(),
-                },
-            }}
-        >
+        <AppScreen>
             <div className="flex flex-col h-full bg-slate-50">
-                <form id="modify-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-8 pb-32">
+                <AppBar
+                    title="일정 수정하기"
+                    onBack={pop}
+                    right={
+                        <button
+                            onClick={() => replace("Dashboard", {})}
+                            className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                        >
+                            <Home className="w-6 h-6" strokeWidth={1.5} />
+                        </button>
+                    }
+                />
+                <form id="modify-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-8">
                     <BasicInfoSection data={formState} onChange={updateForm} />
                     <DateRangeSection data={formState} onChange={updateForm} />
+                    <hr />
                     <ExcludedDaysSection data={formState} onChange={updateForm} />
                     <ExclusionsSection data={formState} onChange={updateForm} />
                     <DeadlineSection data={formState} onChange={updateForm} />
+                    <hr />
                     <ParticipantSection participants={participants} onDelete={handleDeleteParticipant} />
                 </form>
 

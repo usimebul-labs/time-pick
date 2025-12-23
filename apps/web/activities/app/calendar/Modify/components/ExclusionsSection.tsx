@@ -23,22 +23,22 @@ export function ExclusionsSection({ data, onChange }: ExclusionsSectionProps) {
 
     return (
         <section className="space-y-4">
-            <h3 className="text-lg font-bold text-slate-800 border-b pb-2">제외 날짜 설정</h3>
-
-            {/* Holidays */}
-            <div className="flex items-center justify-between py-2">
+            <label
+                className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all duration-200 ${data.excludeHolidays ? "bg-indigo-50 border-indigo-200" : "bg-white border-slate-200 hover:bg-slate-50"
+                    }`}
+            >
                 <div>
-                    <Label className="text-base font-semibold block mb-0.5 text-slate-900">공휴일은 쉴까요?</Label>
-                    <p className="text-xs text-slate-500">
+                    <span className="text-base font-bold text-slate-900 block mb-0.5">공휴일은 쉴까요?</span>
+                    <span className="text-xs text-slate-500">
                         달력의 빨간 날은 자동으로 제외해요.
-                    </p>
+                    </span>
                 </div>
                 <Checkbox
                     checked={data.excludeHolidays}
                     onCheckedChange={(checked) => onChange({ excludeHolidays: checked === true })}
                     className="w-5 h-5 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
                 />
-            </div>
+            </label>
 
             {/* Specific Dates */}
             <div className="space-y-3">

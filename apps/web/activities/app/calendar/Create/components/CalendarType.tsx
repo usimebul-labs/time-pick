@@ -124,10 +124,10 @@ export default function CreateCalendarType() {
             </section>
 
             {/* Float Bottom Button */}
-            <div className="p-4 bg-white border-t safe-area-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
-                <Button size="lg" className="w-full text-base" onClick={handleNext}>
+            <div className="p-5 pb-8 pt-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
+                <Button size="xl" className="w-full font-bold shadow-lg rounded-xl" onClick={handleNext}>
                     다음
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2" strokeWidth={2.5} />
                 </Button>
             </div>
         </CreateLayout>

@@ -32,6 +32,8 @@ export async function getMySchedules(user: User): Promise<{ schedules: Dashboard
         const schedules: DashboardCalendar[] = myCalendars.map(calendar => ({
             id: calendar.id,
             title: calendar.title,
+            startDate: calendar.startDate.toISOString().split('T')[0]!,
+            endDate: calendar.endDate.toISOString().split('T')[0]!,
             deadline: (calendar.deadline ? calendar.deadline.toISOString().split('T')[0] : null) as string | null,
             isConfirmed: calendar.isConfirmed,
             participants: calendar.participants.map(p => ({
@@ -82,6 +84,8 @@ export async function getJoinedSchedules(user: User): Promise<{ schedules: Dashb
         const schedules: DashboardCalendar[] = participations.map(p => ({
             id: p.calendar.id,
             title: p.calendar.title,
+            startDate: p.calendar.startDate.toISOString().split('T')[0]!,
+            endDate: p.calendar.endDate.toISOString().split('T')[0]!,
             deadline: (p.calendar.deadline ? p.calendar.deadline.toISOString().split('T')[0] : null) as string | null,
             isConfirmed: p.calendar.isConfirmed,
             participants: p.calendar.participants.map(ep => ({

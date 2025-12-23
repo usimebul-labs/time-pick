@@ -25,7 +25,7 @@ export default function Dashboard() {
 
     return (
         <AppScreen>
-            <div className="flex flex-col flex-1 bg-slate-50 min-h-screen h-full pb-32 relative">
+            <div className="flex flex-col h-full bg-slate-50">
                 <DashboardHeader user={user} />
 
                 <div className="flex-1 p-5 space-y-8 overflow-y-auto">
@@ -50,7 +50,7 @@ export default function Dashboard() {
                     </section>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-5 pb-8 pt-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent z-10">
+                <div className="p-5 pb-8 pt-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent z-10">
                     <Button
                         size="xl"
                         className="w-full font-bold shadow-lg rounded-xl"

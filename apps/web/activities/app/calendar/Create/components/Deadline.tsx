@@ -18,18 +18,18 @@ export default function CreateDeadline() {
     return (
         <CreateLayout title="일정 만들기" step={5} totalSteps={5}>
             <section className="space-y-2">
-                <div className="flex">
-                    <div className="flex items-center gap-2 ml-auto">
-                        <Label htmlFor="deadline-toggle" className="text-xs text-slate-500 cursor-pointer">
+                <div className="flex justify-end mb-4">
+                    <label htmlFor="deadline-toggle" className="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 transition-colors hover:border-slate-300 shadow-sm">
+                        <span className="text-xs font-semibold text-slate-600">
                             마감 시간은 정하지 않을래요
-                        </Label>
+                        </span>
                         <Checkbox
                             id="deadline-toggle"
                             checked={isUnlimited}
                             onCheckedChange={handleToggle}
-                            className="w-5 h-5 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                            className="w-4 h-4 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600 rounded"
                         />
-                    </div>
+                    </label>
                 </div>
 
                 <Card
@@ -56,7 +56,7 @@ export default function CreateDeadline() {
             </section>
 
             {/* float bottom button */}
-            <div className="p-4 bg-white border-t safe-area-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
+            <div className="p-5 pb-8 pt-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
                 <form action={handleSubmit} className="w-full">
                     {/* Hidden inputs to pass data to Server Action */}
                     <input type="hidden" name="title" value={data.title} />
@@ -85,7 +85,7 @@ export default function CreateDeadline() {
                         <input type="hidden" name="deadline" value={data.deadline} />
                     )}
 
-                    <Button size="lg" type="submit" disabled={isPending} className="w-full text-base">
+                    <Button size="xl" type="submit" disabled={isPending} className="w-full font-bold shadow-lg rounded-xl">
                         {isPending ? "생성 중..." : "캘린더 만들고 초대하기"}
                     </Button>
                 </form>

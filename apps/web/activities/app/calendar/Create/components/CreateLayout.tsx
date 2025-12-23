@@ -3,6 +3,8 @@
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import { ReactNode } from "react";
 import { useFlow } from "../../../../../stackflow";
+import { AppBar } from "@/common/components/AppBar";
+import { Home } from "lucide-react";
 
 interface CreateLayoutProps {
     children: ReactNode;
@@ -19,41 +21,45 @@ export default function CreateLayout({
     totalSteps = 5,
     onBack,
 }: CreateLayoutProps) {
-    const { pop } = useFlow();
+    const { pop, replace } = useFlow();
 
     const handleBack = () => {
         if (onBack) {
             onBack();
         } else {
-            // pop();
+            pop();
         }
     };
 
     return (
-        <AppScreen
-            appBar={{
-                title,
-                backButton: {
-                    ariaLabel: "뒤로 가기",
-                    onClick: handleBack,
-                },
-            }}
-        >
+        <AppScreen>
+            <AppBar
+                title={title}
+                onBack={handleBack}
+                right={
+                    <button
+                        onClick={() => replace("Dashboard", {})}
+                        className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                    >
+                        <Home className="w-6 h-6" strokeWidth={1.5} />
+                    </button>
+                }
+            />
             <div className="flex flex-col h-full bg-slate-50">
                 {/* Progress Bar */}
-                <div className="bg-white px-4 pt-2 pb-0">
-                    <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
+                <div className="bg-white px-6 py-5 shadow-[0_4px_20px_-12px_rgba(0,0,0,0.1)] z-10 relative">
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden mb-3">
                         <div
-                            className="h-full bg-indigo-600 transition-all duration-300 ease-out"
+                            className="h-full bg-indigo-600 transition-all duration-500 ease-in-out rounded-full"
                             style={{ width: `${(step / totalSteps) * 100}%` }}
                         />
                     </div>
-                    <div className="flex justify-between text-[10px] text-slate-400 mt-1 mb-2 font-medium">
-                        <span className={step >= 1 ? "text-indigo-600 font-bold" : ""}>기본 정보</span>
-                        <span className={step >= 2 ? "text-indigo-600 font-bold" : ""}>유형</span>
-                        <span className={step >= 3 ? "text-indigo-600 font-bold" : ""}>기간</span>
-                        <span className={step >= 4 ? "text-indigo-600 font-bold" : ""}>제외</span>
-                        <span className={step >= 5 ? "text-indigo-600 font-bold" : ""}>마감</span>
+                    <div className="flex justify-between text-xs text-slate-300 font-medium px-1">
+                        <span className={step >= 1 ? "text-indigo-600 font-bold" : "transition-colors duration-300"}>기본 정보</span>
+                        <span className={step >= 2 ? "text-indigo-600 font-bold" : "transition-colors duration-300"}>유형</span>
+                        <span className={step >= 3 ? "text-indigo-600 font-bold" : "transition-colors duration-300"}>기간</span>
+                        <span className={step >= 4 ? "text-indigo-600 font-bold" : "transition-colors duration-300"}>제외</span>
+                        <span className={step >= 5 ? "text-indigo-600 font-bold" : "transition-colors duration-300"}>마감</span>
                     </div>
                 </div>
 

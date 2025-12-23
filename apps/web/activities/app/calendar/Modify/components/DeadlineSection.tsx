@@ -22,7 +22,7 @@ export function DeadlineSection({ data, onChange }: DeadlineSectionProps) {
     return (
         <section>
             <div className="flex items-center justify-between mb-2">
-                <Label className="text-base font-bold block">응답 마감일</Label>
+                <Label className="text-base font-bold text-slate-900 block">응답 마감일</Label>
             </div>
 
             <div className="flex items-center space-x-2 mb-3">

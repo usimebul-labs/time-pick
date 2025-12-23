@@ -29,7 +29,7 @@ export function DateRangeSection({ data, onChange }: DateRangeSectionProps) {
     return (
         <div className="space-y-6">
             <section>
-                <Label className="text-base font-bold mb-2 flex items-center gap-2">
+                <Label className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
                     <CalendarIcon className="w-5 h-5 text-primary" />
                     날짜 범위
                 </Label>
@@ -59,7 +59,7 @@ export function DateRangeSection({ data, onChange }: DateRangeSectionProps) {
 
             {data.scheduleType === 'datetime' && (
                 <section>
-                    <Label className="text-base font-bold mb-2 flex items-center gap-2">
+                    <Label className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
                         <Clock className="w-5 h-5 text-primary" />
                         시간 범위
                     </Label>

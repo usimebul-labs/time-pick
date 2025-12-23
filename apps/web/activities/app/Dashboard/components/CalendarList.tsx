@@ -1,7 +1,5 @@
-import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
-import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { Calendar } from "lucide-react";
 import { useCalendars } from "../hooks/useCalendars";
 import { CalendarItem } from "./CalendarItem";
 
@@ -42,34 +40,18 @@ interface CalendarListProps {
     type: "my" | "joined";
 }
 
-const initCount = 3;
 export function CalendarList({ user, type }: CalendarListProps) {
     const { calendars, loading, error } = useCalendars(user, type);
-    const [showAll, setShowAll] = useState(false);
 
     if (loading) return <Loading />
     if (error) return <div>에러: {error}</div>
     if (calendars.length === 0) return <Empty />
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[300px] overflow-y-auto px-1 pb-1">
             {calendars.map((calendar) => (
                 <CalendarItem key={calendar.id} calendar={calendar} user={user} type={type} />
             ))}
-
-            {calendars.length > initCount && (
-                <div className="flex justify-center mt-2">
-                    <Button variant="ghost"
-                        className="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 text-sm font-medium gap-1"
-                        onClick={() => setShowAll(!showAll)}
-                    >
-                        {showAll ?
-                            <>접기 <ChevronUp className="w-4 h-4" strokeWidth={1.5} /></> :
-                            <>더 보기 ({calendars.length - initCount}) <ChevronDown className="w-4 h-4" strokeWidth={1.5} /></>
-                        }
-                    </Button>
-                </div>
-            )}
         </div>
     );
 }

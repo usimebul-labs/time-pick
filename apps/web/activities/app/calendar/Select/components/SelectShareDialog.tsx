@@ -15,6 +15,7 @@ export function SelectShareDialog({ id }: SelectShareDialogProps) {
             isOpen={isShareOpen}
             onClose={() => setIsShareOpen(false)}
             link={shareLink}
+            portal={false}
         />
     );
 }

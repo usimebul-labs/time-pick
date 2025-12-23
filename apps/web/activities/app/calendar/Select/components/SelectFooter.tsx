@@ -15,9 +15,10 @@ export function SelectFooter({ id, calendar, participation, isLoggedIn }: Select
     const { selectedCount, handleComplete } = useSelectFooter(id, calendar, participation, isLoggedIn);
 
     return (
-        <div className="border-t bg-white p-4 shadow-lg z-20 sticky bottom-0">
+        <div className="p-5 pb-8 pt-6 bg-gradient-to-t from-white via-white to-transparent">
             <Button
-                className="w-full h-12 text-base"
+                size="xl"
+                className="w-full font-bold shadow-lg rounded-xl"
                 onClick={handleComplete}
             >
                 {selectedCount}개 시간 선택 완료

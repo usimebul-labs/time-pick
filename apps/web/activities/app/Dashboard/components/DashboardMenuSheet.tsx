@@ -40,7 +40,7 @@ export function DashboardMenuSheet({ open, onOpenChange, eventId, onModify, onCo
                         onClick={() => eventId && onConfirm(eventId)}
                     >
                         <CheckCircle className="mr-2 h-5 w-5" />
-                        약속 확정 하기
+                        일정 확정 하기
                     </Button>
                 </div>
             </SheetContent>

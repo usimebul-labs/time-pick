@@ -79,9 +79,9 @@ export default function CreateExclusions() {
                 </div>
 
                 {/* Holidays */}
-                <div className="flex items-center justify-between py-2 border-t border-b border-slate-100">
+                <label className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors shadow-sm group">
                     <div>
-                        <Label className="text-base font-semibold block mb-0.5 text-slate-900">공휴일은 쉴까요?</Label>
+                        <span className="text-base font-semibold block mb-0.5 text-slate-900 group-hover:text-indigo-900 transition-colors">공휴일은 쉴까요?</span>
                         <p className="text-xs text-slate-500">
                             달력의 빨간 날은 자동으로 제외해요.
                         </p>
@@ -89,9 +89,9 @@ export default function CreateExclusions() {
                     <Checkbox
                         checked={data.excludeHolidays}
                         onCheckedChange={(checked) => toggleHolidays(checked === true)}
-                        className="w-5 h-5 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                        className="w-5 h-5 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600 rounded"
                     />
-                </div>
+                </label>
 
                 {/* Specific Dates */}
                 <div className="space-y-3">
@@ -139,10 +139,10 @@ export default function CreateExclusions() {
             </section>
 
             {/* Float Bottom Button */}
-            <div className="p-4 bg-white border-t safe-area-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
-                <Button size="lg" className="w-full text-base" onClick={handleNext}>
+            <div className="p-5 pb-8 pt-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
+                <Button size="xl" className="w-full font-bold shadow-lg rounded-xl" onClick={handleNext}>
                     다음
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2" strokeWidth={2.5} />
                 </Button>
             </div>
         </CreateLayout>

@@ -13,7 +13,7 @@ interface ParticipantSectionProps {
 export function ParticipantSection({ participants, onDelete }: ParticipantSectionProps) {
     return (
         <section>
-            <Label className="text-base font-bold mb-2 block">참여자 관리</Label>
+            <Label className="text-base font-bold text-slate-900 mb-2 block">참여자 관리</Label>
             <Card className="border-none shadow-sm">
                 <CardContent className="p-0">
                     <SharedParticipantList

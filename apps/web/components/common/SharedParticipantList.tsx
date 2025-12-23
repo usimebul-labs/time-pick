@@ -99,7 +99,7 @@ export function SharedParticipantList({
                 onClick={onFacepileClick}
             >
                 {displayParticipants.map((p, i) => (
-                    <div key={p.id || i} className="relative w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-white" title={p.name}>
+                    <div key={p.id || i} className={cn("relative w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-white", itemClassName)} title={p.name}>
                         <Avatar className="w-full h-full">
                             <AvatarImage src={p.avatarUrl || undefined} alt={p.name} />
                             <AvatarFallback className="text-[10px] bg-gray-200 text-gray-600 font-medium">
@@ -109,7 +109,7 @@ export function SharedParticipantList({
                     </div>
                 ))}
                 {showMore && (
-                    <div className="relative w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center z-10 ring-2 ring-white">
+                    <div className={cn("relative w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center z-10 ring-2 ring-white", itemClassName)}>
                         <span className="text-[10px] text-gray-600 font-bold">+{extraCount}</span>
                     </div>
                 )}

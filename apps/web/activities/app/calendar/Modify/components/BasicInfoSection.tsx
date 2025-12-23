@@ -10,7 +10,7 @@ export function BasicInfoSection({ data, onChange }: BasicInfoSectionProps) {
     return (
         <section className="space-y-6">
             <div className="space-y-2">
-                <Label className="text-base font-bold block">
+                <Label className="text-base font-bold text-slate-900 block">
                     일정 제목 <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -22,7 +22,7 @@ export function BasicInfoSection({ data, onChange }: BasicInfoSectionProps) {
                 />
             </div>
             <div className="space-y-2">
-                <Label className="text-base font-bold block">설명</Label>
+                <Label className="text-base font-bold text-slate-900 block">설명</Label>
                 <Textarea
                     name="description"
                     value={data.description}

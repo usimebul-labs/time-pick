@@ -12,10 +12,14 @@ import { SelectFooter } from "./components/SelectFooter";
 import { SelectShareDialog } from "./components/SelectShareDialog";
 import { SelectLoading } from "./components/SelectLoading";
 import { SelectError } from "./components/SelectError";
+import { AppBar } from "@/common/components/AppBar";
+import { Home } from "lucide-react";
+import { useFlow } from "@/stackflow";
 
 export default function Select({ params: { id } }: { params: { id: string } }) {
     const { calendar, loading, error, participants, participation, isLoggedIn } = useSelectData(id);
     const reset = useSelectStore((state) => state.reset);
+    const { replace } = useFlow();
 
     useEffect(() => {
         return () => reset();
@@ -27,11 +31,25 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
 
     return (
         <AppScreen>
-            {/* Helper to handle initialization side-effects without cluttering main logic */}
-            <StateInitializer participation={participation} />
-
             <div className="flex flex-col h-full bg-white">
-                <div className="flex-1 overflow-y-auto p-4 pb-32">
+                <AppBar
+                    title="일정 선택하기"
+                    right={
+                        isLoggedIn && (
+                            <button
+                                onClick={() => replace("Dashboard", {})}
+                                className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                            >
+                                <Home className="w-6 h-6" strokeWidth={1.5} />
+                            </button>
+                        )
+                    }
+                />
+
+                {/* Helper to handle initialization side-effects without cluttering main logic */}
+                <StateInitializer participation={participation} />
+
+                <div className="flex-1 overflow-y-auto p-4">
                     <CalendarSection calendar={calendar} participants={participants} />
 
                     <div className="w-full h-px bg-gray-100 mt-3 mb-6"></div>

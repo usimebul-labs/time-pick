@@ -3,7 +3,7 @@ import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 import { MoreVertical, Share2 } from "lucide-react";
 import { ParticipantFacepile } from "./ParticipantFacepile";
-import { differenceInCalendarDays, parseISO } from "date-fns";
+import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { useDashboardStore } from "../hooks/useDashboardStore";
 import { useFlow } from "../../../../stackflow";
 import { MouseEventHandler } from "react";
@@ -58,49 +58,51 @@ export function CalendarItem({ calendar, user, type }: CalendarItemProps) {
 
     return (
         <div
-            className="bg-white rounded-xl p-5 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-200 active:scale-[0.99] group relative"
+            className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-200 active:scale-[0.99] group relative"
             onClick={handleSelect}
         >
             {type === "my" &&
-                <div className="absolute top-4 right-4 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-3 right-3 flex items-center gap-0.5">
                     <Button variant="ghost" size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                        className="h-7 w-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
                         onClick={handleShare}>
-                        <Share2 className="w-4 h-4" strokeWidth={1.5} />
+                        <Share2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                     </Button>
 
                     <Button variant="ghost" size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
+                        className="h-7 w-7 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
                         onClick={handleMenuOpen}>
-                        <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
+                        <MoreVertical className="w-3.5 h-3.5" strokeWidth={1.5} />
                     </Button>
                 </div>
             }
 
-            <h3 className="text-[17px] font-bold text-slate-900 mb-1 pr-16 leading-tight line-clamp-1">
+            <h3 className="text-base font-bold text-slate-900 mb-0.5 pr-14 leading-tight line-clamp-1">
                 {calendar.title}
             </h3>
-            <p className="text-xs text-slate-500 font-medium mb-4 flex items-center">
-                {calendar.deadline ? (
-                    <>
-                        {calendar.deadline} 마감 <DDay deadline={calendar.deadline} />
-                    </>
-                ) : "마감일 없음"}
-            </p>
+            <div className="flex justify-between items-center mt-2">
+                <span className="text-[11px] text-slate-500 font-medium flex items-center">
+                    {format(parseISO(calendar.startDate), "MM.dd")} ~ {format(parseISO(calendar.endDate), "MM.dd")}
+                    {calendar.deadline && (
+                        <>
+                            <span className="mx-2 text-slate-300">|</span>
+                            {format(parseISO(calendar.deadline), "MM.dd")} 마감 <DDay deadline={calendar.deadline} />
+                        </>
+                    )}
+                </span>
 
-            <div className="flex justify-between items-center pt-2 border-t border-slate-50">
-                <div className="flex items-center gap-2">
-                    {calendar.participants.length > 0 ?
-                        <ParticipantFacepile participants={calendar.participants} totalCount={calendar.participants.length} user={user} clickHandler={handleShowParticipants} /> :
-                        <span className="text-xs text-slate-400 font-medium">아직 참여자가 없어요</span>
-                    }
+                <div className="flex justify-end items-center gap-1.5">
+                    {calendar.participants.length > 0 ? (
+                        <>
+                            <ParticipantFacepile participants={calendar.participants} totalCount={calendar.participants.length} user={user} clickHandler={handleShowParticipants} />
+                            <span className="text-[10px] text-indigo-600 font-semibold ml-0.5">
+                                {calendar.participants.length}명
+                            </span>
+                        </>
+                    ) : (
+                        <span className="text-[11px] text-slate-300 font-medium">참여 없음</span>
+                    )}
                 </div>
-
-                {calendar.participants.length > 0 &&
-                    <span className="text-xs text-indigo-600 font-semibold bg-indigo-50 px-2 py-1 rounded-md">
-                        {calendar.participants.length}명 참여 중
-                    </span>
-                }
             </div>
 
         </div>

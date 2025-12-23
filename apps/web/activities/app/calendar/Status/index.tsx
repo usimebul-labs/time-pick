@@ -6,6 +6,9 @@ import { ParticipantList } from "./components/ParticipantList";
 import { StatusChart } from "./components/StatusChart";
 import { StatusFooter } from "./components/StatusFooter";
 import { useStatus } from "./useStatus";
+import { AppBar } from "@/common/components/AppBar";
+import { Home } from "lucide-react";
+import { useFlow } from "@/stackflow";
 
 export default function Status({ params: { id } }: { params: { id: string } }) {
     const {
@@ -22,8 +25,11 @@ export default function Status({ params: { id } }: { params: { id: string } }) {
         chartData,
         handleVipToggle,
         handleEdit,
-        handleComplete
+        handleComplete,
+        isLoggedIn
     } = useStatus(id);
+
+    const { replace } = useFlow();
 
     if (loading) return (
         <AppScreen>
@@ -43,10 +49,24 @@ export default function Status({ params: { id } }: { params: { id: string } }) {
     );
 
     return (
-        <AppScreen appBar={{ title: calendar.title }}>
+        <AppScreen>
             <div className="flex flex-col h-full bg-white relative">
+                <AppBar
+                    title="일정 선택 현황"
+                    right={
+                        isLoggedIn && (
+                            <button
+                                onClick={() => replace("Dashboard", {})}
+                                className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                            >
+                                <Home className="w-6 h-6" strokeWidth={1.5} />
+                            </button>
+                        )
+                    }
+                />
+
                 {/* Scrollable Content Area */}
-                <div className="flex-1 overflow-y-auto pb-32">
+                <div className="flex-1 overflow-y-auto">
                     <StatusChart
                         chartData={chartData}
                         maxCount={maxCount}

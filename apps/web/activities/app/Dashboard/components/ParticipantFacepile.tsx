@@ -41,11 +41,9 @@ export function ParticipantFacepile({ participants, totalCount, user, clickHandl
             mode="facepile"
             maxFacepile={5}
             currentUser={user}
-            onFacepileClick={() => clickHandler({} as any)} // Passing dummy event since SharedParticipantList callback doesn't expect args or return event, but original prop did. Wait, onFacepileClick is void. clickHandler expects MouseEvent. I should wrap it or adjust.
-        // Actually, SharedParticipantList onFacepileClick is () => void. clickHandler is MouseEventHandler. 
-        // I'll wrap it: () => clickHandler(null as any) or just fix the prop.
-        // Let's look at usage. It's likely just a toggle.
-        // Safe bet: () => clickHandler({} as any)
+            onFacepileClick={() => clickHandler({} as any)}
+            className="-space-x-2"
+            itemClassName="w-6 h-6 ring-1 focus:ring-1"
         />
     );
 }

@@ -39,7 +39,7 @@ export function ExcludedDaysSection({ data, onChange }: ExcludedDaysSectionProps
     return (
         <section>
             <div className="flex items-center justify-between mb-2">
-                <Label className="text-base font-bold block">가능한 요일 설정</Label>
+                <Label className="text-base font-bold text-slate-900 block">가능한 요일 설정</Label>
                 <div className="flex gap-1 text-xs">
                     <button type="button" onClick={() => selectDays("all")} className="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">전체</button>
                     <button type="button" onClick={() => selectDays("weekday")} className="px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">평일</button>

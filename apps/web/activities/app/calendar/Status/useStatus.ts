@@ -147,6 +147,7 @@ export function useStatus(id: string) {
         chartData,
         handleVipToggle,
         handleEdit,
-        handleComplete
+        handleComplete,
+        isLoggedIn: data?.isLoggedIn || false
     };
 }

@@ -13,6 +13,8 @@ export type CreateCalendarState = {
 export type DashboardCalendar = {
     id: string;
     title: string;
+    startDate: string;
+    endDate: string;
     deadline: string | null;
     isConfirmed: boolean;
     participants: {
