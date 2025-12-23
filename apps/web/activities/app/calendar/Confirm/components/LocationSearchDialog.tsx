@@ -38,7 +38,7 @@ export function LocationSearchDialog({ isOpen, onClose, onSelect }: LocationSear
             return;
         }
 
-        script.src = `https//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
         script.async = true;
 
         script.onload = () => {

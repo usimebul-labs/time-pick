@@ -35,6 +35,7 @@ export const useCreate = () => {
         enabledDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         excludedDates: [],
         deadline: `${getLastDayOfMonthStr()}T23:59`, // Default deadline
+        excludeHolidays: false
     });
 
     const updateData = (updates: Partial<CreateCalendarData>) => {
