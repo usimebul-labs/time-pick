@@ -1,50 +1,35 @@
 import { DashboardCalendar, getMySchedules, getJoinedSchedules } from "@/app/actions/calendar";
 import { User } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useDashboardStore } from "./useDashboardStore";
+import { useQuery } from "@tanstack/react-query";
 
 export function useCalendars(user: User) {
-    const [allCalendars, setAllCalendars] = useState<DashboardCalendar[]>([]);
-    const [filteredCalendars, setFilteredCalendars] = useState<DashboardCalendar[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-
     // Store
-    const { refreshTrigger, filter, sort } = useDashboardStore();
+    const { filter, sort } = useDashboardStore();
 
-    // 1. Fetch All Data
-    useEffect(() => {
-        const init = async () => {
-            setLoading(true);
+    // 1. Fetch Data with React Query
+    const { data: allCalendars = [], isLoading: loading, error } = useQuery({
+        queryKey: ['calendars', user?.id],
+        queryFn: async () => {
+            if (!user) return [];
             const [myResult, joinedResult] = await Promise.all([
                 getMySchedules(user),
                 getJoinedSchedules(user)
             ]);
 
-            if (myResult.error) {
-                setError(myResult.error);
-                setLoading(false);
-                return;
-            }
-            if (joinedResult.error) {
-                setError(joinedResult.error);
-                setLoading(false);
-                return;
-            }
+            if (myResult.error) throw new Error(myResult.error);
+            if (joinedResult.error) throw new Error(joinedResult.error);
 
             // Merge Lists
-            const combined = [...myResult.schedules, ...joinedResult.schedules];
-            setAllCalendars(combined);
-            setLoading(false);
-        }
-
-        if (user) {
-            init();
-        }
-    }, [user, refreshTrigger]);
+            return [...myResult.schedules, ...joinedResult.schedules];
+        },
+        enabled: !!user,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
 
     // 2. Client-side Filter & Sort
-    useEffect(() => {
+    const filteredCalendars = useMemo(() => {
         let result = [...allCalendars];
 
         // Filter
@@ -64,17 +49,16 @@ export function useCalendars(user: User) {
                 return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
             } else {
                 // Default: Created At (Newest first)
-                // Note: createdAt comes as string ISO from server action
                 return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             }
         });
 
-        setFilteredCalendars(result);
+        return result;
     }, [allCalendars, filter, sort]);
 
     return {
         calendars: filteredCalendars,
         loading,
-        error
+        error: error instanceof Error ? error.message : null
     };
 }

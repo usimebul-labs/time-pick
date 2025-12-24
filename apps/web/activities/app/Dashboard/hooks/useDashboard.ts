@@ -5,12 +5,15 @@ import { useEffect, useState } from "react";
 import { useFlow } from "../../../../stackflow";
 import { useDashboardStore } from "./useDashboardStore";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 // Constants
 export const INITIAL_DISPLAY_COUNT = 3;
 
 export function useDashboard() {
     const [user, setUser] = useState<User | null>(null);
-    const { closeMenu, triggerRefresh } = useDashboardStore();
+    const { closeMenu } = useDashboardStore();
+    const queryClient = useQueryClient();
 
     const supabase = createClient();
     const { push } = useFlow();
@@ -47,7 +50,7 @@ export function useDashboard() {
             const { success, error } = await deleteCalendar(id);
             if (success) {
                 // setMySchedules(prev => prev.filter(s => s.id !== id));
-                triggerRefresh();
+                queryClient.invalidateQueries({ queryKey: ['calendars', user?.id] });
                 closeMenu();
             } else {
                 alert(error || "삭제 중 오류가 발생했습니다.");
