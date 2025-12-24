@@ -44,6 +44,8 @@ export default function CreateDeadline() {
                         <Input
                             type="datetime-local"
                             value={data.deadline || ""}
+                            min={new Date().toISOString().slice(0, 16)}
+                            max={`${data.endDate}T23:59`}
                             onChange={(e) => updateData({ deadline: e.target.value })}
                             className="bg-white border-slate-200 rounded-xl"
                             disabled={isUnlimited}

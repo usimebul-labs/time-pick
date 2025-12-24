@@ -99,6 +99,8 @@ export default function CreateExclusions() {
                     <div className="flex gap-2">
                         <Input
                             type="date"
+                            min={data.startDate}
+                            max={data.endDate}
                             className="flex-1 bg-white border-slate-200 rounded-xl"
                             onChange={(e) => {
                                 if (e.target.value) {

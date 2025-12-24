@@ -38,7 +38,11 @@ export function CalendarItem({ calendar, user, type }: CalendarItemProps) {
 
     const handleSelect: MouseEventHandler<HTMLDivElement> = (e) => {
         e.stopPropagation();
-        push("Select", { id: calendar.id });
+        if (calendar.isConfirmed) {
+            push("Result", { id: calendar.id });
+        } else {
+            push("Select", { id: calendar.id });
+        }
     }
 
     const handleShare: MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -85,7 +89,7 @@ export function CalendarItem({ calendar, user, type }: CalendarItemProps) {
             className={`bg-white rounded-xl p-4 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-200 active:scale-[0.99] group relative ${styles.border}`}
             onClick={handleSelect}
         >
-            {type === "my" &&
+            {(type === "my" || type === "joined") &&
                 <div className="absolute top-3 right-3 flex items-center gap-0.5">
                     <Button variant="ghost" size="icon"
                         className="h-7 w-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
@@ -93,7 +97,7 @@ export function CalendarItem({ calendar, user, type }: CalendarItemProps) {
                         <Share2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                     </Button>
 
-                    {!calendar.isConfirmed && (
+                    {type === "my" && !calendar.isConfirmed && (
                         <Button variant="ghost" size="icon"
                             className="h-7 w-7 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
                             onClick={handleMenuOpen}>
