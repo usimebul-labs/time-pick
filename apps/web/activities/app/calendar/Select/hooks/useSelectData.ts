@@ -25,6 +25,12 @@ export function useSelectData(id: string) {
         if (!data) return;
 
         const { calendar, participation, isLoggedIn, error } = data;
+
+        if (calendar?.isConfirmed) {
+            replace("Result", { id });
+            return;
+        }
+
         const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
         const guestPin = guestSessions[id];
         setGuestPin(guestPin);
