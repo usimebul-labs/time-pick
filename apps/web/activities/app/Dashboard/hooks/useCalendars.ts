@@ -51,7 +51,7 @@ export function useCalendars(user: User) {
         if (filter === 'host') {
             result = result.filter(c => c.isHost && !c.isConfirmed);
         } else if (filter === 'joined') {
-            result = result.filter(c => !c.isHost); // "Joined" means I'm participating but not host
+            result = result.filter(c => !c.isHost && !c.isConfirmed); // "Joined" means I'm participating but not host, and not confirmed yet
         } else if (filter === 'confirmed') {
             result = result.filter(c => c.isConfirmed);
         }
