@@ -36,6 +36,7 @@ interface SharedParticipantListProps {
 
     // Facepile specific
     maxFacepile?: number;
+    overflowIndicator?: "count" | "icon";
     onFacepileClick?: MouseEventHandler<HTMLDivElement>;
 
     // For highlighting (e.g. available in slot)
@@ -56,6 +57,7 @@ export function SharedParticipantList({
     currentUser,
     currentUserId,
     maxFacepile = 5,
+    overflowIndicator = "count",
     onFacepileClick,
     highlightedIds,
     className,
@@ -87,10 +89,8 @@ export function SharedParticipantList({
         });
 
         const showMore = participants.length > maxFacepile;
-        const displayCount = showMore ? maxFacepile - 1 : maxFacepile; // Reserve 1 spot for +N if needed, usually facepiles do this
-        // Actually the original implementation did: showMore ? 3 : maxDisplay(5). Let's stick to a simpler logic or mimic original:
-        // Original: if > 5, show 3 and +N. Let's make it configurable but default to sensible.
-        const effectiveDisplayCount = showMore ? maxFacepile - 2 : maxFacepile;
+        // Reserve 1 spot for overflow indicator
+        const effectiveDisplayCount = showMore ? maxFacepile - 1 : maxFacepile;
         const displayParticipants = sortedParticipants.slice(0, effectiveDisplayCount);
         const extraCount = participants.length - effectiveDisplayCount;
 
@@ -110,8 +110,12 @@ export function SharedParticipantList({
                     </div>
                 ))}
                 {showMore && (
-                    <div className={cn("relative w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center z-10 ring-2 ring-white", itemClassName)}>
-                        <span className="text-[10px] text-gray-600 font-bold">+{extraCount}</span>
+                    <div className={cn("relative w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center z-10 ring-2 ring-white text-gray-600 font-bold", itemClassName)}>
+                        {overflowIndicator === "count" ? (
+                            <span className="text-[10px]">+{extraCount}</span>
+                        ) : (
+                            <span className="text-xs pb-1 tracking-widest text-slate-400">...</span>
+                        )}
                     </div>
                 )}
             </div>
