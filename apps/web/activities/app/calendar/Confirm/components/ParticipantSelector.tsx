@@ -1,5 +1,5 @@
 
-import { SharedParticipantList } from "@/components/common/SharedParticipantList";
+import { SharedParticipantList } from "@/common/components/SharedParticipantList";
 import { ParticipantSummary } from "@/app/actions/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui";
 import { cn } from "@repo/ui";

@@ -1,4 +1,4 @@
-import { SharedParticipantList } from "@/components/common/SharedParticipantList";
+import { SharedParticipantList } from "@/common/components/SharedParticipantList";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 

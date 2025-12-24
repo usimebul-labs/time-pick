@@ -9,7 +9,7 @@ import { useFlow } from "@/stackflow";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { SharedParticipantList, SharedParticipant } from "@/components/common/SharedParticipantList";
+import { SharedParticipantList, SharedParticipant } from "@/common/components/SharedParticipantList";
 import { EventShareSheet } from "./components/EventShareSheet";
 import { AppIcon } from "./components/AppIcon";
 import { useLoginedUser } from "@/common/hooks/useLoginedUser";

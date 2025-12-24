@@ -1,4 +1,4 @@
-import { SharedParticipantList } from "@/components/common/SharedParticipantList";
+import { SharedParticipantList } from "@/common/components/SharedParticipantList";
 import { Users } from "lucide-react";
 import { ParticipantSummary } from "@/app/actions/calendar";
 import { SelectedSlot } from "../useStatus";

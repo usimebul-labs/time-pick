@@ -1,4 +1,4 @@
-import { useCalendarQuery } from "@/hooks/queries/useCalendarQuery";
+import { useCalendarQuery } from "@/common/hooks/useCalendarQuery";
 import { useFlow } from "@/stackflow";
 import { useGuestStore } from "@/stores/guest";
 import { useEffect, useState } from "react";

@@ -1,4 +1,4 @@
-import { SharedParticipantList } from "@/components/common/SharedParticipantList";
+import { SharedParticipantList } from "@/common/components/SharedParticipantList";
 import { User } from "@supabase/supabase-js";
 import { MouseEventHandler } from "react";
 
