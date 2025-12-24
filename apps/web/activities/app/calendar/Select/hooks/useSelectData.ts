@@ -32,13 +32,14 @@ export function useSelectData(id: string) {
         if (error) {
             setError(error);
         } else {
-            console.log(isLoggedIn, participation, !guestPin)
-            if (!participation && !guestPin && !isLoggedIn) {
+            const pendingGuest = useGuestStore.getState().pendingGuest;
+            const isPendingGuest = pendingGuest && pendingGuest.calendarId === id;
+
+            if (!participation && !guestPin && !isLoggedIn && !isPendingGuest) {
                 replace("Join", { id });
                 return;
             }
 
-            console.log(participation, activity.name)
             if (participation && activity.name !== "SelectEdit") {
                 replace("Status", { id });
                 return;

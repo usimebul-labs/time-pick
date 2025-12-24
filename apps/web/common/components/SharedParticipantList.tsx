@@ -3,6 +3,7 @@ import { User } from "@supabase/supabase-js";
 import { Trash2, User as UserIcon } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
+import { MouseEventHandler } from "react";
 
 export interface SharedParticipant {
     id: string;
@@ -35,7 +36,7 @@ interface SharedParticipantListProps {
 
     // Facepile specific
     maxFacepile?: number;
-    onFacepileClick?: () => void;
+    onFacepileClick?: MouseEventHandler<HTMLDivElement>;
 
     // For highlighting (e.g. available in slot)
     highlightedIds?: Set<string> | string[];

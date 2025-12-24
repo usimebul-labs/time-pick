@@ -41,7 +41,7 @@ export function ParticipantFacepile({ participants, totalCount, user, clickHandl
             mode="facepile"
             maxFacepile={5}
             currentUser={user}
-            onFacepileClick={() => clickHandler({} as any)}
+            onFacepileClick={clickHandler}
             className="-space-x-2"
             itemClassName="w-6 h-6 ring-1 focus:ring-1"
         />
