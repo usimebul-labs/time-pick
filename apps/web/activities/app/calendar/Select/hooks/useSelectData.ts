@@ -17,32 +17,28 @@ export function useSelectData(id: string) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [guestPin, setGuestPin] = useState<string | undefined>(undefined);
 
-    // Initial load of guest PIN
-    useEffect(() => {
-        const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
-        setGuestPin(guestSessions[id]);
-    }, [id]);
-
     // Use Query hook
     const { data } = useCalendarQuery(id, guestPin);
 
     // Derived state from query data
     useEffect(() => {
         if (!data) return;
-        const { calendar, participation, participants, isLoggedIn, error } = data;
+
+        const { calendar, participation, isLoggedIn, error } = data;
+        const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
+        const guestPin = guestSessions[id];
+        setGuestPin(guestPin);
 
         if (error) {
             setError(error);
         } else {
-            // Redirect logic
-            const pendingGuest = useGuestStore.getState().pendingGuest;
-            const isPendingGuest = pendingGuest && pendingGuest.calendarId === id;
-
-            if (!isLoggedIn && !participation && !isPendingGuest) {
+            console.log(isLoggedIn, participation, !guestPin)
+            if (!participation && !guestPin && !isLoggedIn) {
                 replace("Join", { id });
                 return;
             }
 
+            console.log(participation, activity.name)
             if (participation && activity.name !== "SelectEdit") {
                 replace("Status", { id });
                 return;

@@ -44,8 +44,13 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
-    const protectedRoutes = ['/app/dashboard']
-    const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))
+    const protectedPatterns = [
+        /^\/app\/dashboard/,
+        /^\/app\/calendar\/new/,
+        /^\/app\/calendar\/[^/]+\/confirm$/,
+        /^\/app\/calendar\/[^/]+\/modify$/,
+    ];
+    const isProtectedRoute = protectedPatterns.some(pattern => pattern.test(request.nextUrl.pathname));
     const isLoginPage = request.nextUrl.pathname.startsWith('/login')
 
     if (!user && isProtectedRoute) {
