@@ -4,7 +4,31 @@
 
 @import "@repo/ui/globals.css";
 
-@layer utilities {}
+@layer utilities {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+}
+
+/* Global scrollbar hiding for "app-like" feel */
+*::-webkit-scrollbar {
+    display: none;
+}
+
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 
 /* Ensure Radix UI does not hide the dashboard content or collapse height */
 /* Only target the direct app container to avoid affecting icons or other internal elements */
