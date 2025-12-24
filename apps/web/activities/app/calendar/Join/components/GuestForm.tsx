@@ -11,7 +11,7 @@ interface GuestFormProps {
 
 export function GuestForm({ name, setName, loading, onSubmit, onLoginRedirect }: GuestFormProps) {
     return (
-        <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
+        <div className="w-full">
             <form onSubmit={onSubmit} className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="guest-name" className="sr-only">이름</Label>
