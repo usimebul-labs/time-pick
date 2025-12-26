@@ -15,33 +15,30 @@ import { UserMenu } from "@/common/components/ActivityLayout/UserMenu";
 
 const ListLoading = () => {
     return (
-        <div className="space-y-4 px-1 py-1">
-            {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
-                    {/* Header: Title and Icons */}
-                    <div className="flex justify-between items-start mb-3">
-                        <div className="h-5 bg-slate-100 rounded-md w-3/5 animate-pulse" />
-                        <div className="flex gap-1" >
-                            <div className="h-7 w-7 bg-slate-50 rounded-lg animate-pulse" />
-                            <div className="h-7 w-7 bg-slate-50 rounded-lg animate-pulse" />
-                        </div>
-                    </div>
+        <div className="space-y-4 px-1 pb-20">
+            {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-slate-100 relative">
+                    {/* Title */}
+                    <div className="h-5 bg-slate-100 rounded-md w-1/2 mb-4 animate-pulse" />
 
-                    {/* Body: Date info */}
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="h-3 bg-slate-50 rounded w-16 animate-pulse" />
-                        <div className="h-3 w-[1px] bg-slate-100" />
-                        <div className="h-3 bg-slate-50 rounded w-20 animate-pulse" />
-                    </div>
-
-                    {/* Footer: Participants */}
-                    <div className="flex justify-end items-center mt-3 pt-2 border-t border-slate-50">
-                        <div className="flex -space-x-1.5">
-                            {[1, 2, 3].map((j) => (
-                                <div key={j} className="w-6 h-6 bg-slate-100 rounded-full ring-2 ring-white animate-pulse" />
-                            ))}
+                    {/* Bottom Row */}
+                    <div className="flex justify-between items-center mt-2">
+                        {/* Date/Badge Area */}
+                        <div className="flex items-center gap-2">
+                            <div className="h-3 w-10 bg-slate-100 rounded animate-pulse" />
+                            <div className="h-3 w-[1px] bg-slate-100" />
+                            <div className="h-3 w-20 bg-slate-100 rounded animate-pulse" />
                         </div>
-                        <div className="ml-2 h-3 w-8 bg-slate-50 rounded animate-pulse" />
+
+                        {/* Facepile Area */}
+                        <div className="flex items-center gap-1.5">
+                            <div className="flex -space-x-2">
+                                {[1, 2, 3].map((j) => (
+                                    <div key={j} className="w-6 h-6 rounded-full bg-slate-100 ring-1 ring-white animate-pulse" />
+                                ))}
+                            </div>
+                            <div className="w-6 h-3 bg-slate-100 rounded animate-pulse ml-0.5" />
+                        </div>
                     </div>
                 </div>
             ))}
