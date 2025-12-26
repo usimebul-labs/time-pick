@@ -1,48 +1,51 @@
-
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { Skeleton } from "@repo/ui";
+import { Home } from "lucide-react";
 
 export function SelectLoading() {
     return (
-        <AppScreen>
-            <div className="flex flex-col h-full bg-white">
-                <div className="flex-1 overflow-y-auto p-4 pb-32">
-                    {/* Calendar Section Skeleton */}
-                    <div className="space-y-4">
-                        <Skeleton className="h-8 w-1/3" />
-                        <Skeleton className="h-[300px] w-full rounded-xl" />
-                    </div>
+        <ActivityLayout
+            title="일정 선택하기"
+            appBar={{
+                right: (
+                    <button className="p-1 -mr-1 text-slate-400" disabled>
+                        <Home className="w-6 h-6" strokeWidth={1.5} />
+                    </button>
+                )
+            }}
+            className="bg-white"
+        >
+            <div className="flex-1 overflow-hidden flex flex-col p-4 animate-pulse">
+                {/* Calendar Skeleton */}
+                <div className="h-64 bg-gray-100 rounded-xl mb-6"></div>
 
-                    <div className="w-full h-px bg-gray-100 mt-6 mb-6"></div>
+                <div className="w-full h-px bg-gray-100 mb-6"></div>
 
-                    {/* Participant List Skeleton */}
-                    <div className="space-y-4">
-                        <Skeleton className="h-6 w-1/4" />
-                        <div className="flex gap-2 overflow-x-auto pb-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                                <Skeleton key={i} className="h-12 w-12 rounded-full flex-shrink-0" />
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="w-full h-px bg-gray-100 mt-6 mb-6"></div>
-
-                    {/* Event Details Skeleton */}
-                    <div className="space-y-4">
-                        <Skeleton className="h-6 w-1/4" />
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-5/6" />
-                            <Skeleton className="h-4 w-4/6" />
-                        </div>
+                {/* Participant List Skeleton */}
+                <div className="mb-6">
+                    <div className="h-6 w-24 bg-gray-100 rounded mb-3"></div>
+                    <div className="flex gap-2 overflow-x-hidden">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <div key={i} className="flex-shrink-0 w-16 h-20 bg-gray-100 rounded-xl"></div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Footer Skeleton */}
-                <div className="p-4 border-t border-gray-100 bg-white">
-                    <Skeleton className="h-12 w-full rounded-lg" />
+                {/* Details Skeleton */}
+                <div>
+                    <div className="h-6 w-32 bg-gray-100 rounded mb-3"></div>
+                    <div className="space-y-2">
+                        <div className="h-4 w-full bg-gray-100 rounded"></div>
+                        <div className="h-4 w-3/4 bg-gray-100 rounded"></div>
+                    </div>
                 </div>
             </div>
-        </AppScreen>
+
+            {/* Footer Skeleton */}
+            <div className="p-5 pb-8 pt-4 border-t border-slate-100">
+                <div className="h-14 w-full bg-gray-100 rounded-xl"></div>
+            </div>
+        </ActivityLayout>
     );
 }
+

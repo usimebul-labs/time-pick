@@ -1,4 +1,4 @@
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { SocialLoginButton } from "@repo/ui";
 import { useLogin } from "./hooks/useLogin";
 
@@ -6,7 +6,7 @@ export default function Login({ params: { next } }: { params: { next?: string } 
     const { loading, handleGoogleLogin } = useLogin({ next });
 
     return (
-        <AppScreen>
+        <ActivityLayout hideAppBar>
             <div className="flex flex-col flex-1 bg-white">
                 <div className="flex-1 flex flex-col items-center justify-center p-6">
                     <div className="w-full max-w-sm space-y-8">
@@ -23,6 +23,6 @@ export default function Login({ params: { next } }: { params: { next?: string } 
                     </div>
                 </div>
             </div>
-        </AppScreen>
+        </ActivityLayout>
     );
 }

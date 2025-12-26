@@ -1,7 +1,7 @@
 import Loading from "@/common/components/Loading";
 import { useEffect } from "react";
 import { ShareCalendarDialog, Button } from "@repo/ui";
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { Plus } from "lucide-react";
 import { DashboardHeader } from "./components/DashboardHeader";
 import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
@@ -70,7 +70,7 @@ export default function Dashboard() {
     if (!user) return <Loading />
 
     return (
-        <AppScreen>
+        <ActivityLayout hideAppBar>
             <div className="flex flex-col h-full bg-slate-50">
                 <DashboardHeader user={user} />
 
@@ -133,6 +133,6 @@ export default function Dashboard() {
                 count={selectedParticipantCount}
                 user={user}
             />
-        </AppScreen>
+        </ActivityLayout>
     );
 }

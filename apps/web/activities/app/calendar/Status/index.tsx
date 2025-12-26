@@ -1,12 +1,12 @@
 'use client';
 
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { FilteredSlotList } from "./components/FilteredSlotList";
 import { ParticipantList } from "./components/ParticipantList";
 import { StatusChart } from "./components/StatusChart";
 import { StatusFooter } from "./components/StatusFooter";
 import { useStatus } from "./useStatus";
-import { AppBar } from "@/common/components/AppBar";
+
 import { Home } from "lucide-react";
 import { useFlow } from "@/stackflow";
 
@@ -32,73 +32,70 @@ export default function Status({ params: { id } }: { params: { id: string } }) {
     const { replace } = useFlow();
 
     if (loading) return (
-        <AppScreen>
-            <div className="flex justify-center items-center h-screen bg-slate-50">
+        <ActivityLayout>
+            <div className="flex justify-center items-center h-full bg-slate-50">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
             </div>
-        </AppScreen>
+        </ActivityLayout>
     );
 
     if (error || !calendar) return (
-        <AppScreen>
-            <div className="flex flex-col justify-center items-center h-screen p-4 text-center bg-slate-50">
+        <ActivityLayout>
+            <div className="flex flex-col justify-center items-center h-full p-4 text-center bg-slate-50">
                 <h2 className="text-lg font-bold mb-1 text-slate-900">오류가 발생했습니다</h2>
                 <p className="text-slate-500">{error || "일정을 찾을 수 없습니다."}</p>
             </div>
-        </AppScreen>
+        </ActivityLayout>
     );
 
     return (
-        <AppScreen>
-            <div className="flex flex-col h-full bg-white relative">
-                <AppBar
-                    title="일정 선택 현황"
-                    right={
-                        isLoggedIn && (
-                            <button
-                                onClick={() => replace("Dashboard", {})}
-                                className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-                            >
-                                <Home className="w-6 h-6" strokeWidth={1.5} />
-                            </button>
-                        )
-                    }
+        <ActivityLayout
+            title="일정 선택 현황"
+            appBar={{
+                right: isLoggedIn && (
+                    <button
+                        onClick={() => replace("Dashboard", {})}
+                        className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                    >
+                        <Home className="w-6 h-6" strokeWidth={1.5} />
+                    </button>
+                )
+            }}
+            className="bg-white relative"
+        >
+            {/* Scrollable Content Area */}
+            <div className="flex-1 overflow-y-auto">
+                <StatusChart
+                    chartData={chartData}
+                    maxCount={maxCount}
+                    selectedCount={selectedCount}
+                    setSelectedCount={setSelectedCount}
+                    setSelectedSlot={setSelectedSlot}
+                    selectedVipIds={selectedVipIds}
+                    participants={participants}
+                    calendar={calendar}
                 />
 
-                {/* Scrollable Content Area */}
-                <div className="flex-1 overflow-y-auto">
-                    <StatusChart
-                        chartData={chartData}
-                        maxCount={maxCount}
+                <div className="h-2 bg-gray-50 my-2" />
+
+                {selectedCount !== null ? (
+                    <FilteredSlotList
                         selectedCount={selectedCount}
-                        setSelectedCount={setSelectedCount}
-                        setSelectedSlot={setSelectedSlot}
-                        selectedVipIds={selectedVipIds}
-                        participants={participants}
-                        calendar={calendar}
+                        chartData={chartData}
+                        onClear={() => setSelectedCount(null)}
                     />
-
-                    <div className="h-2 bg-gray-50 my-2" />
-
-                    {selectedCount !== null ? (
-                        <FilteredSlotList
-                            selectedCount={selectedCount}
-                            chartData={chartData}
-                            onClear={() => setSelectedCount(null)}
-                        />
-                    ) : (
-                        <ParticipantList
-                            participants={participants}
-                            selectedSlot={selectedSlot}
-                            selectedVipIds={selectedVipIds}
-                            onSlotClear={() => setSelectedSlot(null)}
-                            onVipToggle={handleVipToggle}
-                        />
-                    )}
-                </div>
-
-                <StatusFooter onEdit={handleEdit} onComplete={handleComplete} />
+                ) : (
+                    <ParticipantList
+                        participants={participants}
+                        selectedSlot={selectedSlot}
+                        selectedVipIds={selectedVipIds}
+                        onSlotClear={() => setSelectedSlot(null)}
+                        onVipToggle={handleVipToggle}
+                    />
+                )}
             </div>
-        </AppScreen>
+
+            <StatusFooter onEdit={handleEdit} onComplete={handleComplete} />
+        </ActivityLayout>
     );
 }

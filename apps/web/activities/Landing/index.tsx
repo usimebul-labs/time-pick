@@ -1,4 +1,4 @@
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { ActivityComponentType } from "@stackflow/react";
 import { LandingFooter } from "./components/LandingFooter";
 import { LandingHeader } from "./components/LandingHeader";
@@ -9,13 +9,13 @@ const Landing: ActivityComponentType = () => {
     const { user } = useLoginedUser();
 
     return (
-        <AppScreen>
+        <ActivityLayout hideAppBar>
             <div className="flex flex-col min-h-screen bg-background text-foreground overflow-y-auto">
                 <LandingHeader user={user} />
                 <LandingHero user={user} />
                 <LandingFooter />
             </div>
-        </AppScreen>
+        </ActivityLayout>
     );
 };
 

@@ -1,4 +1,4 @@
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { useFlow } from "../../../stackflow";
 import { useEffect, useState } from "react";
 
@@ -17,7 +17,7 @@ export default function Error({ }: ErrorProps) {
     }, []);
 
     return (
-        <AppScreen>
+        <ActivityLayout hideAppBar>
             <div className="flex flex-col flex-1 bg-white items-center justify-center p-4">
                 <h1 className="text-2xl font-bold text-red-600">로그인 오류</h1>
                 <p className="mt-2 text-slate-600">인증 과정에서 문제가 발생했습니다.</p>
@@ -34,6 +34,6 @@ export default function Error({ }: ErrorProps) {
                     로그인 페이지로 돌아가기
                 </button>
             </div>
-        </AppScreen>
+        </ActivityLayout>
     );
 }

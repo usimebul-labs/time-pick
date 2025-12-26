@@ -1,6 +1,6 @@
 "use client";
 
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { useEffect, useState } from "react";
 import { ShareCalendarDialog } from "@repo/ui";
 import { useFlow } from "@/stackflow";
@@ -29,13 +29,13 @@ export default function Share({ params: { id } }: ShareProps) {
     };
 
     return (
-        <AppScreen>
+        <ActivityLayout hideAppBar>
             {/* We reuse the dialog UI but present it as a full screen or just open the dialog immediately over a blank/loading bg */}
             <ShareCalendarDialog
                 isOpen={true}
                 onClose={handleClose}
                 link={link}
             />
-        </AppScreen>
+        </ActivityLayout>
     );
 }

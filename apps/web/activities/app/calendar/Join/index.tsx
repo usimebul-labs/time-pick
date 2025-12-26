@@ -1,6 +1,6 @@
 'use client';
 
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { GuestForm } from "./components/GuestForm";
 import { JoinHeader } from "./components/JoinHeader";
 import { useJoin } from "./hooks/useJoin";
@@ -18,7 +18,7 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
     } = useJoin(id);
 
     return (
-        <AppScreen appBar={{ title: "모임 참여" }}>
+        <ActivityLayout title="모임 참여">
             <div className="flex flex-col h-full bg-slate-50 p-6">
                 <div className="flex-1 flex flex-col justify-start max-w-sm mx-auto w-full pt-10">
                     <JoinHeader
@@ -36,6 +36,6 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
                     />
                 </div>
             </div>
-        </AppScreen>
+        </ActivityLayout>
     );
 }

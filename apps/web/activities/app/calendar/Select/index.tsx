@@ -1,6 +1,6 @@
 "use client";
 
-import { AppScreen } from "@stackflow/plugin-basic-ui";
+import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { useEffect } from "react";
 import { parseISO } from "date-fns";
 import { useSelectStore } from "./hooks/useSelectStore";
@@ -12,7 +12,7 @@ import { SelectFooter } from "./components/SelectFooter";
 import { SelectShareDialog } from "./components/SelectShareDialog";
 import { SelectLoading } from "./components/SelectLoading";
 import { SelectError } from "./components/SelectError";
-import { AppBar } from "@/common/components/AppBar";
+
 import { Home } from "lucide-react";
 import { useFlow } from "@/stackflow";
 
@@ -30,37 +30,33 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
 
 
     return (
-        <AppScreen>
-            <div className="flex flex-col h-full bg-white">
-                <AppBar
-                    title="일정 선택하기"
-                    right={
-                        isLoggedIn && (
-                            <button
-                                onClick={() => replace("Dashboard", {})}
-                                className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-                            >
-                                <Home className="w-6 h-6" strokeWidth={1.5} />
-                            </button>
-                        )
-                    }
-                />
+        <ActivityLayout
+            title="일정 선택하기"
+            appBar={{
+                right: isLoggedIn && (
+                    <button
+                        onClick={() => replace("Dashboard", {})}
+                        className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                    >
+                        <Home className="w-6 h-6" strokeWidth={1.5} />
+                    </button>
+                )
+            }}
+            className="bg-white"
+        >
+            <StateInitializer participation={participation} />
 
-                {/* Helper to handle initialization side-effects without cluttering main logic */}
-                <StateInitializer participation={participation} />
+            <div className="flex-1 overflow-y-auto p-4">
+                <CalendarSection calendar={calendar} participants={participants} />
 
-                <div className="flex-1 overflow-y-auto p-4">
-                    <CalendarSection calendar={calendar} participants={participants} />
-
-                    <div className="w-full h-px bg-gray-100 mt-3 mb-6"></div>
-                    <ParticipantList calendar={calendar} participants={participants} participation={participation} />
-                    <CalendarDetails calendar={calendar} />
-                </div>
-
-                <SelectFooter id={id} calendar={calendar} participation={participation} isLoggedIn={isLoggedIn} />
+                <div className="w-full h-px bg-gray-100 mt-3 mb-6"></div>
+                <ParticipantList calendar={calendar} participants={participants} participation={participation} />
+                <CalendarDetails calendar={calendar} />
             </div>
+
+            <SelectFooter id={id} calendar={calendar} participation={participation} isLoggedIn={isLoggedIn} />
             <SelectShareDialog id={id} />
-        </AppScreen >
+        </ActivityLayout >
     );
 }
 
