@@ -1,9 +1,9 @@
 "use client";
 
 import { ActivityLayout } from "@/common/components/ActivityLayout";
-import { useEffect, useState } from "react";
-import { ShareCalendarDialog } from "@repo/ui";
+import { ShareCalendarSheet } from "@/common/components/ShareCalendarSheet";
 import { useFlow } from "@/stackflow";
+import { useEffect, useState } from "react";
 
 type ShareProps = {
     params: {
@@ -22,18 +22,17 @@ export default function Share({ params: { id } }: ShareProps) {
     }, [id]);
 
     const handleClose = () => {
-        // If we just created it, we probably want to go to the created calendar or dashboard?
-        // The dialog usually has "Confirm" or "Close". 
-        // Let's assume closing means "Done" -> Go to Join (which is the calendar view for participants/hosts)
         replace("Select", { id }, { animate: false });
     };
 
     return (
         <ActivityLayout hideAppBar>
             {/* We reuse the dialog UI but present it as a full screen or just open the dialog immediately over a blank/loading bg */}
-            <ShareCalendarDialog
-                isOpen={true}
-                onClose={handleClose}
+            <ShareCalendarSheet
+                title="일정 공유하기"
+                description="친구들에게 일정을 공유해보세요."
+                open={true}
+                onOpenChange={handleClose}
                 link={link}
             />
         </ActivityLayout>

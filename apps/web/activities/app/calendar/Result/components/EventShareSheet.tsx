@@ -6,22 +6,18 @@ import { Check, Copy, Share2 } from "lucide-react";
 import { Button, Input, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@repo/ui";
 
 interface EventShareSheetProps {
-    isOpen: boolean;
-    onClose: () => void;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     link: string;
 }
 
-export function EventShareSheet({ isOpen, onClose, link }: EventShareSheetProps) {
+export function EventShareSheet({ open, onOpenChange, link }: EventShareSheetProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
-        try {
-            await navigator.clipboard.writeText(link);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error("Failed to copy:", err);
-        }
+        await navigator.clipboard.writeText(link);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     const handleShare = async () => {
@@ -42,7 +38,7 @@ export function EventShareSheet({ isOpen, onClose, link }: EventShareSheetProps)
     };
 
     return (
-        <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent portal={false} side="bottom" className="rounded-t-xl">
                 <SheetHeader className="text-left mb-6">
                     <SheetTitle className="text-xl font-bold text-slate-900">일정 공유하기</SheetTitle>

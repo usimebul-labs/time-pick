@@ -1,35 +1,29 @@
 import { create } from 'zustand';
-
-interface Participant {
-    name: string;
-    avatarUrl: string | null;
-    userId: string | null;
-}
+import { DashboardCalendar } from "@/app/actions/calendar/types";
 
 interface DashboardState {
+    // Shared State
+    calendar: DashboardCalendar | null;
+
     // Share Dialog
     isShareOpen: boolean;
-    shareEventId: string | null;
-    openShare: (eventId: string) => void;
+    openShare: (calendar: DashboardCalendar) => void;
     closeShare: () => void;
 
     // Menu Sheet
     isMenuOpen: boolean;
-    menuEventId: string | null;
-    openMenu: (eventId: string) => void;
+    openMenu: (calendar: DashboardCalendar) => void;
     closeMenu: () => void;
 
     // Participant Sheet
     isParticipantOpen: boolean;
-    selectedParticipants: Participant[];
-    selectedParticipantCount: number;
-    openParticipant: (participants: Participant[], count: number) => void;
+    openParticipant: (calendar: DashboardCalendar) => void;
     closeParticipant: () => void;
 
     // List Filter & Sort
-    filter: 'all' | 'host' | 'joined' | 'confirmed';
+    filter: 'all' | 'created' | 'joined' | 'confirmed';
     sort: 'created' | 'deadline';
-    setFilter: (filter: 'all' | 'host' | 'joined' | 'confirmed') => void;
+    setFilter: (filter: 'all' | 'created' | 'joined' | 'confirmed') => void;
     setSort: (sort: 'created' | 'deadline') => void;
 
     // Refresh Trigger
@@ -38,32 +32,23 @@ interface DashboardState {
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
+    // Shared State
+    calendar: null,
+
     // Share Dialog
     isShareOpen: false,
-    shareEventId: null,
-    openShare: (eventId) => set({ isShareOpen: true, shareEventId: eventId }),
-    closeShare: () => set({ isShareOpen: false, shareEventId: null }),
+    openShare: (calendar) => set({ isShareOpen: true, calendar }),
+    closeShare: () => set({ isShareOpen: false, calendar: null }),
 
     // Menu Sheet
     isMenuOpen: false,
-    menuEventId: null,
-    openMenu: (eventId) => set({ isMenuOpen: true, menuEventId: eventId }),
-    closeMenu: () => set({ isMenuOpen: false, menuEventId: null }),
+    openMenu: (calendar) => set({ isMenuOpen: true, calendar }),
+    closeMenu: () => set({ isMenuOpen: false, calendar: null }),
 
     // Participant Sheet
     isParticipantOpen: false,
-    selectedParticipants: [],
-    selectedParticipantCount: 0,
-    openParticipant: (participants, count) => set({
-        isParticipantOpen: true,
-        selectedParticipants: participants,
-        selectedParticipantCount: count
-    }),
-    closeParticipant: () => set({
-        isParticipantOpen: false,
-        selectedParticipants: [],
-        selectedParticipantCount: 0
-    }),
+    openParticipant: (calendar) => set({ isParticipantOpen: true, calendar }),
+    closeParticipant: () => set({ isParticipantOpen: false, calendar: null }),
 
     // List Filter & Sort
     filter: 'all',

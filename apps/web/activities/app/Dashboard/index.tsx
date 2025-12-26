@@ -1,62 +1,24 @@
-import Loading from "@/common/components/Loading";
-import { useEffect } from "react";
-import { ShareCalendarDialog, Button } from "@repo/ui";
 import { ActivityLayout } from "@/common/components/ActivityLayout";
+import { UserMenu } from "@/common/components/ActivityLayout/UserMenu";
+import Loading from "@/common/components/Loading";
 import { Plus } from "lucide-react";
-import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
-import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
+import { useEffect } from "react";
+import { EventShareSheet } from "../calendar/Result/components/EventShareSheet";
 import { CalendarList } from "./components/CalendarList";
 import { DashboardFilter } from "./components/DashboardFilter";
-import { EventShareSheet } from "../calendar/Result/components/EventShareSheet";
+import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
+import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
 import { useDashboard } from "./hooks/useDashboard";
 import { useDashboardStore } from "./hooks/useDashboardStore";
-import { useCalendars } from "./hooks/useCalendars";
-import { UserMenu } from "@/common/components/ActivityLayout/UserMenu";
+import { ShareCalendarSheet } from "@/common/components/ShareCalendarSheet";
+import { Button } from "@repo/ui";
 
-const ListLoading = () => {
-    return (
-        <div className="space-y-4 px-1 pb-20">
-            {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 border-l-4 border-l-slate-100 relative">
-                    {/* Title */}
-                    <div className="h-5 bg-slate-100 rounded-md w-1/2 mb-4 animate-pulse" />
 
-                    {/* Bottom Row */}
-                    <div className="flex justify-between items-center mt-2">
-                        {/* Date/Badge Area */}
-                        <div className="flex items-center gap-2">
-                            <div className="h-3 w-10 bg-slate-100 rounded animate-pulse" />
-                            <div className="h-3 w-[1px] bg-slate-100" />
-                            <div className="h-3 w-20 bg-slate-100 rounded animate-pulse" />
-                        </div>
-
-                        {/* Facepile Area */}
-                        <div className="flex items-center gap-1.5">
-                            <div className="flex -space-x-2">
-                                {[1, 2, 3].map((j) => (
-                                    <div key={j} className="w-6 h-6 rounded-full bg-slate-100 ring-1 ring-white animate-pulse" />
-                                ))}
-                            </div>
-                            <div className="w-6 h-3 bg-slate-100 rounded animate-pulse ml-0.5" />
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
 
 export default function Dashboard() {
-    const { user, handleCreateSchedule, handleModify, handleConfirm, handleDelete, } = useDashboard();
-    const { isShareOpen, closeShare, shareEventId, isMenuOpen, closeMenu, menuEventId,
-        isParticipantOpen, closeParticipant, selectedParticipants, selectedParticipantCount, } = useDashboardStore();
+    const { user, handleCreateSchedule } = useDashboard();
+    const { isShareOpen, closeShare, isMenuOpen, closeMenu, isParticipantOpen, closeParticipant, calendar } = useDashboardStore();
 
-    // Call useCalendars here
-    const { calendars, loading: listLoading, error } = useCalendars(user!);
-
-    // Helper to find shared event
-    const sharedEvent = calendars.find(c => c.id === shareEventId);
-    const isSharedConfirmed = sharedEvent?.isConfirmed ?? false;
 
     useEffect(() => {
         closeShare();
@@ -72,18 +34,11 @@ export default function Dashboard() {
             renderRight: () => <UserMenu user={user} />
         }}>
             <div className="flex flex-col h-full bg-slate-50">
-
                 <div className="flex-1 p-5 overflow-hidden flex flex-col">
                     <DashboardFilter />
 
                     <div className="flex-1 overflow-y-auto">
-                        {listLoading ? (
-                            <ListLoading />
-                        ) : error ? (
-                            <div className="text-red-500 text-center py-10">{error}</div>
-                        ) : (
-                            <CalendarList user={user} calendars={calendars} />
-                        )}
+                        <CalendarList user={user} />
                     </div>
                 </div>
 
@@ -98,38 +53,24 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Share Sheets */}
-            {isShareOpen && (
-                isSharedConfirmed ? (
-                    <EventShareSheet
-                        isOpen={isShareOpen}
-                        onClose={closeShare}
-                        link={shareEventId ? `${window.location.origin}/app/calendar/${shareEventId}/results/` : ''}
-                    />
-                ) : (
-                    <ShareCalendarDialog
-                        isOpen={isShareOpen}
-                        onClose={closeShare}
-                        link={shareEventId ? `${window.location.origin}/app/calendar/${shareEventId}` : ''}
-                        portal={false}
-                    />
-                )
-            )}
+
+            <ShareCalendarSheet
+                title={calendar?.isConfirmed ? "일정 공유하기" : "캘린더 공유하기"}
+                description={calendar?.isConfirmed ? "친구들에게 일정을 공유해보세요." : "친구들에게 캘린더를 공유해보세요."}
+                open={isShareOpen}
+                onOpenChange={(open) => !open && closeShare()}
+                link={calendar?.isConfirmed ? `${window.location.origin}/app/calendar/${calendar?.id}/results/` : `${window.location.origin}/app/calendar/${calendar?.id}`}
+            />
 
             <DashboardMenuSheet
                 open={isMenuOpen}
                 onOpenChange={(open) => !open && closeMenu()}
-                eventId={menuEventId}
-                onModify={handleModify}
-                onConfirm={handleConfirm}
-                onDelete={handleDelete}
+                user={user}
             />
 
             <DashboardParticipantSheet
                 open={isParticipantOpen}
                 onOpenChange={(open) => !open && closeParticipant()}
-                participants={selectedParticipants}
-                count={selectedParticipantCount}
                 user={user}
             />
         </ActivityLayout>

@@ -1,16 +1,21 @@
+import { DashboardCalendar } from "@/app/actions/calendar";
 import { Button, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@repo/ui";
 import { CheckCircle, Settings, Trash2 } from "lucide-react";
+import { useDashboardStore } from "../hooks/useDashboardStore";
+import { useDashboardMenu } from "../hooks/useDashboardMenu";
+import { User } from "@supabase/supabase-js";
 
 interface DashboardMenuSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    eventId: string | null;
-    onModify: (id: string) => void;
-    onConfirm: (id: string) => void;
-    onDelete: (id: string) => void;
+    user: User
 }
 
-export function DashboardMenuSheet({ open, onOpenChange, eventId, onModify, onConfirm, onDelete }: DashboardMenuSheetProps) {
+export function DashboardMenuSheet({ open, onOpenChange, user }: DashboardMenuSheetProps) {
+    const { handleModify, handleConfirm, handleDelete } = useDashboardMenu(user)
+
+
+    const { calendar } = useDashboardStore();
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent portal={false} side="bottom" className="rounded-t-xl p-0 overflow-hidden bg-white">
@@ -23,7 +28,7 @@ export function DashboardMenuSheet({ open, onOpenChange, eventId, onModify, onCo
                 <div className="flex flex-col gap-3 p-6 pt-4">
                     <Button variant="secondary" size="xl"
                         className="w-full justify-start text-base font-medium"
-                        onClick={() => eventId && onModify(eventId)}
+                        onClick={() => calendar && handleModify(calendar.id)}
                     >
                         <Settings className="mr-2 h-5 w-5 text-slate-400" />
                         일정 수정하기
@@ -31,13 +36,13 @@ export function DashboardMenuSheet({ open, onOpenChange, eventId, onModify, onCo
 
                     <Button variant="outline" size="xl"
                         className="w-full justify-start text-base font-medium border-red-100 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-200"
-                        onClick={() => eventId && onDelete(eventId)}
+                        onClick={() => calendar && handleDelete(calendar.id)}
                     >
                         <Trash2 className="mr-2 h-5 w-5" />
                         일정 삭제하기
                     </Button>
                     <Button variant="default" size="xl" className="w-full justify-start text-base font-bold bg-indigo-600 hover:bg-indigo-700"
-                        onClick={() => eventId && onConfirm(eventId)}
+                        onClick={() => calendar && handleConfirm(calendar.id)}
                     >
                         <CheckCircle className="mr-2 h-5 w-5" />
                         일정 확정 하기

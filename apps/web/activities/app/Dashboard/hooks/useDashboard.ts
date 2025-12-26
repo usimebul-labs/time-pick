@@ -1,22 +1,13 @@
-import { DashboardCalendar, deleteCalendar } from "@/app/actions/calendar";
 import { createClient } from "@/common/lib/supabase/client";
+import { useFlow } from "@stackflow/react/future";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { useFlow } from "../../../../stackflow";
-import { useDashboardStore } from "./useDashboardStore";
 
-import { useQueryClient } from "@tanstack/react-query";
-
-// Constants
-export const INITIAL_DISPLAY_COUNT = 3;
 
 export function useDashboard() {
     const [user, setUser] = useState<User | null>(null);
-    const { closeMenu } = useDashboardStore();
-    const queryClient = useQueryClient();
-
-    const supabase = createClient();
     const { push } = useFlow();
+    const supabase = createClient();
 
     useEffect(() => {
         const init = async () => {
@@ -26,44 +17,14 @@ export function useDashboard() {
         init();
     }, []);
 
+
     const handleCreateSchedule = () => {
         push("CreateBasicInfo", {});
     };
 
-    const handleManage = (id: string) => {
-        closeMenu();
-        push("Result", { id });
-    };
-
-    const handleConfirm = (id: string) => {
-        closeMenu();
-        push("Confirm", { id });
-    };
-
-    const handleModify = (id: string) => {
-        closeMenu();
-        push("Modify", { id });
-    };
-
-    const handleDelete = async (id: string) => {
-        if (confirm("정말로 이 일정을 삭제하시겠습니까?")) {
-            const { success, error } = await deleteCalendar(id);
-            if (success) {
-                // setMySchedules(prev => prev.filter(s => s.id !== id));
-                queryClient.invalidateQueries({ queryKey: ['calendars', user?.id] });
-                closeMenu();
-            } else {
-                alert(error || "삭제 중 오류가 발생했습니다.");
-            }
-        }
-    };
 
     return {
         user,
-        handleCreateSchedule,
-        handleManage,
-        handleModify,
-        handleConfirm,
-        handleDelete,
+        handleCreateSchedule
     };
 }

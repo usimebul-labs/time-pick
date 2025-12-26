@@ -24,6 +24,7 @@ export type DashboardCalendar = {
         avatarUrl: string | null;
         userId: string | null;
     }[];
+    type: 'created' | 'joined' | 'confirmed';
 };
 
 export type CalendarDetail = {

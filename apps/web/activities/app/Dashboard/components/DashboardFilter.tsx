@@ -12,7 +12,7 @@ export function DashboardFilter() {
 
     const filters = [
         { id: 'all', label: '전체' },
-        { id: 'host', label: '내가 만든' },
+        { id: 'created', label: '내가 만든' },
         { id: 'joined', label: '참여 중' },
         { id: 'confirmed', label: '확정됨' },
     ] as const;
