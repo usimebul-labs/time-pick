@@ -4,13 +4,7 @@ import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
 
 export function SelectLoading() {
     return (
-        <ActivityLayout
-            title="일정 선택하기"
-            appBar={{
-                right: <HomeButton className="text-slate-400" disabled />
-            }}
-            className="bg-white"
-        >
+        <ActivityLayout appBar={{ title: "일정 선택하기" }} className="bg-white">
             <div className="flex-1 overflow-hidden flex flex-col p-4 animate-pulse">
                 {/* Calendar Skeleton */}
                 <div className="h-64 bg-gray-100 rounded-xl mb-6"></div>

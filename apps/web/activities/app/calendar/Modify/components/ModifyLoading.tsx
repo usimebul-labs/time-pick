@@ -5,13 +5,7 @@ import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
 
 export function ModifyLoading() {
     return (
-        <ActivityLayout
-            title="일정 수정하기"
-            appBar={{
-                right: <HomeButton className="text-slate-400" disabled />
-            }}
-            className="bg-slate-50"
-        >
+        <ActivityLayout appBar={{ title: "일정 수정하기" }} className="bg-slate-50">
             <div className="flex-1 overflow-hidden flex flex-col p-4 space-y-8 animate-pulse">
                 {/* Basic Info Skeleton */}
                 <div className="space-y-4">

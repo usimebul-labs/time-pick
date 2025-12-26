@@ -111,16 +111,7 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
     };
 
     return (
-        <ActivityLayout
-            appBar={{
-                title: "일정 공유",
-                backButton: {
-                    onClick: pop
-                },
-                renderRight: user ? () => <HomeButton /> : undefined
-            }}
-            className="bg-white text-slate-900"
-        >
+        <ActivityLayout appBar={{ title: "일정 공유" }} className="bg-white text-slate-900">
             <div className="flex-1 overflow-y-auto pb-32">
 
                 {/* 1. Header: Title & Description */}
@@ -249,8 +240,8 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
 
                 {/* Share Sheet */}
                 <EventShareSheet
-                    isOpen={isShareOpen}
-                    onClose={() => setIsShareOpen(false)}
+                    open={isShareOpen}
+                    onOpenChange={() => setIsShareOpen(false)}
                     link={typeof window !== 'undefined' ? window.location.href : ''}
                 />
             </div>

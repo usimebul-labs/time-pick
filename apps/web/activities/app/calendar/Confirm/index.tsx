@@ -48,14 +48,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
     }
 
     return (
-        <ActivityLayout
-            title="일정 확정하기"
-            appBar={{
-                onBack: pop,
-                right: <HomeButton />
-            }}
-            className="bg-slate-50 text-slate-900"
-        >
+        <ActivityLayout appBar={{ title: "일정 확정하기" }} className="bg-slate-50 text-slate-900">
             <div className="flex-1 overflow-y-auto pb-24">
                 <div className="px-5 py-6 space-y-8">
                     <div className="space-y-2">
