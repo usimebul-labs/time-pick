@@ -9,12 +9,14 @@ import { formatISO } from "date-fns";
 
 import { useWeeklyRecommendation } from "./hooks/useWeeklyRecommendation";
 import { RankedSlot } from "./types";
+import { useLoading } from "@/common/components/LoadingOverlay/useLoading";
 
 // Removed local RankedSlot definition to avoiding conflict with imported type
 
 
 export function useConfirm(id: string) {
     const { data, isLoading } = useCalendarQuery(id);
+    const { show, hide } = useLoading();
     const calendar = data?.calendar;
     const participants = data?.participants || [];
 
@@ -197,15 +199,20 @@ export function useConfirm(id: string) {
             }
         }
 
-        const result = await confirmCalendar(id, {
-            startTime: finalStart,
-            endTime: finalEnd
-        }, selectedSlot.participants, additionalInfo);
+        show();
+        try {
+            const result = await confirmCalendar(id, {
+                startTime: finalStart,
+                endTime: finalEnd
+            }, selectedSlot.participants, additionalInfo);
 
-        if (result.success) {
-            replace("Result", { id });
-        } else {
-            alert(result.error || "Failed to confirm event");
+            if (result.success) {
+                replace("Result", { id });
+            } else {
+                alert(result.error || "Failed to confirm event");
+            }
+        } finally {
+            hide();
         }
     };
 

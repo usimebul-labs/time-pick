@@ -2,6 +2,7 @@ import { useActionState, useEffect, useState } from "react";
 import { useFlow } from "../../../../../stackflow";
 import { createCalendar, CreateCalendarState } from "@/app/actions/calendar";
 import { CreateCalendarData } from "./types";
+import { useLoading } from "@/common/components/LoadingOverlay/useLoading";
 
 const initialState: CreateCalendarState = { message: "", error: "" };
 
@@ -20,8 +21,15 @@ const getLastDayOfMonthStr = () => {
 
 export const useCreate = () => {
     const { pop, replace } = useFlow();
-    const [state, formAction] = useActionState(createCalendar, initialState);
+    const [state, formAction, isPending] = useActionState(createCalendar, initialState);
     const [showShareDialog, setShowShareDialog] = useState(false);
+
+    // Sync global loading
+    const { show, hide } = useLoading();
+    useEffect(() => {
+        if (isPending) show();
+        else hide();
+    }, [isPending, show, hide]);
 
     // Initial Data
     const [data, setData] = useState<CreateCalendarData>({

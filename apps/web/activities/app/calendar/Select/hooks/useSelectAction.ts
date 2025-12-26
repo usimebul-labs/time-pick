@@ -4,6 +4,7 @@ import { useGuestStore } from "@/common/stores/useGuestStore";
 import { useFlow } from "@/stackflow";
 import { CalendarDetail, ParticipantDetail } from "@/app/actions/calendar";
 import { useQueryClient } from "@tanstack/react-query";
+import { useLoading } from "@/common/components/LoadingOverlay/useLoading";
 
 export function useSelectAction(
     id: string,
@@ -14,9 +15,11 @@ export function useSelectAction(
 ) {
     const { replace } = useFlow();
     const queryClient = useQueryClient();
+    const { show, hide } = useLoading();
 
     const handleComplete = async () => {
         if (!calendar) return;
+        show();
         try {
             const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
             let guestPin = guestSessions[id];
@@ -62,6 +65,8 @@ export function useSelectAction(
         } catch (e) {
             console.error(e);
             alert("오류가 발생했습니다.");
+        } finally {
+            hide();
         }
     };
 

@@ -2,9 +2,11 @@ import { startTransition, useEffect, useState } from "react";
 import { useFlow } from "@/stackflow";
 import { getCalendarWithParticipation, updateCalendar, deleteParticipant, CalendarDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { ModifyFormState, ConflictedParticipant } from "./types";
+import { useLoading } from "@/common/components/LoadingOverlay/useLoading";
 
 export function useModify(id: string) {
     const { pop, replace } = useFlow();
+    const { show, hide } = useLoading();
 
     // Data State
     const [loading, setLoading] = useState(true);
@@ -100,6 +102,7 @@ export function useModify(id: string) {
         setIsPending(true);
         startTransition(async () => {
             console.log("Submitting form data...");
+            show();
             const result = await updateCalendar(id, formData, false); // First try without confirm
             console.log("Update result:", result);
 
@@ -108,12 +111,15 @@ export function useModify(id: string) {
                 setPendingFormData(formData);
                 setShowConflictDialog(true);
                 setIsPending(false);
+                hide(); // Hide if showing dialog
             } else if (result.success) {
                 setIsPending(false);
+                hide();
                 replace("Dashboard", {});
             } else {
                 alert(result.error || "수정 중 오류가 발생했습니다.");
                 setIsPending(false);
+                hide();
             }
         });
     };
@@ -124,14 +130,17 @@ export function useModify(id: string) {
         setIsPending(true);
 
         startTransition(async () => {
+            show();
             const result = await updateCalendar(id, pendingFormData, true); // Confirm delete
             console.log("Confirm result:", result);
             if (result.success) {
                 setIsPending(false);
+                hide();
                 replace("Dashboard", {});
             } else {
                 alert(result.error || "수정 중 오류가 발생했습니다.");
                 setIsPending(false);
+                hide();
             }
         });
     };
