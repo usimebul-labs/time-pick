@@ -11,26 +11,9 @@ interface CreateLayoutProps {
     title: string;
     step: number;
     totalSteps?: number;
-    onBack?: () => void;
 }
 
-export default function CreateLayout({
-    children,
-    title,
-    step,
-    totalSteps = 5,
-    onBack,
-}: CreateLayoutProps) {
-    const { pop, replace } = useFlow();
-
-    const handleBack = () => {
-        if (onBack) {
-            onBack();
-        } else {
-            pop();
-        }
-    };
-
+export default function CreateLayout({ children, step, totalSteps = 5 }: CreateLayoutProps) {
     return (
         <ActivityLayout appBar={{ title: "일정 생성 하기" }} className="bg-slate-50">
             {/* Progress Bar */}

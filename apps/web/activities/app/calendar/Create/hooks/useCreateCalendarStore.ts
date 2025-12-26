@@ -7,7 +7,6 @@ interface CreateCalendarStore {
     resetData: () => void;
 }
 
-// Helper: Get Today and End of Month
 const formatDate = (d: Date) => {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -23,7 +22,7 @@ const getLastDayOfMonthStr = () => {
 const initialData: CreateCalendarData = {
     title: "",
     description: "",
-    scheduleType: "date", // Default Monthly
+    scheduleType: "date",
     startDate: getTodayStr(),
     endDate: getLastDayOfMonthStr(),
     startHour: 9,
@@ -31,7 +30,7 @@ const initialData: CreateCalendarData = {
     enabledDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     excludeHolidays: false,
     excludedDates: [],
-    deadline: `${getLastDayOfMonthStr()}T23:59`, // Default deadline
+    deadline: `${getLastDayOfMonthStr()}T23:59`,
 };
 
 export const useCreateCalendarStore = create<CreateCalendarStore>((set) => ({

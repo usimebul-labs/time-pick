@@ -7,7 +7,10 @@ import { HomeButton } from "./HomeButton";
 
 interface ActivityLayoutProps {
     children: React.ReactNode;
-    appBar?: AppBarProps;
+    appBar?: {
+        title?: React.ReactNode;
+        right?: React.ReactNode;
+    };
     className?: string;
     backgroundColor?: string;
     hideAppBar?: boolean
@@ -18,6 +21,7 @@ import { useLoginedUser } from "@/common/hooks/useLoginedUser";
 import { useStack } from "@stackflow/react";
 import { useFlow } from "@stackflow/react/future";
 import { ChevronLeft } from "lucide-react";
+import { AppBar } from "./AppBar";
 
 const BackButton = () => {
     const { pop } = useFlow();
@@ -32,25 +36,18 @@ const BackButton = () => {
 }
 
 export function ActivityLayout({ children, appBar, className, backgroundColor, hideAppBar }: ActivityLayoutProps) {
-    const { user } = useLoginedUser();
-    const stack = useStack();
-    const canGoBack = stack.activities.length > 1;
-
-    appBar = appBar || {};
-
-    if (!appBar.backButton && !canGoBack)
-        appBar.backButton = {
-            render: () => <BackButton />
-        };
-
-
-    if (!appBar.renderRight && user) appBar.renderRight = () => <HomeButton />
-
-
     return (
-        <AppScreen backgroundColor={backgroundColor} appBar={!hideAppBar ? appBar : undefined}>
-            <div className={cn("flex-1 overflow-hidden flex flex-col relative h-full", className)}>
-                {children}
+        <AppScreen backgroundColor={backgroundColor}>
+            <div className="flex flex-col h-full">
+                {!hideAppBar && (
+                    <AppBar
+                        title={appBar?.title}
+                        right={appBar?.right ? appBar.right : <HomeButton />}
+                    />
+                )}
+                <div className={cn("flex-1 overflow-hidden flex flex-col relative", className)}>
+                    {children}
+                </div>
             </div>
         </AppScreen>
     );

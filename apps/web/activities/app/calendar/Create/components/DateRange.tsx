@@ -125,7 +125,6 @@ export default function CreateDateRange() {
                 )}
             </section>
 
-            {/* Float Bottom Button */}
             <div className="p-5 pb-8 pt-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
                 <Button size="xl" className="w-full font-bold shadow-lg rounded-xl" onClick={handleNext}>
                     다음

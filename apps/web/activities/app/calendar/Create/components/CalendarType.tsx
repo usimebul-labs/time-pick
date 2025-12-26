@@ -5,6 +5,92 @@ import { CalendarDays, Clock, ArrowRight } from "lucide-react";
 import { useCalendarType } from "../hooks/useCalendarType";
 import CreateLayout from "./CreateLayout";
 
+const MonthlyCalendarRadioItem = () => {
+    const { data } = useCalendarType();
+    return <Label
+        htmlFor="type-monthly"
+        className={`relative cursor-pointer border-2 rounded-xl p-6 transition-all hover:bg-slate-50 flex flex-col items-center text-center h-full
+                    ${data.scheduleType === "date"
+                ? "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600"
+                : "border-slate-200"
+            }`}>
+        <RadioGroupItem value="date" id="type-monthly" className="sr-only" />
+        <div className="flex flex-col items-center mb-6">
+            <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                    <CalendarDays className="w-5 h-5" />
+                </div>
+                <span className="text-sm font-bold text-slate-900">
+                    월간 캘린더
+                </span>
+            </div>
+
+            <span className="text-xs text-slate-500">
+                날짜만 정하기
+            </span>
+        </div>
+
+        <div className="w-full bg-white border rounded-lg p-2 grid grid-cols-7 gap-1 pointer-events-none opacity-80 mt-auto border-slate-100">
+            {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
+                <div key={d} className="text-[10px] text-slate-400 mb-1">
+                    {d}
+                </div>
+            ))}
+            {Array.from({ length: 28 }).map((_, i) => (
+                <div
+                    key={i}
+                    className={`h-3 rounded-[2px] ${[4, 5, 8, 10, 15, 20, 22].includes(i) ? "bg-blue-200" : "bg-gray-100"
+                        }`}
+                />
+            ))}
+        </div>
+    </Label>
+}
+
+const WeeklyCalendarRadioItem = () => {
+    const { data } = useCalendarType();
+    return <Label
+        htmlFor="type-weekly"
+        className={`relative cursor-pointer border-2 rounded-xl p-6 transition-all hover:bg-slate-50 flex flex-col items-center text-center h-full
+                    ${data.scheduleType === "datetime"
+                ? "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600"
+                : "border-slate-200"
+            }`}
+    >
+        <RadioGroupItem value="datetime" id="type-weekly" className="sr-only" />
+
+        <div className="flex flex-col items-center mb-6">
+            <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                    <Clock className="w-5 h-5" />
+                </div>
+                <span className="text-sm font-bold text-slate-900">
+                    주간 캘린더
+                </span>
+            </div>
+
+            <span className="text-xs text-slate-500">
+                날짜와 시간 정하기
+            </span>
+        </div>
+
+        <div className="w-full bg-white border rounded p-2 flex justify-between gap-1 pointer-events-none opacity-80 h-full max-h-[105px] mt-auto">
+            {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex-1 flex flex-col gap-1">
+                    <div className="h-2 bg-gray-100 rounded-[2px] mb-1" />
+                    <div
+                        className={`flex-1 rounded-[2px] ${i % 2 === 0
+                            ? "bg-purple-100 mt-2 mb-3"
+                            : "bg-gray-50"
+                            }`}
+                    />
+                </div>
+            ))}
+        </div>
+    </Label>
+}
+
+
 export default function CreateCalendarType() {
     const { data, updateData, handleNext } = useCalendarType();
 
@@ -15,111 +101,12 @@ export default function CreateCalendarType() {
 
                 <RadioGroup
                     value={data.scheduleType}
-                    onValueChange={(val) =>
-                        updateData({ scheduleType: val as "date" | "datetime" })
-                    }
+                    onValueChange={(val) => updateData({ scheduleType: val as "date" | "datetime" })}
                     className="grid grid-cols-2 gap-3"
                 >
-                    {/* Monthly (Date Only) */}
-                    <Label
-                        htmlFor="type-monthly"
-                        className={`
-                        relative cursor-pointer border-2 rounded-xl p-6 transition-all hover:bg-slate-50 flex flex-col items-center text-center h-full
-                        ${data.scheduleType === "date"
-                                ? "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600"
-                                : "border-slate-200"
-                            }
-                    `}
-                    >
-                        <RadioGroupItem
-                            value="date"
-                            id="type-monthly"
-                            className="sr-only"
-                        />
+                    <MonthlyCalendarRadioItem />
+                    <WeeklyCalendarRadioItem />
 
-                        <div className="flex flex-col items-center mb-6">
-                            {/* 1열: [아이콘] 월간 캘린더 (크게, 볼드) */}
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                                    <CalendarDays className="w-5 h-5" />
-                                </div>
-                                <span className="text-sm font-bold text-slate-900">
-                                    월간 캘린더
-                                </span>
-                            </div>
-
-                            {/* 2열: 날짜만 정하기 (작게, 세미볼드) */}
-                            <span className="text-xs text-slate-500">
-                                날짜만 정하기
-                            </span>
-                        </div>
-
-                        {/* 3열: 캘린더 예시 - Monthly (4 rows) */}
-                        <div className="w-full bg-white border rounded-lg p-2 grid grid-cols-7 gap-1 pointer-events-none opacity-80 mt-auto border-slate-100">
-                            {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
-                                <div key={d} className="text-[10px] text-slate-400 mb-1">
-                                    {d}
-                                </div>
-                            ))}
-                            {Array.from({ length: 28 }).map((_, i) => (
-                                <div
-                                    key={i}
-                                    className={`h-3 rounded-[2px] ${[4, 5, 8, 10, 15, 20, 22].includes(i) ? "bg-blue-200" : "bg-gray-100"
-                                        }`}
-                                />
-                            ))}
-                        </div>
-                    </Label>
-
-                    {/* Weekly (Date + Time) */}
-                    <Label
-                        htmlFor="type-weekly"
-                        className={`
-                        relative cursor-pointer border-2 rounded-xl p-6 transition-all hover:bg-slate-50 flex flex-col items-center text-center h-full
-                        ${data.scheduleType === "datetime"
-                                ? "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600"
-                                : "border-slate-200"
-                            }
-                    `}
-                    >
-                        <RadioGroupItem
-                            value="datetime"
-                            id="type-weekly"
-                            className="sr-only"
-                        />
-
-                        <div className="flex flex-col items-center mb-6">
-                            {/* 1열: [아이콘] 주간 캘린더 (크게, 볼드) */}
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
-                                    <Clock className="w-5 h-5" />
-                                </div>
-                                <span className="text-sm font-bold text-slate-900">
-                                    주간 캘린더
-                                </span>
-                            </div>
-
-                            {/* 2열: 날짜와 시간 정하기 (작게, 세미볼드) */}
-                            <span className="text-xs text-slate-500">
-                                날짜와 시간 정하기
-                            </span>
-                        </div>
-
-                        {/* 3열: 캘린더 예시 - Weekly */}
-                        <div className="w-full bg-white border rounded p-2 flex justify-between gap-1 pointer-events-none opacity-80 h-full max-h-[105px] mt-auto">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                                <div key={i} className="flex-1 flex flex-col gap-1">
-                                    <div className="h-2 bg-gray-100 rounded-[2px] mb-1" />
-                                    <div
-                                        className={`flex-1 rounded-[2px] ${i % 2 === 0
-                                            ? "bg-purple-100 mt-2 mb-3"
-                                            : "bg-gray-50"
-                                            }`}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </Label>
                 </RadioGroup>
             </section>
 
