@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
+import LoadingOverlay from "@/common/LoadingOverlay";
 
 const Stack = dynamic(() => import("../stackflow").then((mod) => mod.Stack), {
   ssr: false,
@@ -12,7 +13,11 @@ export default function Page() {
   const isLanding = pathname === "/";
 
   if (isLanding) {
-    return <Stack />;
+    return (
+      <>
+        <Stack />
+      </>
+    );
   }
 
   return (
