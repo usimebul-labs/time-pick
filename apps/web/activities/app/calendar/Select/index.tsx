@@ -57,12 +57,7 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
                     <CalendarDetails calendar={calendar} />
                 </div>
 
-                <SelectFooter
-                    id={id}
-                    calendar={calendar}
-                    participation={participation}
-                    isLoggedIn={isLoggedIn}
-                />
+                <SelectFooter id={id} calendar={calendar} participation={participation} isLoggedIn={isLoggedIn} />
             </div>
             <SelectShareDialog id={id} />
         </AppScreen >
