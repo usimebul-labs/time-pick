@@ -4,6 +4,7 @@ import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { useFlow } from "@/stackflow";
 import { Home } from "lucide-react";
 import { useModify } from "./useModify";
+import { ModifyLoading } from "./components/ModifyLoading";
 import { BasicInfoSection } from "./components/BasicInfoSection";
 import { DateRangeSection } from "./components/DateRangeSection";
 import { ExcludedDaysSection } from "./components/ExcludedDaysSection";
@@ -34,15 +35,8 @@ export default function Modify({ params: { id } }: { params: { id: string } }) {
         pop
     } = useModify(id);
 
-    if (loading) {
-        return (
-            <ActivityLayout>
-                <div className="flex items-center justify-center min-h-screen bg-slate-50">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                </div>
-            </ActivityLayout>
-        );
-    }
+    if (loading) return <ModifyLoading />;
+
 
     return (
         <ActivityLayout
