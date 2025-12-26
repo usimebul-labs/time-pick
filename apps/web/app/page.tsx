@@ -9,25 +9,9 @@ const Stack = dynamic(() => import("../stackflow").then((mod) => mod.Stack), {
 });
 
 export default function Page() {
-  const pathname = usePathname();
-  const isLanding = pathname === "/";
-
-  if (isLanding) {
-    return (
-      <>
-        <Stack />
-      </>
-    );
-  }
-
   return (
-    <div className="lg:flex lg:justify-center lg:items-center min-h-screen lg:bg-slate-200 lg:py-8">
-      <div
-        className="w-full min-h-screen lg:min-h-0 lg:max-w-[430px] bg-white lg:rounded-[2.5rem] lg:shadow-2xl lg:overflow-hidden lg:ring-8 lg:ring-neutral-900 lg:border-4 lg:border-neutral-900 relative forced-height-frame"
-        style={{ height: '1100px', maxHeight: '90vh' }}
-      >
-        <Stack />
-      </div>
-    </div>
+    <>
+      <Stack />
+    </>
   );
 }
