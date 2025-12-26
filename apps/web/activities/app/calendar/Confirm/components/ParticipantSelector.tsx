@@ -1,5 +1,5 @@
 
-import { SharedParticipantList } from "@/common/components/SharedParticipantList";
+import { ParticipantGrid } from "@/common/components/ParticipantGrid";
 import { ParticipantSummary } from "@/app/actions/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui";
 import { cn } from "@repo/ui";
@@ -39,12 +39,11 @@ export function ParticipantSelector({
             </div>
 
             <div className="flex flex-wrap gap-2">
-                <SharedParticipantList
+                <ParticipantGrid
                     participants={participants}
-                    mode="grid"
                     interaction="selectable"
                     selectedIds={selectedIds}
-                    highlightedIds={highlightedIds} // Pass this
+                    highlightedIds={highlightedIds}
                     onToggle={onToggle}
                 />
             </div>

@@ -1,4 +1,4 @@
-import { SharedParticipantList } from "@/common/components/SharedParticipantList";
+import { ParticipantGrid } from "@/common/components/ParticipantGrid";
 import { ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { User } from "lucide-react";
 import { useParticipantList } from "../hooks/useParticipantList";
@@ -32,9 +32,8 @@ export function ParticipantList({
             </div>
 
             <div className="mb-3">
-                <SharedParticipantList
+                <ParticipantGrid
                     participants={participants}
-                    mode="grid"
                     interaction="selectable"
                     selectedIds={selectedParticipantIds}
                     onToggle={onToggleParticipant}

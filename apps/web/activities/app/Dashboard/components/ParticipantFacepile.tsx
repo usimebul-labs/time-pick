@@ -1,4 +1,4 @@
-import { SharedParticipantList } from "@/common/components/SharedParticipantList";
+import { ParticipantFacepile as SharedParticipantFacepile } from "@/common/components/ParticipantFacepile";
 import { User } from "@supabase/supabase-js";
 import { MouseEventHandler } from "react";
 
@@ -15,9 +15,8 @@ interface ParticipantFacepileProps {
 
 export function ParticipantFacepile({ participants, totalCount, user, clickHandler }: ParticipantFacepileProps) {
     return (
-        <SharedParticipantList
+        <SharedParticipantFacepile
             participants={participants.map(p => ({ ...p, id: p.userId || p.name }))}
-            mode="facepile"
             maxFacepile={4}
             overflowIndicator="icon"
             currentUser={user}

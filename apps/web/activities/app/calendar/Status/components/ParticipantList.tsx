@@ -1,4 +1,4 @@
-import { SharedParticipantList } from "@/common/components/SharedParticipantList";
+import { ParticipantGrid } from "@/common/components/ParticipantGrid";
 import { Users } from "lucide-react";
 import { ParticipantSummary } from "@/app/actions/calendar";
 import { SelectedSlot } from "../useStatus";
@@ -42,9 +42,8 @@ export function ParticipantList({
                 )}
             </div>
 
-            <SharedParticipantList
+            <ParticipantGrid
                 participants={selectedSlot ? selectedSlot.availableParticipants : participants}
-                mode="grid"
                 interaction="selectable"
                 selectedIds={selectedVipIds}
                 onToggle={onVipToggle}

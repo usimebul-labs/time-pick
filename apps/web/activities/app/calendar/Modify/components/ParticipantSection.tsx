@@ -1,4 +1,4 @@
-import { SharedParticipantList } from "@/common/components/SharedParticipantList";
+import { ParticipantList } from "@/common/components/ParticipantList";
 import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardContent, Label } from "@repo/ui";
 import { Trash2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
@@ -16,9 +16,8 @@ export function ParticipantSection({ participants, onDelete }: ParticipantSectio
             <Label className="text-base font-bold text-slate-900 mb-2 block">참여자 관리</Label>
             <Card className="border-none shadow-sm">
                 <CardContent className="p-0">
-                    <SharedParticipantList
+                    <ParticipantList
                         participants={participants}
-                        mode="list"
                         interaction="removable"
                         onDelete={onDelete}
                     />

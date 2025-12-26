@@ -10,7 +10,8 @@ import { useFlow } from "@/stackflow";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { SharedParticipantList, SharedParticipant } from "@/common/components/SharedParticipantList";
+import { ParticipantGrid } from "@/common/components/ParticipantGrid";
+import { SharedParticipant } from "@/common/types/participant";
 import { EventShareSheet } from "./components/EventShareSheet";
 import { AppIcon } from "./components/AppIcon";
 import { useLoginedUser } from "@/common/hooks/useLoginedUser";
@@ -111,10 +112,12 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
 
     return (
         <ActivityLayout
-            title="일정 공유"
             appBar={{
-                onBack: pop,
-                right: user ? <HomeButton /> : undefined
+                title: "일정 공유",
+                backButton: {
+                    onClick: pop
+                },
+                renderRight: user ? () => <HomeButton /> : undefined
             }}
             className="bg-white text-slate-900"
         >
@@ -140,9 +143,8 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
                             </span>
                         </div>
 
-                        <SharedParticipantList
+                        <ParticipantGrid
                             participants={sharedParticipants}
-                            mode="grid"
                             interaction="readonly"
                             className="gap-2"
                             itemClassName="bg-white border border-slate-200 shadow-sm"

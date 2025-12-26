@@ -1,4 +1,4 @@
-import { SharedParticipantList } from "@/common/components/SharedParticipantList";
+import { ParticipantList } from "@/common/components/ParticipantList";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 
@@ -24,9 +24,8 @@ export function DashboardParticipantSheet({
                     <SheetTitle className="text-lg font-bold text-slate-900">참여자 목록 <span className="text-indigo-600 ml-1">{count}명</span></SheetTitle>
                 </SheetHeader>
                 <div className="flex-1 p-4 pb-20 overflow-y-auto content-start">
-                    <SharedParticipantList
+                    <ParticipantList
                         participants={participants.map(p => ({ ...p, id: p.userId || p.name }))}
-                        mode="list"
                         interaction="readonly"
                         currentUser={user}
                         className="gap-1"
