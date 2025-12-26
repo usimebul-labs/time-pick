@@ -115,7 +115,6 @@ export async function joinSchedule(
 
 export async function createGuestParticipant(calendarId: string, name: string): Promise<{ success: boolean; pin?: string; error?: string }> {
     try {
-        // Generate 6-digit PIN
         const pin = Math.floor(100000 + Math.random() * 900000).toString();
 
         await prisma.participant.create({
