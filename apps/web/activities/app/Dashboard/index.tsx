@@ -17,7 +17,8 @@ import { Button } from "@repo/ui";
 
 export default function Dashboard() {
     const { user, handleCreateSchedule } = useDashboard();
-    const { isShareOpen, closeShare, isMenuOpen, closeMenu, isParticipantOpen, closeParticipant, calendar } = useDashboardStore();
+    const { isShareOpen, closeShare, isMenuOpen, closeMenu,
+        isParticipantOpen, closeParticipant, selectedCalendar } = useDashboardStore();
 
 
     useEffect(() => {
@@ -29,10 +30,7 @@ export default function Dashboard() {
     if (!user) return <Loading />
 
     return (
-        <ActivityLayout appBar={{
-            title: "Time Pick",
-            renderRight: () => <UserMenu user={user} />
-        }}>
+        <ActivityLayout appBar={{ title: "Time Pick", renderRight: () => <UserMenu user={user} /> }}>
             <div className="flex flex-col h-full bg-slate-50">
                 <div className="flex-1 p-5 overflow-hidden flex flex-col">
                     <DashboardFilter />
@@ -55,11 +53,11 @@ export default function Dashboard() {
 
 
             <ShareCalendarSheet
-                title={calendar?.isConfirmed ? "일정 공유하기" : "캘린더 공유하기"}
-                description={calendar?.isConfirmed ? "친구들에게 일정을 공유해보세요." : "친구들에게 캘린더를 공유해보세요."}
+                title={selectedCalendar?.isConfirmed ? "일정 공유하기" : "캘린더 공유하기"}
+                description={selectedCalendar?.isConfirmed ? "친구들에게 일정을 공유해보세요." : "친구들에게 캘린더를 공유해보세요."}
                 open={isShareOpen}
                 onOpenChange={(open) => !open && closeShare()}
-                link={calendar?.isConfirmed ? `${window.location.origin}/app/calendar/${calendar?.id}/results/` : `${window.location.origin}/app/calendar/${calendar?.id}`}
+                link={selectedCalendar?.isConfirmed ? `${window.location.origin}/app/calendar/${selectedCalendar?.id}/results/` : `${window.location.origin}/app/calendar/${selectedCalendar?.id}`}
             />
 
             <DashboardMenuSheet

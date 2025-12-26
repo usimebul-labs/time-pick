@@ -19,14 +19,10 @@ export function DashboardFilter() {
 
     return (
         <div className="flex flex-col gap-3 mb-4 px-1">
-            {/* 상단: 필터와 정렬을 한 줄에 배치 (모바일 친화적) */}
             <div className="flex items-center justify-between">
-                {/* 칩 형태의 필터 리스트 */}
                 <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
                     {filters.map((f) => (
-                        <button
-                            key={f.id}
-                            onClick={() => setFilter(f.id)}
+                        <button key={f.id} onClick={() => setFilter(f.id)}
                             className={`
                                 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors border
                                 ${filter === f.id
@@ -40,7 +36,6 @@ export function DashboardFilter() {
                     ))}
                 </div>
 
-                {/* 정렬 드롭다운 (DropdownMenu 사용) */}
                 <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                         <button className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors focus:outline-none">

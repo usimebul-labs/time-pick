@@ -10,7 +10,7 @@ interface DashboardParticipantSheetProps {
 }
 
 export function DashboardParticipantSheet({ open, onOpenChange, user }: DashboardParticipantSheetProps) {
-    const { calendar } = useDashboardStore();
+    const { selectedCalendar: calendar } = useDashboardStore();
 
     if (!calendar) return null;
 

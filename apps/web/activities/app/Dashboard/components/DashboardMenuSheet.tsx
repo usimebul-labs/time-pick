@@ -15,7 +15,7 @@ export function DashboardMenuSheet({ open, onOpenChange, user }: DashboardMenuSh
     const { handleModify, handleConfirm, handleDelete } = useDashboardMenu(user)
 
 
-    const { calendar } = useDashboardStore();
+    const { selectedCalendar: calendar } = useDashboardStore();
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent portal={false} side="bottom" className="rounded-t-xl p-0 overflow-hidden bg-white">

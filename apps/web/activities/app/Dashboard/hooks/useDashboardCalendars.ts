@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useDashboardStore } from "./useDashboardStore";
 import { useQuery } from "@tanstack/react-query";
 
-export function useCalendars(user: User) {
+export function useDashboardCalendars(user: User) {
     const { filter, sort } = useDashboardStore();
 
     const { data: allCalendars = [], isLoading: loading, error } = useQuery({

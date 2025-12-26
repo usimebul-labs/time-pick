@@ -76,7 +76,6 @@ export function CalendarItem({ calendar, user }: CalendarItemProps) {
             };
         }
 
-
         return {
             border: "border-l-4 border-l-slate-300",
             badgeText: "참여 중",

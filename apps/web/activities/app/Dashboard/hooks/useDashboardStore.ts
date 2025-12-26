@@ -3,7 +3,7 @@ import { DashboardCalendar } from "@/app/actions/calendar/types";
 
 interface DashboardState {
     // Shared State
-    calendar: DashboardCalendar | null;
+    selectedCalendar: DashboardCalendar | null;
 
     // Share Dialog
     isShareOpen: boolean;
@@ -33,22 +33,22 @@ interface DashboardState {
 
 export const useDashboardStore = create<DashboardState>((set) => ({
     // Shared State
-    calendar: null,
+    selectedCalendar: null,
 
     // Share Dialog
     isShareOpen: false,
-    openShare: (calendar) => set({ isShareOpen: true, calendar }),
-    closeShare: () => set({ isShareOpen: false, calendar: null }),
+    openShare: (calendar) => set({ isShareOpen: true, selectedCalendar: calendar }),
+    closeShare: () => set({ isShareOpen: false, selectedCalendar: null }),
 
     // Menu Sheet
     isMenuOpen: false,
-    openMenu: (calendar) => set({ isMenuOpen: true, calendar }),
-    closeMenu: () => set({ isMenuOpen: false, calendar: null }),
+    openMenu: (calendar) => set({ isMenuOpen: true, selectedCalendar: calendar }),
+    closeMenu: () => set({ isMenuOpen: false, selectedCalendar: null }),
 
     // Participant Sheet
     isParticipantOpen: false,
-    openParticipant: (calendar) => set({ isParticipantOpen: true, calendar }),
-    closeParticipant: () => set({ isParticipantOpen: false, calendar: null }),
+    openParticipant: (calendar) => set({ isParticipantOpen: true, selectedCalendar: calendar }),
+    closeParticipant: () => set({ isParticipantOpen: false, selectedCalendar: null }),
 
     // List Filter & Sort
     filter: 'all',
