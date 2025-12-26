@@ -10,6 +10,14 @@ export type CreateCalendarState = {
     calendarId?: string;
 };
 
+export type GetCalendarWithParticipationState = {
+    calendar: CalendarDetail | null;
+    participation: ParticipantDetail | null;
+    participants: ParticipantSummary[];
+    isLoggedIn: boolean;
+    error?: string;
+}
+
 export type DashboardCalendar = {
     id: string;
     title: string;

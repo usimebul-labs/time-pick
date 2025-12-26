@@ -5,7 +5,7 @@ import { prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
 import {
     CreateCalendarState,
-    CalendarDetail,
+    GetCalendarWithParticipationState,
     ParticipantDetail,
     ParticipantSummary,
     UpdateCalendarState,
@@ -17,9 +17,12 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
+    if (!user) return { error: "로그인 후 이용해주세요." }
+
+
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
-    const scheduleType = formData.get("scheduleType") as "date" | "datetime";
+    const calendarType = formData.get("scheduleType") as "date" | "datetime";
 
     const startDateStr = formData.get("startDate") as string;
     const endDateStr = formData.get("endDate") as string;
@@ -31,29 +34,17 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
     const excludedDatesStr = formData.get("excludedDates") as string; // JSON string of string[]
     const deadlineStr = formData.get("deadline") as string;
 
-    // Validation
-    if (!title) {
-        return { error: "제목을 입력해주세요." };
-    }
-    if (!startDateStr || !endDateStr) {
-        return { error: "날짜 범위를 선택해주세요." };
-    }
+    if (!title) return { error: "제목을 입력해주세요." };
+    if (!startDateStr || !endDateStr) return { error: "날짜 범위를 선택해주세요." };
 
     try {
-        // 1. Convert Dates
-        // Prisma wants DateTime objects.
-        // Inputs are YYYY-MM-DD
         const startDate = new Date(startDateStr);
         const endDate = new Date(endDateStr);
 
-        // 2. Handle Time
-        // Prisma Time type uses a Date object where only time part matters.
         let startTime: Date | null = null;
         let endTime: Date | null = null;
 
-        if (scheduleType === 'datetime' && startHour !== null && endHour !== null) {
-            // Construct arbitrary date with correct hours
-            // Construct arbitrary date with correct hours
+        if (calendarType === 'datetime' && startHour !== null && endHour !== null) {
             startTime = new Date();
             startTime.setUTCHours(startHour, 0, 0, 0);
 
@@ -61,20 +52,10 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
             endTime.setUTCHours(endHour, 0, 0, 0);
         }
 
-        // 3. Handle Deadline
-        // Input is YYYY-MM-DDTHH:mm
         let deadline: Date | null = null;
-        if (deadlineStr) {
-            deadline = new Date(deadlineStr);
-        } else {
-            // Default to endDate EOD
-            deadline = new Date(endDateStr);
-            deadline.setUTCHours(23, 59, 59, 999);
-        }
+        if (deadlineStr) deadline = new Date(deadlineStr);
 
-        // 4. Handle Days
-        // Enabled days: ["Sun", "Mon", ...]
-        // DB stores Excluded days (Int[]): Sun=0, ... Sat=6
+
         const enabledDays = JSON.parse(enabledDaysStr) as string[];
         const dayMap: Record<string, number> = {
             "Sun": 0, "Mon": 1, "Tue": 2, "Wed": 3, "Thu": 4, "Fri": 5, "Sat": 6
@@ -87,37 +68,14 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
             .filter((d): d is number => d !== undefined);
 
         const excludedDates = excludedDatesStr ? JSON.parse(excludedDatesStr) as string[] : [];
+        const hostId = user.id;
 
-        // 5. Host ID logic
-        // We need to map Supabase User ID to our Profile ID if possible, 
-        // or if we use UUID for both, just use it.
-        // The schema says Calendar.hostId references Profile.id.
-        // We must ensure a Profile exists for this user.
-        let hostId: string | null = null;
-
-        if (user) {
-            // Find or create profile
-            // This logic might be better in a separate service, but for now:
-            const profile = await prisma.profile.upsert({
-                where: { id: user.id }, // Assuming Supabase ID matches Profile ID (it should)
-                update: {},
-                create: {
-                    id: user.id,
-                    email: user.email,
-                    fullName: user.user_metadata.full_name,
-                    avatarUrl: user.user_metadata.avatar_url
-                }
-            });
-            hostId = profile.id;
-        }
-
-        // 6. Create Calendar
         const calendar = await prisma.calendar.create({
             data: {
-                host: hostId ? { connect: { id: hostId } } : undefined,
+                host: { connect: { id: hostId } },
                 title,
                 description,
-                type: scheduleType === 'date' ? 'monthly' : 'weekly',
+                type: calendarType === 'date' ? 'monthly' : 'weekly',
                 startDate,
                 endDate,
                 startTime,
@@ -138,13 +96,7 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
     }
 }
 
-export async function getCalendarWithParticipation(calendarId: string, guestPin?: string): Promise<{
-    calendar: CalendarDetail | null;
-    participation: ParticipantDetail | null;
-    participants: ParticipantSummary[];
-    isLoggedIn: boolean;
-    error?: string;
-}> {
+export async function getCalendarWithParticipation(calendarId: string, guestPin?: string): Promise<GetCalendarWithParticipationState> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -154,9 +106,9 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
             include: { host: true }
         });
 
-        if (!calendar) {
+        if (!calendar)
             return { calendar: null, participation: null, participants: [], isLoggedIn: !!user, error: "일정을 찾을 수 없습니다." };
-        }
+
 
         let participation: ParticipantDetail | null = null;
 
@@ -256,22 +208,17 @@ export async function deleteCalendar(calendarId: string): Promise<{ success: boo
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return { success: false, error: "로그인이 필요합니다." };
-    }
+    if (!user) return { success: false, error: "로그인 후 이용해주세요." }
 
     try {
         const calendar = await prisma.calendar.findUnique({
             where: { id: calendarId }
         });
 
-        if (!calendar) {
-            return { success: false, error: "일정을 찾을 수 없습니다." };
-        }
+        if (!calendar) return { success: false, error: "일정을 찾을 수 없습니다." };
 
-        if (calendar.hostId !== user.id) {
-            return { success: false, error: "권한이 없습니다." };
-        }
+        if (calendar.hostId !== user.id) return { success: false, error: "권한이 없습니다." };
+
 
         await prisma.calendar.delete({
             where: { id: calendarId }
@@ -285,17 +232,11 @@ export async function deleteCalendar(calendarId: string): Promise<{ success: boo
     }
 }
 
-export async function updateCalendar(
-    calendarId: string,
-    formData: FormData,
-    confirmDelete: boolean = false
-): Promise<UpdateCalendarState> {
+export async function updateCalendar(calendarId: string, formData: FormData, confirmDelete: boolean = false): Promise<UpdateCalendarState> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return { error: "로그인이 필요합니다." };
-    }
+    if (!user) return { error: "로그인 후 이용해주세요." }
 
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
@@ -310,9 +251,9 @@ export async function updateCalendar(
     const excludedDatesStr = formData.get("excludedDates") as string;
     const deadlineStr = formData.get("deadline") as string;
 
-    if (!title || !startDateStr || !endDateStr) {
+    if (!title || !startDateStr || !endDateStr)
         return { error: "필수 정보를 입력해주세요." };
-    }
+
 
     try {
         const oldCalendar = await prisma.calendar.findUnique({
@@ -363,12 +304,13 @@ export async function updateCalendar(
         const excludedDates = excludedDatesStr ? JSON.parse(excludedDatesStr) as string[] : [];
 
         const conflictedParticipants = new Set<string>();
+        const invalidAvailabilityIds: bigint[] = [];
 
         for (const p of oldCalendar.participants) {
-            let isValid = true;
             if (p.availabilities.length === 0) continue;
 
             for (const a of p.availabilities) {
+                let isSlotValid = true;
                 const slotDate = a.slot;
 
                 const sDate = new Date(startDateStr); sDate.setHours(0, 0, 0, 0);
@@ -376,24 +318,27 @@ export async function updateCalendar(
                 const checkDate = new Date(slotDate); checkDate.setHours(0, 0, 0, 0);
 
                 if (checkDate < sDate || checkDate > eDate) {
-                    isValid = false; break;
+                    isSlotValid = false;
                 }
 
-                const day = slotDate.getDay();
-                if (excludedDays.includes(day)) {
-                    isValid = false; break;
-                }
-
-                if (oldCalendar.type === 'weekly' && startHour !== null && endHour !== null) {
-                    const hour = slotDate.getHours();
-                    if (hour < startHour || hour >= endHour) {
-                        isValid = false; break;
+                if (isSlotValid) {
+                    const day = slotDate.getDay();
+                    if (excludedDays.includes(day)) {
+                        isSlotValid = false;
                     }
                 }
-            }
 
-            if (!isValid) {
-                conflictedParticipants.add(p.id);
+                if (isSlotValid && oldCalendar.type === 'weekly' && startHour !== null && endHour !== null) {
+                    const hour = slotDate.getHours();
+                    if (hour < startHour || hour >= endHour) {
+                        isSlotValid = false;
+                    }
+                }
+
+                if (!isSlotValid) {
+                    conflictedParticipants.add(p.id);
+                    invalidAvailabilityIds.push(a.id);
+                }
             }
         }
 
@@ -426,10 +371,10 @@ export async function updateCalendar(
                 }
             });
 
-            if (conflictedList.length > 0) {
+            if (invalidAvailabilityIds.length > 0) {
                 await tx.availability.deleteMany({
                     where: {
-                        participantId: { in: conflictedList.map(p => p.id) }
+                        id: { in: invalidAvailabilityIds }
                     }
                 });
             }
@@ -462,9 +407,8 @@ export async function confirmCalendar(
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return { error: "로그인이 필요합니다." };
-    }
+    if (!user) return { error: "로그인이 필요합니다." };
+
 
     try {
         const calendar = await prisma.calendar.findUnique({
@@ -477,33 +421,25 @@ export async function confirmCalendar(
         const start = new Date(finalSlot.startTime);
         let end = finalSlot.endTime ? new Date(finalSlot.endTime) : null;
 
-        // Monthly Calendar logic: If no specific time provided (just date), verify if we need to set default logic
         if (calendar.type === 'monthly') {
             if (!end) {
                 end = new Date(start);
                 end.setHours(23, 59, 59, 999);
             }
         } else {
-            // Weekly
             if (!end) {
-                // Should not happen for weekly, but safe fallback?
                 end = new Date(start.getTime() + 60 * 60 * 1000); // +1 hour
             }
         }
 
-        // Transaction: Update Calendar status AND Create Confirmation
         await prisma.$transaction(async (tx) => {
-            // 1. Update Calendar
             await tx.calendar.update({
                 where: { id: calendarId },
                 data: {
                     isConfirmed: true,
-                    // We DO NOT overwrite startDate/endDate of the original proposal
                 }
             });
 
-            // 2. Upsert Confirmation (in case of re-confirm?)
-            // Schema has 1-1 relation. 
             await tx.event.upsert({
                 where: { calendarId: calendarId },
                 create: {
