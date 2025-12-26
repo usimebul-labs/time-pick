@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { ShareCalendarDialog, Button } from "@repo/ui";
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { Plus } from "lucide-react";
-import { DashboardHeader } from "./components/DashboardHeader";
 import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
 import { CalendarList } from "./components/CalendarList";
@@ -12,6 +11,7 @@ import { EventShareSheet } from "../calendar/Result/components/EventShareSheet";
 import { useDashboard } from "./hooks/useDashboard";
 import { useDashboardStore } from "./hooks/useDashboardStore";
 import { useCalendars } from "./hooks/useCalendars";
+import { UserMenu } from "@/common/components/UserMenu";
 
 const ListLoading = () => {
     return (
@@ -70,9 +70,11 @@ export default function Dashboard() {
     if (!user) return <Loading />
 
     return (
-        <ActivityLayout hideAppBar>
+        <ActivityLayout appBar={{
+            title: "Time Pick",
+            renderRight: () => <UserMenu user={user} />
+        }}>
             <div className="flex flex-col h-full bg-slate-50">
-                <DashboardHeader user={user} />
 
                 <div className="flex-1 p-5 overflow-hidden flex flex-col">
                     <DashboardFilter />

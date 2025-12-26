@@ -32,14 +32,7 @@ export default function CreateLayout({
     };
 
     return (
-        <ActivityLayout
-            title={title}
-            appBar={{
-                onBack: handleBack,
-                right: <HomeButton />
-            }}
-            className="bg-slate-50"
-        >
+        <ActivityLayout appBar={{ title: "일정 생성 하기" }} className="bg-slate-50">
             {/* Progress Bar */}
             <div className="bg-white px-6 py-5 shadow-[0_4px_20px_-12px_rgba(0,0,0,0.1)] z-10 relative">
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden mb-3">

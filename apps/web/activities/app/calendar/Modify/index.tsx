@@ -39,14 +39,7 @@ export default function Modify({ params: { id } }: { params: { id: string } }) {
 
 
     return (
-        <ActivityLayout
-            title="일정 수정하기"
-            appBar={{
-                onBack: pop,
-                right: <HomeButton />
-            }}
-            className="bg-slate-50"
-        >
+        <ActivityLayout appBar={{ title: "일정 수정하기" }} className="bg-slate-50">
             <form id="modify-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-8">
                 <BasicInfoSection data={formState} onChange={updateForm} />
                 <DateRangeSection data={formState} onChange={updateForm} />

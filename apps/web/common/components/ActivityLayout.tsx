@@ -1,40 +1,55 @@
 "use client";
 
-import { AppScreen } from "@stackflow/plugin-basic-ui";
-import { AppBar } from "./AppBar";
+import { AppBarProps, AppScreen } from "@stackflow/plugin-basic-ui";
 import React from "react";
 import { cn } from "@repo/ui";
+import { HomeButton } from "./HomeButton";
 
 interface ActivityLayoutProps {
     children: React.ReactNode;
-    title?: string;
-    appBar?: {
-        left?: React.ReactNode;
-        right?: React.ReactNode;
-        onBack?: () => void;
-        className?: string;
-    };
-    hideAppBar?: boolean;
+    appBar?: AppBarProps;
     className?: string; // For the content container
     backgroundColor?: string;
 }
 
-export function ActivityLayout({ children, title, appBar, hideAppBar, className, backgroundColor }: ActivityLayoutProps) {
+import { useLoginedUser } from "@/common/hooks/useLoginedUser";
+
+import { useStack } from "@stackflow/react";
+import { useFlow } from "@stackflow/react/future";
+import { ChevronLeft } from "lucide-react";
+
+const BackButton = () => {
+    const { pop } = useFlow();
+
+    const handleBack = () => {
+        pop();
+    };
+
+    return <button onClick={handleBack} className="p-1 -ml-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+        <ChevronLeft className="w-6 h-6" />
+    </button>
+}
+
+export function ActivityLayout({ children, appBar, className, backgroundColor }: ActivityLayoutProps) {
+    const { user } = useLoginedUser();
+    const stack = useStack();
+    const canGoBack = stack.activities.length > 1;
+
+    appBar = appBar || {};
+
+    if (!appBar.backButton && !canGoBack)
+        appBar.backButton = {
+            render: () => <BackButton />
+        };
+
+
+    if (!appBar.renderRight && user) appBar.renderRight = () => <HomeButton />
+
+
     return (
-        <AppScreen backgroundColor={backgroundColor}>
-            <div className="flex flex-col h-full">
-                {!hideAppBar && (
-                    <AppBar
-                        title={title}
-                        left={appBar?.left}
-                        right={appBar?.right}
-                        onBack={appBar?.onBack}
-                        className={appBar?.className}
-                    />
-                )}
-                <div className={cn("flex-1 overflow-hidden flex flex-col relative", className)}>
-                    {children}
-                </div>
+        <AppScreen backgroundColor={backgroundColor} appBar={appBar}>
+            <div className={cn("flex-1 overflow-hidden flex flex-col relative h-full", className)}>
+                {children}
             </div>
         </AppScreen>
     );

@@ -49,13 +49,7 @@ export default function Status({ params: { id } }: { params: { id: string } }) {
     );
 
     return (
-        <ActivityLayout
-            title="일정 선택 현황"
-            appBar={{
-                right: isLoggedIn && <HomeButton />
-            }}
-            className="bg-white relative"
-        >
+        <ActivityLayout appBar={{ title: "일정 선택 현황" }}>
             {/* Scrollable Content Area */}
             <div className="flex-1 overflow-y-auto">
                 <StatusChart

@@ -18,7 +18,7 @@ export default function Join({ params: { id } }: { params: { id: string } }) {
     } = useJoin(id);
 
     return (
-        <ActivityLayout title="모임 참여">
+        <ActivityLayout appBar={{ title: "모임 참여" }} className="bg-slate-50">
             <div className="flex flex-col h-full bg-slate-50 p-6">
                 <div className="flex-1 flex flex-col justify-start max-w-sm mx-auto w-full pt-10">
                     <JoinHeader

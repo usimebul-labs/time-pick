@@ -30,13 +30,7 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
 
 
     return (
-        <ActivityLayout
-            title="일정 선택하기"
-            appBar={{
-                right: isLoggedIn && <HomeButton />
-            }}
-            className="bg-white"
-        >
+        <ActivityLayout appBar={{ title: "일정 선택하기" }} >
             <StateInitializer participation={participation} />
 
             <div className="flex-1 overflow-y-auto p-4">
