@@ -1,17 +1,13 @@
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { Skeleton } from "@repo/ui";
-import { Home } from "lucide-react";
+import { HomeButton } from "@/common/components/HomeButton";
 
 export function SelectLoading() {
     return (
         <ActivityLayout
             title="일정 선택하기"
             appBar={{
-                right: (
-                    <button className="p-1 -mr-1 text-slate-400" disabled>
-                        <Home className="w-6 h-6" strokeWidth={1.5} />
-                    </button>
-                )
+                right: <HomeButton className="text-slate-400" disabled />
             }}
             className="bg-white"
         >

@@ -13,7 +13,7 @@ import { SelectShareDialog } from "./components/SelectShareDialog";
 import { SelectLoading } from "./components/SelectLoading";
 import { SelectError } from "./components/SelectError";
 
-import { Home } from "lucide-react";
+import { HomeButton } from "@/common/components/HomeButton";
 import { useFlow } from "@/stackflow";
 
 export default function Select({ params: { id } }: { params: { id: string } }) {
@@ -33,14 +33,7 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
         <ActivityLayout
             title="일정 선택하기"
             appBar={{
-                right: isLoggedIn && (
-                    <button
-                        onClick={() => replace("Dashboard", {})}
-                        className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-                    >
-                        <Home className="w-6 h-6" strokeWidth={1.5} />
-                    </button>
-                )
+                right: isLoggedIn && <HomeButton />
             }}
             className="bg-white"
         >

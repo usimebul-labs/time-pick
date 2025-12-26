@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { useFlow } from "@/stackflow";
-import { Loader2, Home } from "lucide-react";
+import { HomeButton } from "@/common/components/HomeButton";
+import { Loader2 } from "lucide-react";
 import { useConfirm } from "./useConfirm";
 
 export default function Confirm({ params: { id } }: { params: { id: string } }) {
@@ -51,14 +52,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
             title="일정 확정하기"
             appBar={{
                 onBack: pop,
-                right: (
-                    <button
-                        onClick={() => replace("Dashboard", {})}
-                        className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-                    >
-                        <Home className="w-6 h-6" strokeWidth={1.5} />
-                    </button>
-                )
+                right: <HomeButton />
             }}
             className="bg-slate-50 text-slate-900"
         >

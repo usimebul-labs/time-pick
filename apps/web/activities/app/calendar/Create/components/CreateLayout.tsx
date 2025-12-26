@@ -3,7 +3,7 @@
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { ReactNode } from "react";
 import { useFlow } from "../../../../../stackflow";
-import { Home } from "lucide-react";
+import { HomeButton } from "@/common/components/HomeButton";
 
 
 interface CreateLayoutProps {
@@ -36,14 +36,7 @@ export default function CreateLayout({
             title={title}
             appBar={{
                 onBack: handleBack,
-                right: (
-                    <button
-                        onClick={() => replace("Dashboard", {})}
-                        className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-                    >
-                        <Home className="w-6 h-6" strokeWidth={1.5} />
-                    </button>
-                )
+                right: <HomeButton />
             }}
             className="bg-slate-50"
         >

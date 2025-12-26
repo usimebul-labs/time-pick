@@ -5,6 +5,7 @@ import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { useResult } from "./useResult";
 import { Loader2, Calendar, MapPin, Share2, Plus, ChevronDown, ChevronUp, Clock, Info, Train, SquareParking, Banknote, Landmark, Phone, FileText, Home } from "lucide-react";
 import { cn } from "@repo/ui";
+import { HomeButton } from "@/common/components/HomeButton";
 import { useFlow } from "@/stackflow";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -113,14 +114,7 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
             title="일정 공유"
             appBar={{
                 onBack: pop,
-                right: user ? (
-                    <button
-                        onClick={() => replace("Dashboard", {})}
-                        className="p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-                    >
-                        <Home className="w-6 h-6" strokeWidth={1.5} />
-                    </button>
-                ) : undefined
+                right: user ? <HomeButton /> : undefined
             }}
             className="bg-white text-slate-900"
         >
