@@ -8,8 +8,9 @@ import { HomeButton } from "./HomeButton";
 interface ActivityLayoutProps {
     children: React.ReactNode;
     appBar?: AppBarProps;
-    className?: string; // For the content container
+    className?: string;
     backgroundColor?: string;
+    hideAppBar?: boolean
 }
 
 import { useLoginedUser } from "@/common/hooks/useLoginedUser";
@@ -30,7 +31,7 @@ const BackButton = () => {
     </button>
 }
 
-export function ActivityLayout({ children, appBar, className, backgroundColor }: ActivityLayoutProps) {
+export function ActivityLayout({ children, appBar, className, backgroundColor, hideAppBar }: ActivityLayoutProps) {
     const { user } = useLoginedUser();
     const stack = useStack();
     const canGoBack = stack.activities.length > 1;
@@ -47,7 +48,7 @@ export function ActivityLayout({ children, appBar, className, backgroundColor }:
 
 
     return (
-        <AppScreen backgroundColor={backgroundColor} appBar={appBar}>
+        <AppScreen backgroundColor={backgroundColor} appBar={!hideAppBar ? appBar : undefined}>
             <div className={cn("flex-1 overflow-hidden flex flex-col relative h-full", className)}>
                 {children}
             </div>
