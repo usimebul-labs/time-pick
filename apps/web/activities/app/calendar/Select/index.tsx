@@ -13,7 +13,7 @@ import { SelectShareDialog } from "./components/SelectShareDialog";
 import { SelectLoading } from "./components/SelectLoading";
 import { SelectError } from "./components/SelectError";
 
-import { HomeButton } from "@/common/components/HomeButton";
+import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
 import { useFlow } from "@/stackflow";
 
 export default function Select({ params: { id } }: { params: { id: string } }) {

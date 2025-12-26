@@ -2,7 +2,7 @@
 
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { useFlow } from "@/stackflow";
-import { HomeButton } from "@/common/components/HomeButton";
+import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
 import { useModify } from "./useModify";
 import { ModifyLoading } from "./components/ModifyLoading";
 import { BasicInfoSection } from "./components/BasicInfoSection";

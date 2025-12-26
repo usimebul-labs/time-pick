@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { useFlow } from "@/stackflow";
-import { HomeButton } from "@/common/components/HomeButton";
+import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
 import { Loader2 } from "lucide-react";
 import { useConfirm } from "./useConfirm";
 

@@ -7,7 +7,7 @@ import { StatusChart } from "./components/StatusChart";
 import { StatusFooter } from "./components/StatusFooter";
 import { useStatus } from "./useStatus";
 
-import { HomeButton } from "@/common/components/HomeButton";
+import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
 import { useFlow } from "@/stackflow";
 
 export default function Status({ params: { id } }: { params: { id: string } }) {
