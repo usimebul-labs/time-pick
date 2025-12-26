@@ -1,5 +1,5 @@
 
-import { ParticipantGrid } from "@/common/components/ParticipantGrid";
+import { ParticipantGrid } from "@/common/components/participant/ParticipantGrid";
 import { ParticipantSummary } from "@/app/actions/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui";
 import { cn } from "@repo/ui";

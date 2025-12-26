@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarDetail, ParticipantDetail } from "@/app/actions/calendar";
-import { useLoading } from "@/common/LoadingOverlay/useLoading";
+import { useLoading } from "@/common/components/LoadingOverlay/useLoading";
 import { useGuestStore } from "@/common/stores/useGuestStore";
 import { useFlow } from "@stackflow/react/future";
 import { useQueryClient } from "@tanstack/react-query";

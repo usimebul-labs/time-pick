@@ -1,4 +1,4 @@
-import { ParticipantGrid } from "@/common/components/ParticipantGrid";
+import { ParticipantGrid } from "@/common/components/participant/ParticipantGrid";
 import { Users } from "lucide-react";
 import { ParticipantSummary } from "@/app/actions/calendar";
 import { SelectedSlot } from "../useStatus";

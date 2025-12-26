@@ -1,6 +1,6 @@
 "use client";
 
-import LoadingOverlay from "@/common/LoadingOverlay";
+import LoadingOverlay from "@/common/components/LoadingOverlay";
 import dynamic from "next/dynamic";
 
 const Stack = dynamic(() => import("../../../stackflow").then((mod) => mod.Stack), {

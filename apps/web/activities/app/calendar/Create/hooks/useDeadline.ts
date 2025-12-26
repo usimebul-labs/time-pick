@@ -2,7 +2,7 @@ import { useState, useEffect, useTransition } from "react";
 import { useFlow } from "../../../../../stackflow";
 import { useCreateCalendarStore } from "./useCreateCalendarStore";
 import { createCalendar } from "@/app/actions/calendar";
-import { useLoading } from "@/common/LoadingOverlay/useLoading";
+import { useLoading } from "@/common/components/LoadingOverlay/useLoading";
 
 export function useDeadline() {
     const { replace } = useFlow();

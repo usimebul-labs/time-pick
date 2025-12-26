@@ -1,4 +1,4 @@
-import { ParticipantList } from "@/common/components/ParticipantList";
+import { ParticipantList } from "@/common/components/participant/ParticipantList";
 import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardContent, Label } from "@repo/ui";
 import { Trash2 } from "lucide-react";
 import { format, parseISO } from "date-fns";

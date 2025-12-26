@@ -1,4 +1,4 @@
-import { ParticipantFacepile as SharedParticipantFacepile } from "@/common/components/ParticipantFacepile";
+import { ParticipantFacepile as SharedParticipantFacepile } from "@/common/components/participant/ParticipantFacepile";
 import { User } from "@supabase/supabase-js";
 import { MouseEventHandler } from "react";
 

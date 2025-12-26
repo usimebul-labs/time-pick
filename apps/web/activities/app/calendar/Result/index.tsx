@@ -10,7 +10,7 @@ import { useFlow } from "@/stackflow";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { ParticipantGrid } from "@/common/components/ParticipantGrid";
+import { ParticipantGrid } from "@/common/components/participant/ParticipantGrid";
 import { SharedParticipant } from "@/common/types/participant";
 import { EventShareSheet } from "./components/EventShareSheet";
 import { AppIcon } from "./components/AppIcon";

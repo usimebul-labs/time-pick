@@ -1,4 +1,4 @@
-import { ParticipantList } from "@/common/components/ParticipantList";
+import { ParticipantList } from "@/common/components/participant/ParticipantList";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 

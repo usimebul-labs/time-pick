@@ -1,4 +1,4 @@
-import { ParticipantGrid } from "@/common/components/ParticipantGrid";
+import { ParticipantGrid } from "@/common/components/participant/ParticipantGrid";
 import { ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { User } from "lucide-react";
 import { useParticipantList } from "../hooks/useParticipantList";

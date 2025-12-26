@@ -11,7 +11,7 @@ import { EventShareSheet } from "../calendar/Result/components/EventShareSheet";
 import { useDashboard } from "./hooks/useDashboard";
 import { useDashboardStore } from "./hooks/useDashboardStore";
 import { useCalendars } from "./hooks/useCalendars";
-import { UserMenu } from "@/common/components/UserMenu";
+import { UserMenu } from "@/common/components/ActivityLayout/UserMenu";
 
 const ListLoading = () => {
     return (
