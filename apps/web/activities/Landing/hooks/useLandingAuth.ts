@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/common/lib/supabase/client";
 import { useFlow } from "../../../stackflow";
 
 export const useLandingAuth = () => {

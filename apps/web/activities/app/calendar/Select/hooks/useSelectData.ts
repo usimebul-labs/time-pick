@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useGuestStore } from "@/stores/guest";
-import { useCalendarQuery } from "@/common/hooks/useCalendarQuery";
+import { useGuestStore } from "@/common/stores/useGuestStore";
+import { useCalendarQuery } from "@/common/queries/useCalendarQuery";
 import { useFlow } from "@/stackflow";
 import { useActivity } from "@stackflow/react";
 import { CalendarDetail, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";

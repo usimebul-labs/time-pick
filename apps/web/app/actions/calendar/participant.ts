@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/common/lib/supabase/server";
 import { prisma } from "@repo/database";
 import { revalidatePath } from "next/cache";
 

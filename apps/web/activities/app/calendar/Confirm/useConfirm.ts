@@ -1,5 +1,5 @@
 
-import { useCalendarQuery } from "@/common/hooks/useCalendarQuery";
+import { useCalendarQuery } from "@/common/queries/useCalendarQuery";
 import { useCallback, useMemo, useState } from "react";
 import { useFlow } from "@/stackflow";
 import { ParticipantSummary } from "@/app/actions/calendar";

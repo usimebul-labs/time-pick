@@ -1,6 +1,6 @@
 "use client";
 
-import { useGuestStore } from "@/stores/guest";
+import { useGuestStore } from "@/common/stores/useGuestStore";
 import { useFlow } from "@/stackflow";
 import { CalendarDetail, ParticipantDetail } from "@/app/actions/calendar";
 import { useQueryClient } from "@tanstack/react-query";

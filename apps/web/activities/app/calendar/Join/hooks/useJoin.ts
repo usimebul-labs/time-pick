@@ -1,6 +1,6 @@
-import { useCalendarQuery } from "@/common/hooks/useCalendarQuery";
+import { useCalendarQuery } from "@/common/queries/useCalendarQuery";
 import { useFlow } from "@/stackflow";
-import { useGuestStore } from "@/stores/guest";
+import { useGuestStore } from "@/common/stores/useGuestStore";
 import { useEffect, useState } from "react";
 
 export function useJoin(id: string) {

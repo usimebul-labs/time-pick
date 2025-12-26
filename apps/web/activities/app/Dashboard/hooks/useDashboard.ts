@@ -1,5 +1,5 @@
 import { DashboardCalendar, deleteCalendar } from "@/app/actions/calendar";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/common/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFlow } from "../../../../stackflow";

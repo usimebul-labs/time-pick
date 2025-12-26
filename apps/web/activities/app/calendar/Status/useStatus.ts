@@ -1,4 +1,4 @@
-import { useCalendarQuery } from "@/common/hooks/useCalendarQuery";
+import { useCalendarQuery } from "@/common/queries/useCalendarQuery";
 import { ParticipantSummary } from "@/app/actions/calendar";
 import { addMinutes, eachDayOfInterval, format, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
