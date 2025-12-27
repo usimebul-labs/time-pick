@@ -11,8 +11,6 @@ interface CalendarSectionProps {
 export function CalendarSection({ calendar, participants }: CalendarSectionProps) {
     const { selectedDates, onSelectDates, selectedParticipantIds } = useCalendarSection();
 
-    // Memoize derived props to prevent unnecessary re-renders of the Calendar component
-    // especially during drag selection updates which trigger this component to re-render.
     const startDate = React.useMemo(() => new Date(calendar.startDate), [calendar.startDate]);
     const endDate = React.useMemo(() => new Date(calendar.endDate), [calendar.endDate]);
     const disabledDates = React.useMemo(() =>

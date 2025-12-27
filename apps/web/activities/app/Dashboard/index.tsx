@@ -1,17 +1,16 @@
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { UserMenu } from "@/common/components/ActivityLayout/UserMenu";
 import Loading from "@/common/components/Loading";
+import { ShareCalendarSheet } from "@/common/components/ShareCalendarSheet";
+import { Button } from "@repo/ui";
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
-import { EventShareSheet } from "../calendar/Result/components/EventShareSheet";
 import { CalendarList } from "./components/CalendarList";
 import { DashboardFilter } from "./components/DashboardFilter";
 import { DashboardMenuSheet } from "./components/DashboardMenuSheet";
 import { DashboardParticipantSheet } from "./components/DashboardParticipantSheet";
 import { useDashboard } from "./hooks/useDashboard";
 import { useDashboardStore } from "./hooks/useDashboardStore";
-import { ShareCalendarSheet } from "@/common/components/ShareCalendarSheet";
-import { Button } from "@repo/ui";
 
 
 

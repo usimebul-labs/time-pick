@@ -15,6 +15,7 @@ import { SharedParticipant } from "@/common/types/participant";
 import { EventShareSheet } from "./components/EventShareSheet";
 import { AppIcon } from "./components/AppIcon";
 import { useLoginedUser } from "@/common/hooks/useLoginedUser";
+import { ShareCalendarSheet } from "@/common/components/ShareCalendarSheet";
 
 
 export default function Result({ params: { id } }: { params: { id: string } }) {
@@ -239,7 +240,9 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
                 </div>
 
                 {/* Share Sheet */}
-                <EventShareSheet
+                <ShareCalendarSheet
+                    title="일정 초대"
+                    description="일정에 초대합니다!"
                     open={isShareOpen}
                     onOpenChange={() => setIsShareOpen(false)}
                     link={typeof window !== 'undefined' ? window.location.href : ''}

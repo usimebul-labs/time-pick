@@ -1,6 +1,7 @@
 import { useFlow } from "@/stackflow";
 import { Home } from "lucide-react";
 import { cn } from "@repo/ui";
+import { useStack } from "@stackflow/react";
 
 interface HomeButtonProps {
     className?: string;
@@ -8,11 +9,18 @@ interface HomeButtonProps {
 }
 
 export function HomeButton({ className, disabled }: HomeButtonProps) {
-    const { replace } = useFlow();
+    const { pop, replace } = useFlow();
+    const stack = useStack();
+
+
+    const resetToHome = () => {
+        location.href = "/app/dashboard";
+    };
+
 
     return (
         <button
-            onClick={() => replace("Dashboard", {})}
+            onClick={resetToHome}
             disabled={disabled}
             className={cn(
                 "p-1 -mr-1 text-slate-600 hover:bg-slate-100 rounded-full transition-colors",
