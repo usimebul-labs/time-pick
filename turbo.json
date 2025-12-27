@@ -37,6 +37,9 @@
       "cache": false,
       "inputs": [
         "prisma/schema.prisma"
+      ],
+      "env": [
+        "DATABASE_URL"
       ]
     },
     "db:migrate": {
