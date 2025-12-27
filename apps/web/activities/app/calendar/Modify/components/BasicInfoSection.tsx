@@ -1,5 +1,5 @@
 import { Input, Label, Textarea } from "@repo/ui";
-import { ModifyFormState } from "../types";
+import { ModifyFormState } from "../hooks/types";
 
 interface BasicInfoSectionProps {
     data: ModifyFormState;

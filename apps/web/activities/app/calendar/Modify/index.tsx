@@ -1,22 +1,19 @@
 "use client";
 
 import { ActivityLayout } from "@/common/components/ActivityLayout";
-import { useFlow } from "@/stackflow";
-import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
-import { useModify } from "./useModify";
-import { ModifyLoading } from "./components/ModifyLoading";
 import { BasicInfoSection } from "./components/BasicInfoSection";
+import { ConflictDialog } from "./components/ConflictDialog";
 import { DateRangeSection } from "./components/DateRangeSection";
+import { DeadlineSection } from "./components/DeadlineSection";
+import { DeleteParticipantDialog } from "./components/DeleteParticipantDialog";
 import { ExcludedDaysSection } from "./components/ExcludedDaysSection";
 import { ExclusionsSection } from "./components/ExclusionsSection";
-import { DeadlineSection } from "./components/DeadlineSection";
-import { ParticipantSection } from "./components/ParticipantSection";
 import { ModifyFooter } from "./components/ModifyFooter";
-import { ConflictDialog } from "./components/ConflictDialog";
-import { DeleteParticipantDialog } from "./components/DeleteParticipantDialog";
+import { ModifyLoading } from "./components/ModifyLoading";
+import { ParticipantSection } from "./components/ParticipantSection";
+import { useModify } from "./hooks/useModify";
 
 export default function Modify({ params: { id } }: { params: { id: string } }) {
-    const { replace } = useFlow();
     const {
         loading,
         isPending,
@@ -32,7 +29,6 @@ export default function Modify({ params: { id } }: { params: { id: string } }) {
         setShowDeleteDialog,
         handleDeleteParticipant,
         handleConfirmDeleteParticipant,
-        pop
     } = useModify(id);
 
     if (loading) return <ModifyLoading />;

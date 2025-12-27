@@ -1,5 +1,5 @@
 import { Card, CardContent, Checkbox, Input, Label } from "@repo/ui";
-import { ModifyFormState } from "../types";
+import { ModifyFormState } from "../hooks/types";
 
 interface DeadlineSectionProps {
     data: ModifyFormState;

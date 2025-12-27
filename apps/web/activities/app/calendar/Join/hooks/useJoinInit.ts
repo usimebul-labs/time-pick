@@ -10,14 +10,12 @@ export function useJoinInit(calendarId: string) {
         const checkSession = async () => {
             const supabase = createClient();
 
-            // Check User Session
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 replace("Select", { id: calendarId }, { animate: false });
                 return;
             }
 
-            // Check Guest Session (localStorage)
             const guestSessions = JSON.parse(localStorage.getItem("guest_sessions") || "{}");
             if (guestSessions[calendarId]) {
                 replace("Select", { id: calendarId }, { animate: false });

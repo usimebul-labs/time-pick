@@ -1,5 +1,5 @@
 import { Card, CardContent, Label } from "@repo/ui";
-import { ModifyFormState, DayOption } from "../types";
+import { ModifyFormState, DayOption } from "../hooks/types";
 
 interface ExcludedDaysSectionProps {
     data: ModifyFormState;

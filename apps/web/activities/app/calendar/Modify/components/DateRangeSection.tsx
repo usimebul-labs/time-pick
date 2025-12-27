@@ -1,6 +1,6 @@
 import { Card, CardContent, Input, Label } from "@repo/ui";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
-import { ModifyFormState } from "../types";
+import { ModifyFormState } from "../hooks/types";
 
 interface DateRangeSectionProps {
     data: ModifyFormState;

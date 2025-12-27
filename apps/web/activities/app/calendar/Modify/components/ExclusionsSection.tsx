@@ -1,6 +1,6 @@
 import { Button, Card, CardContent, Input, Label, Checkbox } from "@repo/ui";
 import { X } from "lucide-react";
-import { ModifyFormState } from "../types";
+import { ModifyFormState } from "../hooks/types";
 
 interface ExclusionsSectionProps {
     data: ModifyFormState;

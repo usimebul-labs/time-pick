@@ -9,7 +9,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@repo/ui";
-import { ConflictedParticipant } from "../types";
+import { ConflictedParticipant } from "../hooks/types";
 
 interface ConflictDialogProps {
     open: boolean;
