@@ -18,31 +18,39 @@ export type AdditionalInfo = {
     memo: string;
 };
 
-interface AdditionalInfoFormProps {
-    info: AdditionalInfo;
-    onChange: (info: AdditionalInfo) => void;
-    monthlyTimeProps?: {
-        startTime: string;
-        onStartTimeChange: (val: string) => void;
-        endTime: string;
-        onEndTimeChange: (val: string) => void;
+import { useConfirmStore } from "../stores/useConfirmStore";
+
+export function AdditionalInfoForm() {
+    const {
+        additionalInfo: info,
+        setAdditionalInfo: onChange, // Mapping for compatibility with existing logic
+        setIsLocationSearchOpen,
+        selectedTime,
+        setSelectedTime,
+        selectedEndTime,
+        setSelectedEndTime
+    } = useConfirmStore();
+
+    type InfoKey = keyof Omit<AdditionalInfo, 'memo'> | 'time';
+
+    const FIELD_CONFIG: { key: InfoKey; label: string; placeholder: string; icon: React.ReactNode }[] = [
+        { key: 'time', label: '시간', placeholder: '', icon: <Clock className="w-4 h-4" /> },
+        { key: 'location', label: '장소', placeholder: '어디서 만날까요?', icon: <MapPin className="w-4 h-4" /> },
+        { key: 'transport', label: '교통', placeholder: '예: 강남역 1번 출구', icon: <Bus className="w-4 h-4" /> },
+        { key: 'parking', label: '주차', placeholder: '예: 무료 주차 가능', icon: <Car className="w-4 h-4" /> },
+        { key: 'fee', label: '회비', placeholder: '예: 30,000원', icon: <Coins className="w-4 h-4" /> },
+        { key: 'bank', label: '입금 계좌', placeholder: '예: 카카오뱅크 1234...', icon: <CreditCard className="w-4 h-4" /> },
+        { key: 'inquiry', label: '문의처', placeholder: '연락처 입력', icon: <Phone className="w-4 h-4" /> },
+    ];
+
+    const monthlyTimeProps = {
+        startTime: selectedTime,
+        onStartTimeChange: setSelectedTime,
+        endTime: selectedEndTime,
+        onEndTimeChange: setSelectedEndTime
     };
-    onOpenLocationSearch: () => void;
-}
 
-type InfoKey = keyof Omit<AdditionalInfo, 'memo'> | 'time';
-
-const FIELD_CONFIG: { key: InfoKey; label: string; placeholder: string; icon: React.ReactNode }[] = [
-    { key: 'time', label: '시간', placeholder: '', icon: <Clock className="w-4 h-4" /> },
-    { key: 'location', label: '장소', placeholder: '어디서 만날까요?', icon: <MapPin className="w-4 h-4" /> },
-    { key: 'transport', label: '교통', placeholder: '예: 강남역 1번 출구', icon: <Bus className="w-4 h-4" /> },
-    { key: 'parking', label: '주차', placeholder: '예: 무료 주차 가능', icon: <Car className="w-4 h-4" /> },
-    { key: 'fee', label: '회비', placeholder: '예: 30,000원', icon: <Coins className="w-4 h-4" /> },
-    { key: 'bank', label: '입금 계좌', placeholder: '예: 카카오뱅크 1234...', icon: <CreditCard className="w-4 h-4" /> },
-    { key: 'inquiry', label: '문의처', placeholder: '연락처 입력', icon: <Phone className="w-4 h-4" /> },
-];
-
-export function AdditionalInfoForm({ info, onChange, monthlyTimeProps, onOpenLocationSearch }: AdditionalInfoFormProps) {
+    const onOpenLocationSearch = () => setIsLocationSearchOpen(true);
 
     // Initialize active keys based on existing values
     const [activeKeys, setActiveKeys] = useState<Set<InfoKey>>(() => {

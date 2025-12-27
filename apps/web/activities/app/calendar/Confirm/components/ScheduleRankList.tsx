@@ -5,13 +5,17 @@ import { cn } from "@repo/ui";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
+import { useConfirmStore } from "../stores/useConfirmStore";
+
 interface ScheduleRankListProps {
     slots: RankedSlot[];
-    selectedSlotIndex: number | null;
-    onSelect: (index: number) => void;
 }
 
-export function ScheduleRankList({ slots, selectedSlotIndex, onSelect }: ScheduleRankListProps) {
+export function ScheduleRankList({ slots }: ScheduleRankListProps) {
+    const { selectedRankIndex, setSelectedRankIndex } = useConfirmStore();
+    const selectedSlotIndex = selectedRankIndex;
+    const onSelect = setSelectedRankIndex;
+
     const [expanded, setExpanded] = useState(false);
 
     if (slots.length === 0) {

@@ -4,23 +4,19 @@ import { ParticipantSummary } from "@/app/actions/calendar";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui";
 import { cn } from "@repo/ui";
 
+import { useConfirmStore } from "../stores/useConfirmStore";
+
 interface ParticipantSelectorProps {
     participants: ParticipantSummary[];
-    selectedIds: Set<string>;
-    highlightedIds?: string[]; // Add this
-    onToggle: (id: string) => void;
-    onClear: () => void;
+    highlightedIds?: string[];
 }
 
 export function ParticipantSelector({
     participants,
-    selectedIds,
-    highlightedIds, // Add this
-    onToggle,
-    onClear
+    highlightedIds,
 }: ParticipantSelectorProps) {
-
-    const hasSelection = selectedIds.size > 0;
+    const { selectedParticipantIds, toggleParticipant, clearParticipants } = useConfirmStore();
+    const hasSelection = selectedParticipantIds.size > 0;
 
     return (
         <div className="space-y-3">
@@ -30,7 +26,7 @@ export function ParticipantSelector({
                 </h2>
                 {hasSelection && (
                     <button
-                        onClick={onClear}
+                        onClick={clearParticipants}
                         className="text-xs font-medium px-2.5 py-1 rounded-full transition-colors bg-gray-100 text-gray-500 hover:bg-gray-200"
                     >
                         선택 해제
@@ -42,9 +38,9 @@ export function ParticipantSelector({
                 <ParticipantGrid
                     participants={participants}
                     interaction="selectable"
-                    selectedIds={selectedIds}
+                    selectedIds={selectedParticipantIds}
                     highlightedIds={highlightedIds}
-                    onToggle={onToggle}
+                    onToggle={toggleParticipant}
                 />
             </div>
         </div>

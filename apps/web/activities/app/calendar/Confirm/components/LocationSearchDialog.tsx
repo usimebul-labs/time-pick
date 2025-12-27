@@ -4,11 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Input, Button, Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@repo/ui";
 import { MapPin, Search, Loader2 } from "lucide-react";
 
-interface LocationSearchDialogProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSelect: (location: string) => void;
-}
+import { useConfirmStore } from "../stores/useConfirmStore";
 
 declare global {
     interface Window {
@@ -16,7 +12,10 @@ declare global {
     }
 }
 
-export function LocationSearchDialog({ isOpen, onClose, onSelect }: LocationSearchDialogProps) {
+export function LocationSearchDialog() {
+    const { isLocationSearchOpen: isOpen, setIsLocationSearchOpen, updateAdditionalInfoField } = useConfirmStore();
+    const onClose = () => setIsLocationSearchOpen(false);
+    const onSelect = (location: string) => updateAdditionalInfoField('location', location);
     const [keyword, setKeyword] = useState("");
     const [results, setResults] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);

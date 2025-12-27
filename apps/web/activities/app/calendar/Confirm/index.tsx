@@ -1,33 +1,23 @@
-import { useState } from "react";
 import { ActivityLayout } from "@/common/components/ActivityLayout";
-import { useFlow } from "@/stackflow";
-import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
 import { Loader2 } from "lucide-react";
-import { useConfirm } from "./useConfirm";
+import { useConfirmInit } from "./hooks/useConfirmInit";
+import { useConfirmRanking } from "./hooks/useConfirmRanking";
+import { useConfirmForm } from "./hooks/useConfirmForm";
+import { useConfirmStore } from "./stores/useConfirmStore";
+
+import { AdditionalInfoForm } from "./components/AdditionalInfoForm";
+import { LocationSearchDialog } from "./components/LocationSearchDialog";
+import { ParticipantSelector } from "./components/ParticipantSelector";
+import { ScheduleRankList } from "./components/ScheduleRankList";
+import { WeeklyTimeSelector } from "./components/WeeklyTimeSelector";
 
 export default function Confirm({ params: { id } }: { params: { id: string } }) {
-    const { replace, pop } = useFlow();
-    const [isLocationSearchOpen, setIsLocationSearchOpen] = useState(false);
-    const {
-        calendar,
-        isLoading,
-        participants,
-        selectedParticipantIds,
-        toggleParticipant,
-        clearParticipants,
-        duration,
-        setDuration,
-        selectedTime,
-        setSelectedTime,
-        selectedEndTime,
-        setSelectedEndTime,
-        additionalInfo,
-        setAdditionalInfo,
-        rankedSlots,
-        selectedRankIndex,
-        setSelectedRankIndex,
-        handleConfirm
-    } = useConfirm(id);
+    const { calendar, participants, isLoading } = useConfirmInit(id);
+    const { rankedSlots } = useConfirmRanking({ calendar, participants });
+    const { handleConfirm } = useConfirmForm({ id, calendar, rankedSlots });
+
+    // Read directly from store for computing derived UI state
+    const { selectedRankIndex } = useConfirmStore();
 
     if (isLoading) {
         return (
@@ -60,14 +50,11 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                     <section className="space-y-4">
                         <ParticipantSelector
                             participants={participants}
-                            selectedIds={selectedParticipantIds}
                             highlightedIds={
                                 selectedRankIndex !== null && rankedSlots[selectedRankIndex]
                                     ? rankedSlots[selectedRankIndex]!.participants
                                     : undefined
                             }
-                            onToggle={toggleParticipant}
-                            onClear={clearParticipants}
                         />
                     </section>
 
@@ -77,10 +64,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <span>⏰</span> 소요시간
                             </h2>
-                            <WeeklyTimeSelector
-                                duration={duration}
-                                onDurationChange={setDuration}
-                            />
+                            <WeeklyTimeSelector />
                         </section>
                     }
 
@@ -89,11 +73,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                         <h2 className="text-lg font-bold px-1 flex items-center gap-2">
                             <span>📅</span> 추천 일정
                         </h2>
-                        <ScheduleRankList
-                            slots={rankedSlots}
-                            selectedSlotIndex={selectedRankIndex}
-                            onSelect={setSelectedRankIndex}
-                        />
+                        <ScheduleRankList slots={rankedSlots} />
                     </section>
 
 
@@ -102,17 +82,7 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                         <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                             <span>📝</span> 기타 안내 사항
                         </h2>
-                        <AdditionalInfoForm
-                            info={additionalInfo}
-                            onChange={setAdditionalInfo}
-                            monthlyTimeProps={calendar.type === 'monthly' ? {
-                                startTime: selectedTime,
-                                onStartTimeChange: setSelectedTime,
-                                endTime: selectedEndTime,
-                                onEndTimeChange: setSelectedEndTime
-                            } : undefined}
-                            onOpenLocationSearch={() => setIsLocationSearchOpen(true)}
-                        />
+                        <AdditionalInfoForm />
                     </section>
                 </div>
 
@@ -128,18 +98,8 @@ export default function Confirm({ params: { id } }: { params: { id: string } }) 
                 </div>
             </div>
 
-            <LocationSearchDialog
-                isOpen={isLocationSearchOpen}
-                onClose={() => setIsLocationSearchOpen(false)}
-                onSelect={(location) => setAdditionalInfo({ ...additionalInfo, location })}
-            />
+            <LocationSearchDialog />
         </ActivityLayout>
     );
 }
-
-import { AdditionalInfoForm } from "./components/AdditionalInfoForm";
-import { ParticipantSelector } from "./components/ParticipantSelector";
-import { ScheduleRankList } from "./components/ScheduleRankList";
-import { WeeklyTimeSelector } from "./components/WeeklyTimeSelector";
-import { LocationSearchDialog } from "./components/LocationSearchDialog";
 
