@@ -1,8 +1,8 @@
-import { useCalendarQuery } from "@/common/queries/useCalendarQuery";
 import { ParticipantSummary } from "@/app/actions/calendar";
+import { useCalendarQuery } from "@/common/queries/useCalendarQuery";
+import { useFlow } from "@/stackflow";
 import { addMinutes, eachDayOfInterval, format, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
-import { useFlow } from "@/stackflow";
 
 export type ChartDataPoint = {
     time: string;
@@ -38,7 +38,7 @@ export function useStatus(id: string) {
     const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
     const [selectedCount, setSelectedCount] = useState<number | null>(null);
 
-    const { replace } = useFlow();
+    const { push, replace, pop } = useFlow();
 
     const maxCount = useMemo(() => participants.length || 1, [participants]);
 
@@ -117,7 +117,7 @@ export function useStatus(id: string) {
     }, [calendar, participants, selectedVipIds]);
 
     const handleEdit = () => {
-        replace("SelectEdit", { id });
+        push("SelectEdit", { id });
     };
 
     const handleComplete = () => {
@@ -129,7 +129,7 @@ export function useStatus(id: string) {
             alert("일정 확인이 완료되었어요! 창을 닫아도 좋아요 👋");
             window.close();
         } else {
-            replace("Dashboard", {});
+            pop()
         }
     };
 
