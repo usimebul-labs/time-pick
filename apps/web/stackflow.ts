@@ -71,7 +71,7 @@ const stack = stackflow({
           CreateExclusions: "/exclusions",
           CreateDeadline: "/deadline",
         }),
-        Join: "/app/calendar/:id/guest",
+        Join: "/app/calendar/:id/join",
         Select: "/app/calendar/:id",
         SelectEdit: "/app/calendar/:id/edit",
         Result: "/app/calendar/:id/results",

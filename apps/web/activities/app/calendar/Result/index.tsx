@@ -2,20 +2,17 @@
 'use client';
 
 import { ActivityLayout } from "@/common/components/ActivityLayout";
-import { useResult } from "./useResult";
-import { Loader2, Calendar, MapPin, Share2, Plus, ChevronDown, ChevronUp, Clock, Info, Train, SquareParking, Banknote, Landmark, Phone, FileText, Home } from "lucide-react";
-import { cn } from "@repo/ui";
-import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
+import { ParticipantGrid } from "@/common/components/participant/ParticipantGrid";
+import { ShareCalendarSheet } from "@/common/components/ShareCalendarSheet";
+import { useLoginedUser } from "@/common/hooks/useLoginedUser";
+import { SharedParticipant } from "@/common/types/participant";
 import { useFlow } from "@/stackflow";
-import { useState } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { ParticipantGrid } from "@/common/components/participant/ParticipantGrid";
-import { SharedParticipant } from "@/common/types/participant";
-import { EventShareSheet } from "./components/EventShareSheet";
+import { Banknote, ChevronDown, ChevronUp, FileText, Info, Landmark, Loader2, MapPin, Phone, Plus, Share2, SquareParking, Train } from "lucide-react";
+import { useState } from "react";
 import { AppIcon } from "./components/AppIcon";
-import { useLoginedUser } from "@/common/hooks/useLoginedUser";
-import { ShareCalendarSheet } from "@/common/components/ShareCalendarSheet";
+import { useResult } from "./useResult";
 
 
 export default function Result({ params: { id } }: { params: { id: string } }) {
@@ -245,7 +242,7 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
                     description="일정에 초대합니다!"
                     open={isShareOpen}
                     onOpenChange={() => setIsShareOpen(false)}
-                    link={typeof window !== 'undefined' ? window.location.href : ''}
+                    link={`${window.location.origin}/app/calendar/${id}/result`}
                 />
             </div>
         </ActivityLayout>

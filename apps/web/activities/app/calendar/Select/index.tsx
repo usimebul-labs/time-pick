@@ -1,25 +1,22 @@
 "use client";
 
 import { ActivityLayout } from "@/common/components/ActivityLayout";
-import { useEffect } from "react";
 import { parseISO } from "date-fns";
-import { useSelectStore } from "./hooks/useSelectStore";
-import { useSelectData } from "./hooks/useSelectData";
+import { useEffect } from "react";
+import { CalendarDetails } from "./components/CalendarDetails";
 import { CalendarSection } from "./components/CalendarSection";
 import { ParticipantList } from "./components/ParticipantList";
-import { CalendarDetails } from "./components/CalendarDetails";
-import { SelectFooter } from "./components/SelectFooter";
-import { SelectShareDialog } from "./components/SelectShareDialog";
-import { SelectLoading } from "./components/SelectLoading";
 import { SelectError } from "./components/SelectError";
+import { SelectFooter } from "./components/SelectFooter";
+import { SelectLoading } from "./components/SelectLoading";
+import { useSelectData } from "./hooks/useSelectData";
+import { useSelectStore } from "./hooks/useSelectStore";
 
-import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
-import { useFlow } from "@/stackflow";
 
 export default function Select({ params: { id } }: { params: { id: string } }) {
     const { calendar, loading, error, participants, participation, isLoggedIn } = useSelectData(id);
     const reset = useSelectStore((state) => state.reset);
-    const { replace } = useFlow();
+    const { isShareOpen, setIsShareOpen, shareLink } = useSelectShare(id);
 
     useEffect(() => {
         return () => reset();
@@ -42,13 +39,21 @@ export default function Select({ params: { id } }: { params: { id: string } }) {
             </div>
 
             <SelectFooter id={id} calendar={calendar} participation={participation} isLoggedIn={isLoggedIn} />
-            <SelectShareDialog id={id} />
+            <ShareCalendarSheet
+                title="일정 공유하기"
+                description="친구들에게 일정을 공유해보세요."
+                open={isShareOpen}
+                onOpenChange={() => setIsShareOpen(false)}
+                link={shareLink}
+            />
         </ActivityLayout >
     );
 }
 
 
 import { ParticipantDetail } from "@/app/actions/calendar";
+import { ShareCalendarSheet } from "@/common/components/ShareCalendarSheet";
+import { useSelectShare } from "./hooks/useSelectShare";
 
 function StateInitializer({ participation }: { participation: ParticipantDetail | null }) {
     const setSelectedDates = useSelectStore((state) => state.setSelectedDates);

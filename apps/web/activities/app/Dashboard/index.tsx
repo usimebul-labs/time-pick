@@ -56,7 +56,7 @@ export default function Dashboard() {
                 description={selectedCalendar?.isConfirmed ? "친구들에게 일정을 공유해보세요." : "친구들에게 캘린더를 공유해보세요."}
                 open={isShareOpen}
                 onOpenChange={(open) => !open && closeShare()}
-                link={selectedCalendar?.isConfirmed ? `${window.location.origin}/app/calendar/${selectedCalendar?.id}/results/` : `${window.location.origin}/app/calendar/${selectedCalendar?.id}`}
+                link={selectedCalendar?.isConfirmed ? `${window.location.origin}/app/calendar/${selectedCalendar?.id}/results/` : `${window.location.origin}/app/calendar/${selectedCalendar?.id}/join`}
             />
 
             <DashboardMenuSheet

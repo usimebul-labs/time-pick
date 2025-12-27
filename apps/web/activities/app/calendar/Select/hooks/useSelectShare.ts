@@ -8,7 +8,7 @@ export function useSelectShare(id: string) {
 
     useEffect(() => {
         if (typeof window !== "undefined") {
-            setShareLink(`${window.location.origin}/app/calendar/${id}`);
+            setShareLink(`${window.location.origin}/app/calendar/${id}/join`);
             const lastCreatedId = sessionStorage.getItem("lastCreatedEventId");
             if (lastCreatedId === id) {
                 setIsShareOpen(true);
@@ -19,7 +19,7 @@ export function useSelectShare(id: string) {
 
     return {
         isShareOpen,
+        shareLink,
         setIsShareOpen,
-        shareLink
     };
 }
