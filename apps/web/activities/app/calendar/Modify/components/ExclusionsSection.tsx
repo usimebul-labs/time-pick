@@ -1,30 +1,26 @@
 import { Button, Card, CardContent, Input, Label, Checkbox } from "@repo/ui";
 import { X } from "lucide-react";
-import { ModifyFormState } from "../hooks/types";
+import { useModifyStore } from "../stores/useModifyStore";
 
-interface ExclusionsSectionProps {
-    data: ModifyFormState;
-    onChange: (updates: Partial<ModifyFormState>) => void;
-}
-
-export function ExclusionsSection({ data, onChange }: ExclusionsSectionProps) {
+export function ExclusionsSection() {
+    const { formState, updateForm } = useModifyStore();
 
     // Helper to add excluded date
     const addExcludedDate = (date: string) => {
-        if (!data.excludedDates.includes(date)) {
-            onChange({ excludedDates: [...data.excludedDates, date] });
+        if (!formState.excludedDates.includes(date)) {
+            updateForm({ excludedDates: [...formState.excludedDates, date] });
         }
     };
 
     // Helper to remove excluded date
     const removeExcludedDate = (date: string) => {
-        onChange({ excludedDates: data.excludedDates.filter(d => d !== date) });
+        updateForm({ excludedDates: formState.excludedDates.filter(d => d !== date) });
     };
 
     return (
         <section className="space-y-4">
             <label
-                className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all duration-200 ${data.excludeHolidays ? "bg-indigo-50 border-indigo-200" : "bg-white border-slate-200 hover:bg-slate-50"
+                className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all duration-200 ${formState.excludeHolidays ? "bg-indigo-50 border-indigo-200" : "bg-white border-slate-200 hover:bg-slate-50"
                     }`}
             >
                 <div>
@@ -34,8 +30,8 @@ export function ExclusionsSection({ data, onChange }: ExclusionsSectionProps) {
                     </span>
                 </div>
                 <Checkbox
-                    checked={data.excludeHolidays}
-                    onCheckedChange={(checked) => onChange({ excludeHolidays: checked === true })}
+                    checked={formState.excludeHolidays}
+                    onCheckedChange={(checked) => updateForm({ excludeHolidays: checked === true })}
                     className="w-5 h-5 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
                 />
             </label>
@@ -57,13 +53,13 @@ export function ExclusionsSection({ data, onChange }: ExclusionsSectionProps) {
                 </div>
                 <Card className="bg-gray-50 border-none">
                     <CardContent className="p-3">
-                        {data.excludedDates.length === 0 ? (
+                        {formState.excludedDates.length === 0 ? (
                             <p className="text-xs text-center text-gray-400 py-2">
                                 제외된 날짜가 없습니다.
                             </p>
                         ) : (
                             <div className="flex flex-wrap gap-2">
-                                {data.excludedDates.map((date: string) => (
+                                {formState.excludedDates.map((date: string) => (
                                     <div
                                         key={date}
                                         className="flex items-center bg-white border border-slate-200 px-2 py-1 rounded-lg text-sm text-slate-700 shadow-sm"

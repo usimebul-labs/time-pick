@@ -13,7 +13,8 @@ interface ActivityLayoutProps {
     };
     className?: string;
     backgroundColor?: string;
-    hideAppBar?: boolean
+    hideAppBar?: boolean;
+    contentRef?: React.Ref<HTMLDivElement>;
 }
 
 import { useLoginedUser } from "@/common/hooks/useLoginedUser";
@@ -21,7 +22,7 @@ import { useLoginedUser } from "@/common/hooks/useLoginedUser";
 import { AppBar } from "./AppBar";
 
 
-export function ActivityLayout({ children, appBar, className, backgroundColor, hideAppBar }: ActivityLayoutProps) {
+export function ActivityLayout({ children, appBar, className, backgroundColor, hideAppBar, contentRef }: ActivityLayoutProps) {
     const { user } = useLoginedUser();
 
     return (
@@ -33,7 +34,7 @@ export function ActivityLayout({ children, appBar, className, backgroundColor, h
                         right={appBar?.right ? appBar.right : user && <HomeButton />}
                     />
                 )}
-                <div className={cn("flex-1 overflow-hidden flex flex-col relative", className)}>
+                <div ref={contentRef} className={cn("flex-1 overflow-hidden flex flex-col relative", className)}>
                     {children}
                 </div>
             </div>

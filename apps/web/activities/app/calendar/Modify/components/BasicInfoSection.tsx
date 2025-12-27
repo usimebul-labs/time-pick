@@ -1,12 +1,11 @@
 import { Input, Label, Textarea } from "@repo/ui";
 import { ModifyFormState } from "../hooks/types";
 
-interface BasicInfoSectionProps {
-    data: ModifyFormState;
-    onChange: (updates: Partial<ModifyFormState>) => void;
-}
+import { useModifyStore } from "../stores/useModifyStore";
 
-export function BasicInfoSection({ data, onChange }: BasicInfoSectionProps) {
+export function BasicInfoSection() {
+    const { formState, updateForm } = useModifyStore();
+
     return (
         <section className="space-y-6">
             <div className="space-y-2">
@@ -15,8 +14,8 @@ export function BasicInfoSection({ data, onChange }: BasicInfoSectionProps) {
                 </Label>
                 <Input
                     name="title"
-                    value={data.title}
-                    onChange={(e) => onChange({ title: e.target.value })}
+                    value={formState.title}
+                    onChange={(e) => updateForm({ title: e.target.value })}
                     className="bg-white h-12 text-base"
                     required
                 />
@@ -25,8 +24,8 @@ export function BasicInfoSection({ data, onChange }: BasicInfoSectionProps) {
                 <Label className="text-base font-bold text-slate-900 block">설명</Label>
                 <Textarea
                     name="description"
-                    value={data.description}
-                    onChange={(e) => onChange({ description: e.target.value })}
+                    value={formState.description}
+                    onChange={(e) => updateForm({ description: e.target.value })}
                     className="bg-white resize-none min-h-[120px] text-base"
                 />
             </div>

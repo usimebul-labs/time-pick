@@ -1,16 +1,12 @@
 import { ParticipantList } from "@/common/components/participant/ParticipantList";
-import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardContent, Label } from "@repo/ui";
-import { Trash2 } from "lucide-react";
-import { format, parseISO } from "date-fns";
-import { ko } from "date-fns/locale";
-import { ParticipantSummary } from "@/app/actions/calendar";
+import { Card, CardContent, Label } from "@repo/ui";
+import { useParticipantManagement } from "../hooks/useParticipantManagement";
+import { useModifyStore } from "../stores/useModifyStore";
 
-interface ParticipantSectionProps {
-    participants: ParticipantSummary[];
-    onDelete: (id: string) => void;
-}
+export function ParticipantSection() {
+    const { participants } = useModifyStore();
+    const { handleDeleteParticipant } = useParticipantManagement();
 
-export function ParticipantSection({ participants, onDelete }: ParticipantSectionProps) {
     return (
         <section>
             <Label className="text-base font-bold text-slate-900 mb-2 block">참여자 관리</Label>
@@ -19,10 +15,11 @@ export function ParticipantSection({ participants, onDelete }: ParticipantSectio
                     <ParticipantList
                         participants={participants}
                         interaction="removable"
-                        onDelete={onDelete}
+                        onDelete={handleDeleteParticipant}
                     />
                 </CardContent>
             </Card>
         </section>
     );
 }
+

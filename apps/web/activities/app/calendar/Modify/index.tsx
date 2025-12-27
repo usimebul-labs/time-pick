@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { BasicInfoSection } from "./components/BasicInfoSection";
 import { ConflictDialog } from "./components/ConflictDialog";
@@ -11,56 +12,42 @@ import { ExclusionsSection } from "./components/ExclusionsSection";
 import { ModifyFooter } from "./components/ModifyFooter";
 import { ModifyLoading } from "./components/ModifyLoading";
 import { ParticipantSection } from "./components/ParticipantSection";
-import { useModify } from "./hooks/useModify";
+import { useModifyInit } from "./hooks/useModifyInit";
+import { useModifyForm } from "./hooks/useModifyForm";
+import { useConflictHandling } from "./hooks/useConflictHandling";
 
 export default function Modify({ params: { id } }: { params: { id: string } }) {
-    const {
-        loading,
-        isPending,
-        formState,
-        participants,
-        updateForm,
-        handleSubmit,
-        showConflictDialog,
-        setShowConflictDialog,
-        conflictedParticipants,
-        handleConfirmConflict,
-        showDeleteDialog,
-        setShowDeleteDialog,
-        handleDeleteParticipant,
-        handleConfirmDeleteParticipant,
-    } = useModify(id);
+    const [container, setContainer] = useState<HTMLDivElement | null>(null);
+    const { loading } = useModifyInit(id);
+    const { handleSubmit } = useModifyForm(id);
+    const { handleConfirmConflict } = useConflictHandling(id);
 
     if (loading) return <ModifyLoading />;
 
-
     return (
-        <ActivityLayout appBar={{ title: "일정 수정하기" }} className="bg-slate-50">
+        <ActivityLayout appBar={{ title: "일정 수정하기" }} className="bg-slate-50" contentRef={setContainer}>
             <form id="modify-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-8">
-                <BasicInfoSection data={formState} onChange={updateForm} />
-                <DateRangeSection data={formState} onChange={updateForm} />
+                <BasicInfoSection />
+                <DateRangeSection />
                 <hr />
-                <ExcludedDaysSection data={formState} onChange={updateForm} />
-                <ExclusionsSection data={formState} onChange={updateForm} />
-                <DeadlineSection data={formState} onChange={updateForm} />
+                <ExcludedDaysSection />
+                <ExclusionsSection />
+                <DeadlineSection />
                 <hr />
-                <ParticipantSection participants={participants} onDelete={handleDeleteParticipant} />
+                <ParticipantSection />
             </form>
 
-            <ModifyFooter isPending={isPending} formId="modify-form" />
+            <ModifyFooter formId="modify-form" />
 
             <ConflictDialog
-                open={showConflictDialog}
-                onOpenChange={setShowConflictDialog}
-                conflictedParticipants={conflictedParticipants}
                 onConfirm={handleConfirmConflict}
+                container={container}
             />
 
             <DeleteParticipantDialog
-                open={showDeleteDialog}
-                onOpenChange={setShowDeleteDialog}
-                onConfirm={handleConfirmDeleteParticipant}
+                container={container}
             />
+
         </ActivityLayout>
     );
 }

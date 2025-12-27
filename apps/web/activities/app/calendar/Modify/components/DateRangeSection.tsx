@@ -2,28 +2,27 @@ import { Card, CardContent, Input, Label } from "@repo/ui";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { ModifyFormState } from "../hooks/types";
 
-interface DateRangeSectionProps {
-    data: ModifyFormState;
-    onChange: (updates: Partial<ModifyFormState>) => void;
-}
+import { useModifyStore } from "../stores/useModifyStore";
 
-export function DateRangeSection({ data, onChange }: DateRangeSectionProps) {
+export function DateRangeSection() {
+    const { formState, updateForm } = useModifyStore();
+
     const handleEndDateChange = (newEndDate: string) => {
         const updates: Partial<ModifyFormState> = { endDate: newEndDate };
 
         // Auto-adjust deadline if it exceeds the new end date
         if (newEndDate) {
-            if (!data.deadline) {
+            if (!formState.deadline) {
                 updates.deadline = `${newEndDate}T23:59`;
             } else {
                 const endTimestamp = new Date(`${newEndDate}T23:59:59`).getTime();
-                const deadlineTimestamp = new Date(data.deadline).getTime();
+                const deadlineTimestamp = new Date(formState.deadline).getTime();
                 if (endTimestamp > deadlineTimestamp) {
                     updates.deadline = `${newEndDate}T23:59`;
                 }
             }
         }
-        onChange(updates);
+        updateForm(updates);
     };
 
     return (
@@ -39,8 +38,8 @@ export function DateRangeSection({ data, onChange }: DateRangeSectionProps) {
                             <Label className="text-xs text-gray-500 mb-1 block">시작일</Label>
                             <Input
                                 type="date"
-                                value={data.startDate}
-                                onChange={(e) => onChange({ startDate: e.target.value })}
+                                value={formState.startDate}
+                                onChange={(e) => updateForm({ startDate: e.target.value })}
                                 required
                             />
                         </div>
@@ -48,7 +47,7 @@ export function DateRangeSection({ data, onChange }: DateRangeSectionProps) {
                             <Label className="text-xs text-gray-500 mb-1 block">종료일</Label>
                             <Input
                                 type="date"
-                                value={data.endDate}
+                                value={formState.endDate}
                                 onChange={(e) => handleEndDateChange(e.target.value)}
                                 required
                             />
@@ -57,7 +56,7 @@ export function DateRangeSection({ data, onChange }: DateRangeSectionProps) {
                 </Card>
             </section>
 
-            {data.scheduleType === 'datetime' && (
+            {formState.scheduleType === 'datetime' && (
                 <section>
                     <Label className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
                         <Clock className="w-5 h-5 text-primary" />
@@ -71,8 +70,8 @@ export function DateRangeSection({ data, onChange }: DateRangeSectionProps) {
                                     type="number"
                                     min={0}
                                     max={23}
-                                    value={data.startHour}
-                                    onChange={(e) => onChange({ startHour: Number(e.target.value) })}
+                                    value={formState.startHour}
+                                    onChange={(e) => updateForm({ startHour: Number(e.target.value) })}
                                 />
                             </div>
                             <div>
@@ -81,8 +80,8 @@ export function DateRangeSection({ data, onChange }: DateRangeSectionProps) {
                                     type="number"
                                     min={0}
                                     max={23}
-                                    value={data.endHour}
-                                    onChange={(e) => onChange({ endHour: Number(e.target.value) })}
+                                    value={formState.endHour}
+                                    onChange={(e) => updateForm({ endHour: Number(e.target.value) })}
                                 />
                             </div>
                         </CardContent>

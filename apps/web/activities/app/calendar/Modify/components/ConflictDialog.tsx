@@ -9,19 +9,18 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@repo/ui";
-import { ConflictedParticipant } from "../hooks/types";
+import { useModifyStore } from "../stores/useModifyStore";
 
 interface ConflictDialogProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    conflictedParticipants: ConflictedParticipant[];
     onConfirm: () => void;
+    container?: HTMLElement | null;
 }
 
-export function ConflictDialog({ open, onOpenChange, conflictedParticipants, onConfirm }: ConflictDialogProps) {
+export function ConflictDialog({ onConfirm, container }: ConflictDialogProps) {
+    const { showConflictDialog, setConflictDialog, conflictedParticipants } = useModifyStore();
     return (
-        <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="max-w-md w-[90%] rounded-lg">
+        <AlertDialog open={showConflictDialog} onOpenChange={setConflictDialog}>
+            <AlertDialogContent className="max-w-md w-[90%] rounded-lg" portalContainer={container}>
                 <AlertDialogHeader>
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">

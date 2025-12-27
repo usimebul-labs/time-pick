@@ -1,10 +1,7 @@
 import { Card, CardContent, Label } from "@repo/ui";
 import { ModifyFormState, DayOption } from "../hooks/types";
 
-interface ExcludedDaysSectionProps {
-    data: ModifyFormState;
-    onChange: (updates: Partial<ModifyFormState>) => void;
-}
+import { useModifyStore } from "../stores/useModifyStore";
 
 const DAYS: DayOption[] = [
     { id: "Sun", label: "일", isWeekend: true },
@@ -16,12 +13,14 @@ const DAYS: DayOption[] = [
     { id: "Sat", label: "토", isWeekend: true },
 ];
 
-export function ExcludedDaysSection({ data, onChange }: ExcludedDaysSectionProps) {
+export function ExcludedDaysSection() {
+    const { formState, updateForm } = useModifyStore();
+
     const toggleDay = (dayId: string) => {
-        const newEnabledDays = data.enabledDays.includes(dayId)
-            ? data.enabledDays.filter((d) => d !== dayId)
-            : [...data.enabledDays, dayId];
-        onChange({ enabledDays: newEnabledDays });
+        const newEnabledDays = formState.enabledDays.includes(dayId)
+            ? formState.enabledDays.filter((d) => d !== dayId)
+            : [...formState.enabledDays, dayId];
+        updateForm({ enabledDays: newEnabledDays });
     };
 
     const selectDays = (type: "all" | "weekday" | "weekend") => {
@@ -33,7 +32,7 @@ export function ExcludedDaysSection({ data, onChange }: ExcludedDaysSectionProps
         } else if (type === "weekend") {
             newEnabledDays = DAYS.filter((d) => d.isWeekend).map((d) => d.id);
         }
-        onChange({ enabledDays: newEnabledDays });
+        updateForm({ enabledDays: newEnabledDays });
     };
 
     return (
@@ -50,7 +49,7 @@ export function ExcludedDaysSection({ data, onChange }: ExcludedDaysSectionProps
                 <CardContent className="p-4">
                     <div className="flex flex-nowrap justify-between gap-1">
                         {DAYS.map((day) => {
-                            const isSelected = data.enabledDays.includes(day.id);
+                            const isSelected = formState.enabledDays.includes(day.id);
                             return (
                                 <button
                                     key={day.id}

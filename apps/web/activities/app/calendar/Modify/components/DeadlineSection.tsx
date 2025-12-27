@@ -1,21 +1,17 @@
 import { Card, CardContent, Checkbox, Input, Label } from "@repo/ui";
-import { ModifyFormState } from "../hooks/types";
+import { useModifyStore } from "../stores/useModifyStore";
 
-interface DeadlineSectionProps {
-    data: ModifyFormState;
-    onChange: (updates: Partial<ModifyFormState>) => void;
-}
-
-export function DeadlineSection({ data, onChange }: DeadlineSectionProps) {
-    const isUnlimited = !data.deadline;
+export function DeadlineSection() {
+    const { formState, updateForm } = useModifyStore();
+    const isUnlimited = !formState.deadline;
 
     const handleUnlimitedChange = (checked: boolean) => {
         if (checked) {
-            onChange({ deadline: "" });
+            updateForm({ deadline: "" });
         } else {
             // Default to end date end of day, or now if not set
-            const defaultDate = data.endDate ? `${data.endDate}T23:59` : new Date().toISOString().slice(0, 16);
-            onChange({ deadline: defaultDate });
+            const defaultDate = formState.endDate ? `${formState.endDate}T23:59` : new Date().toISOString().slice(0, 16);
+            updateForm({ deadline: defaultDate });
         }
     };
 
@@ -44,8 +40,8 @@ export function DeadlineSection({ data, onChange }: DeadlineSectionProps) {
                     <CardContent className="p-4">
                         <Input
                             type="datetime-local"
-                            value={data.deadline}
-                            onChange={(e) => onChange({ deadline: e.target.value })}
+                            value={formState.deadline}
+                            onChange={(e) => updateForm({ deadline: e.target.value })}
                         />
                     </CardContent>
                 </Card>

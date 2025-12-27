@@ -8,17 +8,22 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@repo/ui";
+import { useModifyStore } from "../stores/useModifyStore";
+import { useParticipantManagement } from "../hooks/useParticipantManagement";
+
+
 
 interface DeleteParticipantDialogProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onConfirm: () => void;
+    container?: HTMLElement | null;
 }
 
-export function DeleteParticipantDialog({ open, onOpenChange, onConfirm }: DeleteParticipantDialogProps) {
+export function DeleteParticipantDialog({ container }: DeleteParticipantDialogProps) {
+    const { showDeleteDialog, setDeleteDialog } = useModifyStore();
+    const { handleConfirmDeleteParticipant } = useParticipantManagement();
+
     return (
-        <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="w-[90%] max-w-md rounded-lg">
+        <AlertDialog open={showDeleteDialog} onOpenChange={setDeleteDialog}>
+            <AlertDialogContent className="w-[90%] max-w-md rounded-lg" portalContainer={container}>
                 <AlertDialogHeader>
                     <AlertDialogTitle>참여자 삭제</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -27,7 +32,7 @@ export function DeleteParticipantDialog({ open, onOpenChange, onConfirm }: Delet
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>취소</AlertDialogCancel>
-                    <AlertDialogAction onClick={onConfirm} className="bg-red-600 hover:bg-red-700">
+                    <AlertDialogAction onClick={handleConfirmDeleteParticipant} className="bg-red-600 hover:bg-red-700">
                         삭제
                     </AlertDialogAction>
                 </AlertDialogFooter>
