@@ -1,18 +1,17 @@
 import { Button, Input, Label } from "@repo/ui";
 import { ArrowRight } from "lucide-react";
+import { useGuestForm } from "../hooks/useGuestForm";
 
 interface GuestFormProps {
-    name: string;
-    setName: (name: string) => void;
-    loading: boolean;
-    onSubmit: (e: React.FormEvent) => void;
-    onLoginRedirect: () => void;
+    id: string;
 }
 
-export function GuestForm({ name, setName, loading, onSubmit, onLoginRedirect }: GuestFormProps) {
+export function GuestForm({ id }: GuestFormProps) {
+    const { name, setName, loading, handleSubmit, handleLoginRedirect } = useGuestForm(id);
+
     return (
         <div className="w-full">
-            <form onSubmit={onSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="guest-name" className="sr-only">이름</Label>
                     <Input
@@ -39,7 +38,7 @@ export function GuestForm({ name, setName, loading, onSubmit, onLoginRedirect }:
 
             <div className="mt-6 text-center">
                 <p className="text-xs text-gray-400">
-                    이미 계정이 있으신가요? <span className="underline cursor-pointer" onClick={onLoginRedirect}>로그인하기</span>
+                    이미 계정이 있으신가요? <span className="underline cursor-pointer" onClick={handleLoginRedirect}>로그인하기</span>
                 </p>
             </div>
         </div>

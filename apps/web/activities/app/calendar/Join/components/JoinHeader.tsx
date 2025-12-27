@@ -1,10 +1,13 @@
+import { useJoinHeader } from "../hooks/useJoinHeader";
+
 interface JoinHeaderProps {
-    hostAvatar: string;
-    hostName: string;
-    calendarTitle: string;
+    id: string;
 }
 
-export function JoinHeader({ hostAvatar, hostName, calendarTitle }: JoinHeaderProps) {
+export function JoinHeader({ id }: JoinHeaderProps) {
+    const { calendarTitle, hostName, hostAvatar } = useJoinHeader(id);
+
+
     return (
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center mb-8">
             {hostAvatar ? (

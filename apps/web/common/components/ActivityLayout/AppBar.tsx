@@ -1,9 +1,9 @@
 "use client";
 
+import { useFlow } from "@/stackflow";
 import { cn } from "@repo/ui";
-import { ChevronLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useStack } from "@stackflow/react";
+import { ChevronLeft } from "lucide-react";
 
 interface AppBarProps {
     title?: React.ReactNode;
@@ -12,12 +12,12 @@ interface AppBarProps {
 }
 
 export function AppBar({ title, right, className }: AppBarProps) {
-    const router = useRouter();
     const stack = useStack();
+    const { pop } = useFlow();
     const canGoBack = stack.activities.length > 1;
 
     const handleBack = () => {
-        router.back();
+        pop();
     };
 
     return (
