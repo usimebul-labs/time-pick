@@ -1,10 +1,5 @@
-import { useResult } from "../useResult"; // Re-using existing logic but wrapping it if needed, or we can just stick to `useResult` as "useResultInit" since it's already doing exactly that.
-// However, to follow the pattern, we might want to rename `useResult.ts` to `hooks/useResultInit.ts` or similar.
-// For now, let's create a clean hook that might use the existing logic or replace it.
-// The existing `useResult` fetches data. Let's modernize it to be `useResultInit`.
-
-import { useState, useEffect } from "react";
-import { getConfirmedCalendarResult, ConfirmedCalendarResult } from "@/app/actions/calendar";
+import { ConfirmedCalendarResult, getConfirmedCalendarResult } from "@/app/actions/calendar";
+import { useEffect, useState } from "react";
 
 export function useResultInit(calendarId: string) {
     const [resultData, setResultData] = useState<ConfirmedCalendarResult | null>(null);
