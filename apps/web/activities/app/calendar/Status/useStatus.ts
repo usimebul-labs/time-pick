@@ -129,7 +129,7 @@ export function useStatus(id: string) {
             alert("일정 확인이 완료되었어요! 창을 닫아도 좋아요 👋");
             window.close();
         } else {
-            pop()
+            replace("Dashboard", {}, { animate: false });
         }
     };
 

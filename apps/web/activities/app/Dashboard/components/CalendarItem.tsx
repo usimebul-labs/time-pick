@@ -38,14 +38,17 @@ export function CalendarItem({ calendar, user }: CalendarItemProps) {
     const handleSelect: MouseEventHandler<HTMLDivElement> = (e) => {
         e.stopPropagation();
         const isParticipating = calendar.participants.some(p => p.userId === user.id);
+        if (calendar.isConfirmed) {
+            push("Result", { id: calendar.id });
+            return;
+        }
 
         if (isParticipating) {
             push("Status", { id: calendar.id });
-        } else if (calendar.isConfirmed) {
-            push("Result", { id: calendar.id });
-        } else {
-            push("Select", { id: calendar.id });
+            return
         }
+
+        push("Select", { id: calendar.id });
     }
 
     const handleShare: MouseEventHandler<HTMLButtonElement> = (e) => {

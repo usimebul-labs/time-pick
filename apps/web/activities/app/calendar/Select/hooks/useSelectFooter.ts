@@ -13,7 +13,7 @@ export function useSelectFooter(
     participation: ParticipantDetail | null,
     isLoggedIn: boolean
 ) {
-    const { replace } = useFlow();
+    const { replace, push } = useFlow();
     const { selectedDates } = useSelectStore();
     const queryClient = useQueryClient();
     const { show, hide } = useLoading();
@@ -59,7 +59,7 @@ export function useSelectFooter(
 
         await queryClient.invalidateQueries({ queryKey: ['calendar', id] });
         alert("일정이 등록되었습니다.");
-        replace("Status", { id: calendar.id });
+        push("Status", { id: calendar.id });
 
     }
 

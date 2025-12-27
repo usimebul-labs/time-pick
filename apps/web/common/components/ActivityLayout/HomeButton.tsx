@@ -14,7 +14,7 @@ export function HomeButton({ className, disabled }: HomeButtonProps) {
 
 
     const resetToHome = () => {
-        location.href = "/app/dashboard";
+        replace("Dashboard", {}, { animate: false });
     };
 
 

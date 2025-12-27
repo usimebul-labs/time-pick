@@ -38,19 +38,6 @@ export function useSelectData(id: string) {
         if (error) {
             setError(error);
         } else {
-            const pendingGuest = useGuestStore.getState().pendingGuest;
-            const isPendingGuest = pendingGuest && pendingGuest.calendarId === id;
-
-            if (!participation && !guestPin && !isLoggedIn && !isPendingGuest) {
-                replace("Join", { id });
-                return;
-            }
-
-            if (participation && activity.name !== "SelectEdit") {
-                replace("Status", { id });
-                return;
-            }
-
             setCalendar(calendar);
             setParticipation(participation);
             setIsLoggedIn(isLoggedIn);
