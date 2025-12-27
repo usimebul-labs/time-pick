@@ -3,17 +3,8 @@
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { GuestForm } from "./components/GuestForm";
 import { JoinHeader } from "./components/JoinHeader";
-import { useJoin } from "./hooks/useJoin";
 
 export default function Join({ params: { id } }: { params: { id: string } }) {
-    const {
-        name,
-        setName,
-        loading,
-        handleSubmit,
-        handleLoginRedirect
-    } = useJoin(id);
-
     return (
         <ActivityLayout appBar={{ title: "모임 참여" }} className="bg-slate-50">
             <div className="flex flex-col h-full bg-slate-50 p-6">
