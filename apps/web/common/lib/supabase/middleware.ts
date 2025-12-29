@@ -51,12 +51,12 @@ export async function updateSession(request: NextRequest) {
         /^\/app\/calendar\/[^/]+\/modify$/,
     ];
     const isProtectedRoute = protectedPatterns.some(pattern => pattern.test(request.nextUrl.pathname));
-    const isLoginPage = request.nextUrl.pathname.startsWith('/login')
+    const isLoginPage = request.nextUrl.pathname.startsWith('/app/login')
 
     if (!user && isProtectedRoute) {
         // no user, potentially respond by redirecting the user to the login page
         const url = request.nextUrl.clone()
-        url.pathname = '/login'
+        url.pathname = '/app/login'
         return NextResponse.redirect(url)
     }
 

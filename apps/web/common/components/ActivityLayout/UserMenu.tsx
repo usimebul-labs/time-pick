@@ -3,13 +3,14 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
 import { LogOut, User as UserIcon } from "lucide-react";
-import { supabase } from "@/common/lib/supabase";
+import { createClient } from "@/common/lib/supabase/client";
 
 interface UserMenuProps {
     user: User | null;
 }
 
 export function UserMenu({ user }: UserMenuProps) {
+    const supabase = createClient();
     const handleLogout = async () => {
         await supabase.auth.signOut();
         window.location.reload();
