@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card, CardContent, Input, Label, Checkbox } from "@repo/ui";
-import { RotateCcw, Trash2, X, ArrowRight } from "lucide-react";
+import { RotateCcw, Trash2, X, ArrowRight, Calendar } from "lucide-react";
 import { useExclusions } from "../hooks/useExclusions";
 import CreateLayout from "./CreateLayout";
 
@@ -97,18 +97,21 @@ export default function CreateExclusions() {
                 <div className="space-y-3">
                     <Label className="text-base font-bold block text-slate-900">이 날은 안 돼요 (선택)</Label>
                     <div className="flex gap-2">
-                        <Input
-                            type="date"
-                            min={data.startDate}
-                            max={data.endDate}
-                            className="flex-1 bg-white border-slate-200 rounded-xl"
-                            onChange={(e) => {
-                                if (e.target.value) {
-                                    addExcludedDate(e.target.value);
-                                    e.target.value = ""; // Reset input
-                                }
-                            }}
-                        />
+                        <div className="relative flex-1">
+                            <Input
+                                type="date"
+                                min={data.startDate}
+                                max={data.endDate}
+                                className="w-full bg-white border-slate-200 rounded-xl"
+                                onChange={(e) => {
+                                    if (e.target.value) {
+                                        addExcludedDate(e.target.value);
+                                        e.target.value = ""; // Reset input
+                                    }
+                                }}
+                            />
+                            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                        </div>
                     </div>
                     <Card className="bg-gray-50 border-none">
                         <CardContent className="p-3">
