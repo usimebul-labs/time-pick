@@ -7,7 +7,6 @@ export async function GET(request: Request) {
     const code = searchParams.get('code')
     const next = searchParams.get('next') ?? '/app/dashboard'
 
-
     if (!code)
         return NextResponse.redirect(`${origin}/app/auth/auth-code-error?error=${encodeURIComponent("No code provided")}`)
 
@@ -16,43 +15,6 @@ export async function GET(request: Request) {
 
     if (error)
         return NextResponse.redirect(`${origin}/app/auth/auth-code-error?error=${encodeURIComponent(error.message)}`)
-
-    const { data: { user } } = await supabase.auth.getUser()
-
-
-    if (user) {
-        try {
-            const email = user.email!
-            const fullName = user.user_metadata?.full_name || user.user_metadata?.name || email?.split("@")[0] || "User"
-            const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
-
-            // Check if profile exists
-            const { data: existingProfile, error: searchError } = await supabase
-                .from('profiles')
-                .select('id')
-                .eq('email', email)
-                .maybeSingle()
-
-
-            console.log(existingProfile)
-
-            if (!existingProfile) {
-                // Create profile
-                const { error: insertError } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id: user.id, // Ensure profile ID matches Auth User ID
-                        email,
-                        full_name: fullName,
-                        avatar_url: avatarUrl,
-                    })
-
-                if (insertError) throw insertError;
-            }
-        } catch (e: any) {
-            return NextResponse.redirect(`${origin}/app/auth/auth-code-error?error=${encodeURIComponent(e.message)}`)
-        }
-    }
 
     const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
     const isLocalEnv = process.env.NODE_ENV === 'development'
