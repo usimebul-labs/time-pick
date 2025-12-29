@@ -1,7 +1,7 @@
 "use server";
 
 import { createServerClient } from "@repo/database";
-import { getSupabaseAdmin } from "@repo/database";
+
 import { revalidatePath } from "next/cache";
 import {
     CreateCalendarState,
@@ -16,7 +16,7 @@ import {
 export async function createCalendar(prevState: CreateCalendarState, formData: FormData): Promise<CreateCalendarState> {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const supabaseAdmin = getSupabaseAdmin();
+
 
     if (!user) return { error: "로그인 후 이용해주세요." }
 
@@ -69,7 +69,7 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
         const excludedDates = excludedDatesStr ? JSON.parse(excludedDatesStr) as string[] : [];
         const hostId = user.id;
 
-        const { data: calendar, error } = await supabaseAdmin
+        const { data: calendar, error } = await supabase
             .from('calendars')
             .insert({
                 host_id: hostId,
@@ -102,10 +102,10 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
 export async function getCalendarWithParticipation(calendarId: string, guestPin?: string): Promise<GetCalendarWithParticipationState> {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const supabaseAdmin = getSupabaseAdmin();
+
 
     try {
-        const { data: calendar, error: calendarError } = await supabaseAdmin
+        const { data: calendar, error: calendarError } = await supabase
             .from('calendars')
             .select(`
                 *,
@@ -122,7 +122,7 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
 
         // 1. Try User Login
         if (user) {
-            const { data: p, error } = await supabaseAdmin
+            const { data: p, error } = await supabase
                 .from('participants')
                 .select(`
                     *,
@@ -143,7 +143,7 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
 
         // 2. Try Guest Login (if not found as user)
         if (!participation && guestPin) {
-            const { data: p, error } = await supabaseAdmin
+            const { data: p, error } = await supabase
                 .from('participants')
                 .select(`
                     *,
@@ -162,7 +162,7 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
             }
         }
 
-        const { data: allParticipantsData, error: participantsError } = await supabaseAdmin
+        const { data: allParticipantsData, error: participantsError } = await supabase
             .from('participants')
             .select(`
                 *,
@@ -216,12 +216,12 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
 export async function deleteCalendar(calendarId: string): Promise<{ success: boolean; error?: string }> {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const supabaseAdmin = getSupabaseAdmin();
+
 
     if (!user) return { success: false, error: "로그인 후 이용해주세요." }
 
     try {
-        const { data: calendar, error: findError } = await supabaseAdmin
+        const { data: calendar, error: findError } = await supabase
             .from('calendars')
             .select('host_id')
             .eq('id', calendarId)
@@ -232,7 +232,7 @@ export async function deleteCalendar(calendarId: string): Promise<{ success: boo
         if (calendar.host_id !== user.id) return { success: false, error: "권한이 없습니다." };
 
 
-        const { error: deleteError } = await supabaseAdmin
+        const { error: deleteError } = await supabase
             .from('calendars')
             .delete()
             .eq('id', calendarId);
@@ -250,7 +250,7 @@ export async function deleteCalendar(calendarId: string): Promise<{ success: boo
 export async function updateCalendar(calendarId: string, formData: FormData, confirmDelete: boolean = false): Promise<UpdateCalendarState> {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const supabaseAdmin = getSupabaseAdmin();
+
 
     if (!user) return { error: "로그인 후 이용해주세요." }
 
@@ -272,7 +272,7 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
 
 
     try {
-        const { data: oldCalendar, error: fetchError } = await supabaseAdmin
+        const { data: oldCalendar, error: fetchError } = await supabase
             .from('calendars')
             .select(`
                 *,
@@ -377,7 +377,7 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
         }
 
         // Sequential update
-        const { error: updateError } = await supabaseAdmin
+        const { error: updateError } = await supabase
             .from('calendars')
             .update({
                 title,
@@ -396,7 +396,7 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
         if (updateError) throw new Error(updateError.message);
 
         if (invalidAvailabilityIds.length > 0) {
-            const { error: deleteError } = await supabaseAdmin
+            const { error: deleteError } = await supabase
                 .from('availabilities')
                 .delete()
                 .in('id', invalidAvailabilityIds);
@@ -430,13 +430,13 @@ export async function confirmCalendar(
 ): Promise<ConfirmCalendarState> {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const supabaseAdmin = getSupabaseAdmin();
+
 
     if (!user) return { error: "로그인이 필요합니다." };
 
 
     try {
-        const { data: calendar, error: findError } = await supabaseAdmin
+        const { data: calendar, error: findError } = await supabase
             .from('calendars')
             .select('host_id, event_type')
             .eq('id', calendarId)
@@ -460,7 +460,7 @@ export async function confirmCalendar(
         }
 
         // Sequential update
-        const { error: updateError } = await supabaseAdmin
+        const { error: updateError } = await supabase
             .from('calendars')
             .update({ is_confirmed: true })
             .eq('id', calendarId);
@@ -470,7 +470,7 @@ export async function confirmCalendar(
         // Upsert Event
         // In Supabase upsert, need to specify 'onConflict' if not PK? 
         // calendar_id is unique in events table, so it should work if we include it.
-        const { error: eventError } = await supabaseAdmin
+        const { error: eventError } = await supabase
             .from('events')
             .upsert({
                 calendar_id: calendarId,
@@ -499,8 +499,8 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
     error?: string;
 }> {
     try {
-        const supabaseAdmin = getSupabaseAdmin();
-        const { data: calendar, error: findError } = await supabaseAdmin
+        const supabase = await createServerClient();
+        const { data: calendar, error: findError } = await supabase
             .from('calendars')
             .select(`
                 *,

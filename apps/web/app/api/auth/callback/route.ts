@@ -26,12 +26,8 @@ export async function GET(request: Request) {
             const fullName = user.user_metadata?.full_name || user.user_metadata?.name || email?.split("@")[0] || "User"
             const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
 
-            // Initialize admin client to bypass RLS
-            const { getSupabaseAdmin } = await import('@repo/database')
-            const supabaseAdmin = getSupabaseAdmin()
-
             // Check if profile exists
-            const { data: existingProfile, error: searchError } = await supabaseAdmin
+            const { data: existingProfile, error: searchError } = await supabase
                 .from('profiles')
                 .select('id')
                 .eq('email', email)
@@ -42,7 +38,7 @@ export async function GET(request: Request) {
 
             if (!existingProfile) {
                 // Create profile
-                const { error: insertError } = await supabaseAdmin
+                const { error: insertError } = await supabase
                     .from('profiles')
                     .insert({
                         id: user.id, // Ensure profile ID matches Auth User ID

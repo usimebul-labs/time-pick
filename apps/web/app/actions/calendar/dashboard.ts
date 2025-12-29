@@ -1,16 +1,16 @@
 "use server";
 
-import { getSupabaseAdmin } from "@repo/database";
+import { createServerClient } from "@repo/database";
 import { User } from "@supabase/supabase-js";
 import { DashboardCalendar } from "./types";
 
 export async function getCalendars(user: User): Promise<{ calendars: DashboardCalendar[]; error?: string; }> {
     if (!user) return { calendars: [] };
-    const supabaseAdmin = getSupabaseAdmin();
+    const supabase = await createServerClient();
 
     try {
         // 1. Get calendar IDs where user is a participant
-        const { data: participations, error: pError } = await supabaseAdmin
+        const { data: participations, error: pError } = await supabase
             .from('participants')
             .select('calendar_id')
             .eq('user_id', user.id);
@@ -24,7 +24,7 @@ export async function getCalendars(user: User): Promise<{ calendars: DashboardCa
         }
 
         // 2. Fetch calendars with details
-        const { data: calendarsData, error: cError } = await supabaseAdmin
+        const { data: calendarsData, error: cError } = await supabase
             .from('calendars')
             .select(`
                 *,

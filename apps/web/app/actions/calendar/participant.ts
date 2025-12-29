@@ -1,7 +1,7 @@
 "use server";
 
 import { createServerClient } from "@repo/database";
-import { getSupabaseAdmin } from "@repo/database";
+
 import { revalidatePath } from "next/cache";
 
 export async function joinSchedule(
@@ -11,7 +11,7 @@ export async function joinSchedule(
 ): Promise<{ success: boolean; error?: string }> {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const supabaseAdmin = getSupabaseAdmin();
+
 
     try {
         let participantId: string;
@@ -19,7 +19,7 @@ export async function joinSchedule(
         if (user) {
             // 1. User is logged in
             // Find or create participant linked to user
-            const { data: existing, error: findError } = await supabaseAdmin
+            const { data: existing, error: findError } = await supabase
                 .from('participants')
                 .select('id')
                 .eq('calendar_id', calendarId)
@@ -34,7 +34,7 @@ export async function joinSchedule(
             } else {
                 // Ensure profile exists
                 // Upsert profile
-                const { error: profileError } = await supabaseAdmin
+                const { error: profileError } = await supabase
                     .from('profiles')
                     .upsert({
                         id: user.id,
@@ -46,7 +46,7 @@ export async function joinSchedule(
                 if (profileError) throw new Error(profileError.message);
 
                 // Create participant
-                const { data: newParticipant, error: createError } = await supabaseAdmin
+                const { data: newParticipant, error: createError } = await supabase
                     .from('participants')
                     .insert({
                         calendar_id: calendarId,
@@ -63,7 +63,7 @@ export async function joinSchedule(
             // 2. Guest User
             if (guestInfo?.pin) {
                 // Try to find existing guest by PIN
-                const { data: existing, error: findError } = await supabaseAdmin
+                const { data: existing, error: findError } = await supabase
                     .from('participants')
                     .select('id')
                     .eq('calendar_id', calendarId)
@@ -77,7 +77,7 @@ export async function joinSchedule(
                 }
             } else if (guestInfo?.name) {
                 // Create new guest participant
-                const { data: newParticipant, error: createError } = await supabaseAdmin
+                const { data: newParticipant, error: createError } = await supabase
                     .from('participants')
                     .insert({
                         calendar_id: calendarId,
@@ -97,7 +97,7 @@ export async function joinSchedule(
         // 3. Save Availability
         // Sequential "transaction": Delete then Create
         // Delete existing
-        const { error: deleteError } = await supabaseAdmin
+        const { error: deleteError } = await supabase
             .from('availabilities')
             .delete()
             .eq('participant_id', participantId);
@@ -106,7 +106,7 @@ export async function joinSchedule(
 
         // Create new
         if (selectedSlots.length > 0) {
-            const { error: insertError } = await supabaseAdmin
+            const { error: insertError } = await supabase
                 .from('availabilities')
                 .insert(
                     selectedSlots.map(slot => ({
@@ -130,11 +130,11 @@ export async function joinSchedule(
 }
 
 export async function createGuestParticipant(calendarId: string, name: string): Promise<{ success: boolean; pin?: string; error?: string }> {
+    const supabase = await createServerClient();
     try {
-        const supabaseAdmin = getSupabaseAdmin();
         const pin = Math.floor(100000 + Math.random() * 900000).toString();
 
-        const { error } = await supabaseAdmin
+        const { error } = await supabase
             .from('participants')
             .insert({
                 calendar_id: calendarId,
@@ -152,9 +152,9 @@ export async function createGuestParticipant(calendarId: string, name: string): 
 }
 
 export async function loginGuestParticipant(calendarId: string, pin: string): Promise<{ success: boolean; error?: string }> {
+    const supabase = await createServerClient();
     try {
-        const supabaseAdmin = getSupabaseAdmin();
-        const { data: participant, error } = await supabaseAdmin
+        const { data: participant, error } = await supabase
             .from('participants')
             .select('id')
             .eq('calendar_id', calendarId)
@@ -175,14 +175,14 @@ export async function loginGuestParticipant(calendarId: string, pin: string): Pr
 export async function deleteParticipant(participantId: string): Promise<{ success: boolean; error?: string }> {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const supabaseAdmin = getSupabaseAdmin();
+
 
     if (!user) {
         return { success: false, error: "로그인이 필요합니다." };
     }
 
     try {
-        const { data: participant, error: findError } = await supabaseAdmin
+        const { data: participant, error: findError } = await supabase
             .from('participants')
             .select(`
                 *,
@@ -202,7 +202,7 @@ export async function deleteParticipant(participantId: string): Promise<{ succes
             return { success: false, error: "권한이 없습니다." };
         }
 
-        const { error: deleteError } = await supabaseAdmin
+        const { error: deleteError } = await supabase
             .from('participants')
             .delete()
             .eq('id', participantId);
