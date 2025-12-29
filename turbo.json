@@ -4,8 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": [
-        "^build",
-        "^db:generate"
+        "^build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -32,22 +31,6 @@
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "db:generate": {
-      "cache": false,
-      "inputs": [
-        "prisma/schema.prisma"
-      ],
-      "env": [
-        "DATABASE_URL"
-      ]
-    },
-    "db:migrate": {
-      "cache": false,
-      "persistent": true
-    },
-    "db:deploy": {
-      "cache": false
     }
   }
 }

@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@repo/database";
+import { supabaseAdmin } from "@repo/database";
 import { User } from "@supabase/supabase-js";
 import { DashboardCalendar } from "./types";
 
@@ -8,35 +8,39 @@ export async function getCalendars(user: User): Promise<{ calendars: DashboardCa
     if (!user) return { calendars: [] };
 
     try {
-        const participations = await prisma.participant.findMany({
-            where: {
-                userId: user.id
-            },
-            include: {
-                calendar: {
-                    include: {
-                        participants: {
-                            include: {
-                                user: true
-                            },
-                            orderBy: {
-                                createdAt: 'asc'
-                            }
-                        }
-                    }
-                }
-            },
-            orderBy: {
-                calendar: {
-                    createdAt: 'desc'
-                }
-            }
-        });
+        // 1. Get calendar IDs where user is a participant
+        const { data: participations, error: pError } = await supabaseAdmin
+            .from('participants')
+            .select('calendar_id')
+            .eq('user_id', user.id);
 
-        const calendars: DashboardCalendar[] = participations.map(p => {
-            const c = p.calendar;
-            const isHost = c.hostId === user.id;
-            const isConfirmed = c.isConfirmed;
+        if (pError) throw new Error(pError.message);
+
+        const calendarIds = participations?.map(p => p.calendar_id) || [];
+
+        if (calendarIds.length === 0) {
+            return { calendars: [] };
+        }
+
+        // 2. Fetch calendars with details
+        const { data: calendarsData, error: cError } = await supabaseAdmin
+            .from('calendars')
+            .select(`
+                *,
+                participants (
+                    *,
+                    user:profiles (*)
+                )
+            `)
+            .in('id', calendarIds)
+            .order('created_at', { ascending: false })
+            .order('created_at', { foreignTable: 'participants', ascending: true });
+
+        if (cError) throw new Error(cError.message);
+
+        const calendars: DashboardCalendar[] = (calendarsData || []).map((c: any) => {
+            const isHost = c.host_id === user.id;
+            const isConfirmed = c.is_confirmed;
 
             let type: 'created' | 'joined' | 'confirmed' = 'joined';
             if (isConfirmed) {
@@ -48,16 +52,16 @@ export async function getCalendars(user: User): Promise<{ calendars: DashboardCa
             return {
                 id: c.id,
                 title: c.title,
-                startDate: c.startDate.toISOString().split('T')[0]!,
-                endDate: c.endDate.toISOString().split('T')[0]!,
-                deadline: (c.deadline ? c.deadline.toISOString().split('T')[0] : null) as string | null,
+                startDate: c.start_date, // Supabase returns string YYYY-MM-DD for date type
+                endDate: c.end_date,
+                deadline: c.deadline,
                 isConfirmed,
                 isHost,
-                createdAt: c.createdAt.toISOString(),
-                participants: c.participants.map(ep => ({
+                createdAt: c.created_at,
+                participants: (c.participants || []).map((ep: any) => ({
                     name: ep.name,
-                    avatarUrl: ep.user?.avatarUrl || null,
-                    userId: ep.userId
+                    avatarUrl: ep.user?.avatar_url || null,
+                    userId: ep.user_id
                 })),
                 type
             };

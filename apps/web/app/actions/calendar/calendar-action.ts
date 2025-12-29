@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/common/lib/supabase/server";
-import { prisma } from "@repo/database";
+import { supabaseAdmin } from "@repo/database";
 import { revalidatePath } from "next/cache";
 import {
     CreateCalendarState,
@@ -41,15 +41,13 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
         const startDate = new Date(startDateStr);
         const endDate = new Date(endDateStr);
 
-        let startTime: Date | null = null;
-        let endTime: Date | null = null;
+        let startTime: string | null = null;
+        let endTime: string | null = null;
 
         if (calendarType === 'datetime' && startHour !== null && endHour !== null) {
-            startTime = new Date();
-            startTime.setUTCHours(startHour, 0, 0, 0);
-
-            endTime = new Date();
-            endTime.setUTCHours(endHour, 0, 0, 0);
+            // Format to HH:MM:00 for Supabase time column
+            startTime = `${startHour.toString().padStart(2, '0')}:00:00`;
+            endTime = `${endHour.toString().padStart(2, '0')}:00:00`;
         }
 
         let deadline: Date | null = null;
@@ -70,22 +68,26 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
         const excludedDates = excludedDatesStr ? JSON.parse(excludedDatesStr) as string[] : [];
         const hostId = user.id;
 
-        const calendar = await prisma.calendar.create({
-            data: {
-                host: { connect: { id: hostId } },
+        const { data: calendar, error } = await supabaseAdmin
+            .from('calendars')
+            .insert({
+                host_id: hostId,
                 title,
                 description,
-                type: calendarType === 'date' ? 'monthly' : 'weekly',
-                startDate,
-                endDate,
-                startTime,
-                endTime,
-                excludedDays,
-                excludeHolidays,
-                excludedDates,
-                deadline
-            }
-        });
+                event_type: calendarType === 'date' ? 'monthly' : 'weekly',
+                start_date: startDate.toISOString(), // Postgres handles ISO for Date
+                end_date: endDate.toISOString(),
+                start_time: startTime,
+                end_time: endTime,
+                excluded_days: excludedDays,
+                exclude_holidays: excludeHolidays,
+                excluded_dates: excludedDates,
+                deadline: deadline ? deadline.toISOString() : null
+            })
+            .select('id')
+            .single();
+
+        if (error) throw new Error(error.message);
 
         revalidatePath('/app/dashboard');
         return { message: "Success", calendarId: calendar.id };
@@ -101,12 +103,16 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
     const { data: { user } } = await supabase.auth.getUser();
 
     try {
-        const calendar = await prisma.calendar.findUnique({
-            where: { id: calendarId },
-            include: { host: true }
-        });
+        const { data: calendar, error: calendarError } = await supabaseAdmin
+            .from('calendars')
+            .select(`
+                *,
+                host:profiles (*)
+            `)
+            .eq('id', calendarId)
+            .single();
 
-        if (!calendar)
+        if (calendarError || !calendar)
             return { calendar: null, participation: null, participants: [], isLoggedIn: !!user, error: "일정을 찾을 수 없습니다." };
 
 
@@ -114,64 +120,65 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
 
         // 1. Try User Login
         if (user) {
-            const p = await prisma.participant.findUnique({
-                where: {
-                    calendarId_userId: {
-                        calendarId: calendarId,
-                        userId: user.id
-                    }
-                },
-                include: {
-                    availabilities: true
-                }
-            });
+            const { data: p, error } = await supabaseAdmin
+                .from('participants')
+                .select(`
+                    *,
+                    availabilities (*)
+                `)
+                .eq('calendar_id', calendarId)
+                .eq('user_id', user.id)
+                .single();
 
             if (p) {
                 participation = {
                     id: p.id,
                     name: p.name,
-                    availabilities: p.availabilities.map(a => a.slot.toISOString())
+                    availabilities: p.availabilities.map((a: any) => a.slot) // Supabase returns ISO string for timestamptz
                 };
             }
         }
 
         // 2. Try Guest Login (if not found as user)
         if (!participation && guestPin) {
-            const p = await prisma.participant.findFirst({
-                where: {
-                    calendarId: calendarId,
-                    guestPin: guestPin
-                },
-                include: {
-                    availabilities: true
-                }
-            });
+            const { data: p, error } = await supabaseAdmin
+                .from('participants')
+                .select(`
+                    *,
+                    availabilities (*)
+                `)
+                .eq('calendar_id', calendarId)
+                .eq('guest_pin', guestPin)
+                .single();
 
             if (p) {
                 participation = {
                     id: p.id,
                     name: p.name,
-                    availabilities: p.availabilities.map(a => a.slot.toISOString())
+                    availabilities: p.availabilities.map((a: any) => a.slot)
                 };
             }
         }
 
-        const allParticipants = await prisma.participant.findMany({
-            where: { calendarId: calendarId },
-            include: {
-                user: true,
-                availabilities: true
-            }
-        });
+        const { data: allParticipantsData, error: participantsError } = await supabaseAdmin
+            .from('participants')
+            .select(`
+                *,
+                user:profiles (*),
+                availabilities (*)
+            `)
+            .eq('calendar_id', calendarId);
 
-        const participants: ParticipantSummary[] = allParticipants.map(p => ({
+        const allParticipants = allParticipantsData || [];
+
+        const participants: ParticipantSummary[] = allParticipants.map((p: any) => ({
             id: p.id,
             name: p.name,
-            avatarUrl: p.user?.avatarUrl || null,
-            isGuest: !p.userId,
-            availabilities: p.availabilities.map(a => a.slot.toISOString()),
+            avatarUrl: p.user?.avatar_url || null,
+            isGuest: !p.user_id,
+            availabilities: p.availabilities.map((a: any) => a.slot),
             email: p.user?.email,
-            createdAt: p.createdAt.toISOString()
+            createdAt: p.created_at
         }));
 
         return {
@@ -179,19 +186,19 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
                 id: calendar.id,
                 title: calendar.title,
                 description: calendar.description,
-                type: calendar.type,
-                startDate: calendar.startDate.toISOString().split('T')[0]!,
-                endDate: calendar.endDate.toISOString().split('T')[0]!,
-                startTime: calendar.startTime ? calendar.startTime.toISOString().split('T')[1]!.substring(0, 5) : null,
-                endTime: calendar.endTime ? calendar.endTime.toISOString().split('T')[1]!.substring(0, 5) : null,
-                excludedDays: calendar.excludedDays,
-                excludeHolidays: calendar.excludeHolidays,
-                excludedDates: calendar.excludedDates,
-                deadline: calendar.deadline ? calendar.deadline.toISOString() : null,
-                hostId: calendar.hostId,
-                hostName: calendar.host?.fullName || null,
-                hostAvatarUrl: calendar.host?.avatarUrl || null,
-                isConfirmed: calendar.isConfirmed
+                type: calendar.event_type,
+                startDate: calendar.start_date, // YYYY-MM-DD
+                endDate: calendar.end_date,
+                startTime: calendar.start_time ? calendar.start_time.substring(0, 5) : null, // HH:MM:SS -> HH:MM
+                endTime: calendar.end_time ? calendar.end_time.substring(0, 5) : null,
+                excludedDays: calendar.excluded_days,
+                excludeHolidays: calendar.exclude_holidays,
+                excludedDates: calendar.excluded_dates,
+                deadline: calendar.deadline ? calendar.deadline : null, // ISO string
+                hostId: calendar.host_id,
+                hostName: calendar.host?.full_name || null,
+                hostAvatarUrl: calendar.host?.avatar_url || null,
+                isConfirmed: calendar.is_confirmed
             },
             participation,
             participants,
@@ -211,18 +218,23 @@ export async function deleteCalendar(calendarId: string): Promise<{ success: boo
     if (!user) return { success: false, error: "로그인 후 이용해주세요." }
 
     try {
-        const calendar = await prisma.calendar.findUnique({
-            where: { id: calendarId }
-        });
+        const { data: calendar, error: findError } = await supabaseAdmin
+            .from('calendars')
+            .select('host_id')
+            .eq('id', calendarId)
+            .single();
 
-        if (!calendar) return { success: false, error: "일정을 찾을 수 없습니다." };
+        if (findError || !calendar) return { success: false, error: "일정을 찾을 수 없습니다." };
 
-        if (calendar.hostId !== user.id) return { success: false, error: "권한이 없습니다." };
+        if (calendar.host_id !== user.id) return { success: false, error: "권한이 없습니다." };
 
 
-        await prisma.calendar.delete({
-            where: { id: calendarId }
-        });
+        const { error: deleteError } = await supabaseAdmin
+            .from('calendars')
+            .delete()
+            .eq('id', calendarId);
+
+        if (deleteError) throw new Error(deleteError.message);
 
         revalidatePath('/app/dashboard');
         return { success: true };
@@ -256,31 +268,33 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
 
 
     try {
-        const oldCalendar = await prisma.calendar.findUnique({
-            where: { id: calendarId },
-            include: {
-                participants: {
-                    include: { availabilities: true }
-                }
-            }
-        });
+        const { data: oldCalendar, error: fetchError } = await supabaseAdmin
+            .from('calendars')
+            .select(`
+                *,
+                participants (
+                    *,
+                    availabilities (*)
+                )
+            `)
+            .eq('id', calendarId)
+            .single();
 
-        if (!oldCalendar) return { error: "일정을 찾을 수 없습니다." };
-        if (oldCalendar.hostId !== user.id) return { error: "권한이 없습니다." };
+        if (fetchError || !oldCalendar) return { error: "일정을 찾을 수 없습니다." };
+        if (oldCalendar.host_id !== user.id) return { error: "권한이 없습니다." };
 
         const startDate = new Date(startDateStr);
         const endDate = new Date(endDateStr);
 
-        let startTime: Date | null = null;
-        let endTime: Date | null = null;
+        let startTime: string | null = null;
+        let endTime: string | null = null;
 
-        if (oldCalendar.type === 'weekly' && startHour !== null && endHour !== null) {
-            if (oldCalendar.type === 'weekly') {
-                startTime = new Date();
-                startTime.setUTCHours(startHour, 0, 0, 0);
-                endTime = new Date();
-                endTime.setUTCHours(endHour, 0, 0, 0);
-            }
+        // Use calendar type from DB or infer? Logic used oldCalendar.type in prisma code
+        const calendarType = oldCalendar.event_type;
+
+        if (calendarType === 'weekly' && startHour !== null && endHour !== null) {
+            startTime = `${startHour.toString().padStart(2, '0')}:00:00`;
+            endTime = `${endHour.toString().padStart(2, '0')}:00:00`;
         }
 
         let deadline: Date | null = null;
@@ -304,14 +318,18 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
         const excludedDates = excludedDatesStr ? JSON.parse(excludedDatesStr) as string[] : [];
 
         const conflictedParticipants = new Set<string>();
-        const invalidAvailabilityIds: bigint[] = [];
+        const invalidAvailabilityIds: number[] = []; // availabilities.id is BigInt in Prisma, check Supabase type? 
+        // In schema.prisma it is BigInt. Supabase JS returns number (if safe) or string.
+        // Assuming number/string for now.
 
-        for (const p of oldCalendar.participants) {
-            if (p.availabilities.length === 0) continue;
+        // Fix: availabilities is an array on participant
+        const participants = oldCalendar.participants || [];
+        for (const p of participants) {
+            if (!p.availabilities || p.availabilities.length === 0) continue;
 
             for (const a of p.availabilities) {
                 let isSlotValid = true;
-                const slotDate = a.slot;
+                const slotDate = new Date(a.slot); // ISO string
 
                 const sDate = new Date(startDateStr); sDate.setHours(0, 0, 0, 0);
                 const eDate = new Date(endDateStr); eDate.setHours(23, 59, 59, 999);
@@ -328,7 +346,7 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
                     }
                 }
 
-                if (isSlotValid && oldCalendar.type === 'weekly' && startHour !== null && endHour !== null) {
+                if (isSlotValid && calendarType === 'weekly' && startHour !== null && endHour !== null) {
                     const hour = slotDate.getHours();
                     if (hour < startHour || hour >= endHour) {
                         isSlotValid = false;
@@ -342,9 +360,9 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
             }
         }
 
-        const conflictedList = oldCalendar.participants
-            .filter(p => conflictedParticipants.has(p.id))
-            .map(p => ({ id: p.id, name: p.name }));
+        const conflictedList = participants
+            .filter((p: any) => conflictedParticipants.has(p.id))
+            .map((p: any) => ({ id: p.id, name: p.name }));
 
         if (conflictedList.length > 0 && !confirmDelete) {
             return {
@@ -354,31 +372,33 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
             };
         }
 
-        await prisma.$transaction(async (tx) => {
-            await tx.calendar.update({
-                where: { id: calendarId },
-                data: {
-                    title,
-                    description,
-                    startDate,
-                    endDate,
-                    startTime,
-                    endTime,
-                    excludedDays,
-                    excludeHolidays,
-                    excludedDates,
-                    deadline
-                }
-            });
+        // Sequential update
+        const { error: updateError } = await supabaseAdmin
+            .from('calendars')
+            .update({
+                title,
+                description,
+                start_date: startDate.toISOString(),
+                end_date: endDate.toISOString(),
+                start_time: startTime,
+                end_time: endTime,
+                excluded_days: excludedDays,
+                exclude_holidays: excludeHolidays,
+                excluded_dates: excludedDates,
+                deadline: deadline ? deadline.toISOString() : null
+            })
+            .eq('id', calendarId);
 
-            if (invalidAvailabilityIds.length > 0) {
-                await tx.availability.deleteMany({
-                    where: {
-                        id: { in: invalidAvailabilityIds }
-                    }
-                });
-            }
-        });
+        if (updateError) throw new Error(updateError.message);
+
+        if (invalidAvailabilityIds.length > 0) {
+            const { error: deleteError } = await supabaseAdmin
+                .from('availabilities')
+                .delete()
+                .in('id', invalidAvailabilityIds);
+
+            if (deleteError) throw new Error(deleteError.message);
+        }
 
         revalidatePath(`/app/dashboard`);
         revalidatePath(`/app/calendar/${calendarId}`);
@@ -411,17 +431,19 @@ export async function confirmCalendar(
 
 
     try {
-        const calendar = await prisma.calendar.findUnique({
-            where: { id: calendarId }
-        });
+        const { data: calendar, error: findError } = await supabaseAdmin
+            .from('calendars')
+            .select('host_id, event_type')
+            .eq('id', calendarId)
+            .single();
 
-        if (!calendar) return { error: "일정을 찾을 수 없습니다." };
-        if (calendar.hostId !== user.id) return { error: "권한이 없습니다." };
+        if (findError || !calendar) return { error: "일정을 찾을 수 없습니다." };
+        if (calendar.host_id !== user.id) return { error: "권한이 없습니다." };
 
         const start = new Date(finalSlot.startTime);
         let end = finalSlot.endTime ? new Date(finalSlot.endTime) : null;
 
-        if (calendar.type === 'monthly') {
+        if (calendar.event_type === 'monthly') {
             if (!end) {
                 end = new Date(start);
                 end.setHours(23, 59, 59, 999);
@@ -432,31 +454,28 @@ export async function confirmCalendar(
             }
         }
 
-        await prisma.$transaction(async (tx) => {
-            await tx.calendar.update({
-                where: { id: calendarId },
-                data: {
-                    isConfirmed: true,
-                }
-            });
+        // Sequential update
+        const { error: updateError } = await supabaseAdmin
+            .from('calendars')
+            .update({ is_confirmed: true })
+            .eq('id', calendarId);
 
-            await tx.event.upsert({
-                where: { calendarId: calendarId },
-                create: {
-                    calendarId: calendarId,
-                    startAt: start,
-                    endAt: end!,
-                    message: JSON.stringify(additionalInfo),
-                    participantIds: participantIds
-                },
-                update: {
-                    startAt: start,
-                    endAt: end!,
-                    message: JSON.stringify(additionalInfo),
-                    participantIds: participantIds
-                }
-            });
-        });
+        if (updateError) throw new Error(updateError.message);
+
+        // Upsert Event
+        // In Supabase upsert, need to specify 'onConflict' if not PK? 
+        // calendar_id is unique in events table, so it should work if we include it.
+        const { error: eventError } = await supabaseAdmin
+            .from('events')
+            .upsert({
+                calendar_id: calendarId,
+                start_at: start.toISOString(),
+                end_at: end!.toISOString(),
+                message: JSON.stringify(additionalInfo),
+                participant_ids: participantIds
+            }, { onConflict: 'calendar_id' });
+
+        if (eventError) throw new Error(eventError.message);
 
         revalidatePath(`/app/dashboard`);
         revalidatePath(`/app/calendar/${calendarId}`);
@@ -475,18 +494,26 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
     error?: string;
 }> {
     try {
-        const calendar = await prisma.calendar.findUnique({
-            where: { id: calendarId },
-            include: {
-                event: true,
-                participants: {
-                    include: { user: true, availabilities: true } // Need user info for avatar
-                }
-            }
-        });
+        const { data: calendar, error: findError } = await supabaseAdmin
+            .from('calendars')
+            .select(`
+                *,
+                event:events (*),
+                participants (
+                    *,
+                    user:profiles (*),
+                    availabilities (*)
+                )
+            `)
+            .eq('id', calendarId)
+            .single();
 
-        if (!calendar) return { data: null, error: "일정을 찾을 수 없습니다." };
-        if (!calendar.isConfirmed || !calendar.event) {
+        if (findError || !calendar) return { data: null, error: "일정을 찾을 수 없습니다." };
+
+        // Check if event exists (Supabase might return null for single relation if missing? or empty array if hasMany?)
+        // events is 1-to-1? defined as `event Event?` in prisma.
+        // In fetching, if 1-to-1, it returns object or null.
+        if (!calendar.is_confirmed || !calendar.event) {
             return { data: null, error: "아직 확정되지 않은 일정입니다." };
         }
 
@@ -497,22 +524,22 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
                 messageData = JSON.parse(calendar.event.message);
             }
         } catch (e) {
-            // fallback if raw string or error
             console.warn("Failed to parse confirmation message:", e);
         }
 
         // Filter participants
-        const confirmedIds = new Set(calendar.event.participantIds);
-        const confirmedParticipants = calendar.participants
-            .filter(p => confirmedIds.has(p.id))
-            .map(p => ({
+        // participant_ids in event is array of strings
+        const confirmedIds = new Set(calendar.event.participant_ids || []);
+        const confirmedParticipants = (calendar.participants || [])
+            .filter((p: any) => confirmedIds.has(p.id))
+            .map((p: any) => ({
                 id: p.id,
                 name: p.name,
-                avatarUrl: p.user?.avatarUrl || null,
-                isGuest: !p.userId,
-                availabilities: p.availabilities.map(a => a.slot.toISOString()),
+                avatarUrl: p.user?.avatar_url || null,
+                isGuest: !p.user_id,
+                availabilities: p.availabilities.map((a: any) => a.slot),
                 email: p.user?.email,
-                createdAt: p.createdAt.toISOString()
+                createdAt: p.created_at
             }));
 
         return {
@@ -523,8 +550,8 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
                     description: calendar.description
                 },
                 event: {
-                    startAt: calendar.event.startAt.toISOString(),
-                    endAt: calendar.event.endAt.toISOString(),
+                    startAt: calendar.event.start_at, // ISO
+                    endAt: calendar.event.end_at,
                     message: messageData
                 },
                 participants: confirmedParticipants

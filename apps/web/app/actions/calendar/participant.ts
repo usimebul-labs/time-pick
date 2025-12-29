@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/common/lib/supabase/server";
-import { prisma } from "@repo/database";
+import { supabaseAdmin } from "@repo/database";
 import { revalidatePath } from "next/cache";
 
 export async function joinSchedule(
@@ -18,49 +18,56 @@ export async function joinSchedule(
         if (user) {
             // 1. User is logged in
             // Find or create participant linked to user
-            const existing = await prisma.participant.findUnique({
-                where: {
-                    calendarId_userId: {
-                        calendarId,
-                        userId: user.id
-                    }
-                }
-            });
+            const { data: existing, error: findError } = await supabaseAdmin
+                .from('participants')
+                .select('id')
+                .eq('calendar_id', calendarId)
+                .eq('user_id', user.id)
+                .single();
+
+            // Ignore error if it's "Row not found" (PGRST116), handle strictly if other error? 
+            // supabase-js returns error for .single() if not found.
 
             if (existing) {
                 participantId = existing.id;
             } else {
                 // Ensure profile exists
-                await prisma.profile.upsert({
-                    where: { id: user.id },
-                    update: {},
-                    create: {
+                // Upsert profile
+                const { error: profileError } = await supabaseAdmin
+                    .from('profiles')
+                    .upsert({
                         id: user.id,
                         email: user.email,
-                        fullName: user.user_metadata.full_name,
-                        avatarUrl: user.user_metadata.avatar_url
-                    }
-                });
+                        full_name: user.user_metadata.full_name,
+                        avatar_url: user.user_metadata.avatar_url
+                    });
 
-                const newParticipant = await prisma.participant.create({
-                    data: {
-                        calendarId,
-                        userId: user.id,
+                if (profileError) throw new Error(profileError.message);
+
+                // Create participant
+                const { data: newParticipant, error: createError } = await supabaseAdmin
+                    .from('participants')
+                    .insert({
+                        calendar_id: calendarId,
+                        user_id: user.id,
                         name: user.user_metadata.full_name || "익명",
-                    }
-                });
+                    })
+                    .select('id')
+                    .single();
+
+                if (createError) throw new Error(createError.message);
                 participantId = newParticipant.id;
             }
         } else {
             // 2. Guest User
             if (guestInfo?.pin) {
                 // Try to find existing guest by PIN
-                const existing = await prisma.participant.findFirst({
-                    where: {
-                        calendarId,
-                        guestPin: guestInfo.pin
-                    }
-                });
+                const { data: existing, error: findError } = await supabaseAdmin
+                    .from('participants')
+                    .select('id')
+                    .eq('calendar_id', calendarId)
+                    .eq('guest_pin', guestInfo.pin)
+                    .single();
 
                 if (existing) {
                     participantId = existing.id;
@@ -68,15 +75,18 @@ export async function joinSchedule(
                     return { success: false, error: "유효하지 않은 게스트 PIN입니다." };
                 }
             } else if (guestInfo?.name) {
-                // Legacy support or if we want to allow name-only creation (though we force login now)
                 // Create new guest participant
-                const newParticipant = await prisma.participant.create({
-                    data: {
-                        calendarId,
+                const { data: newParticipant, error: createError } = await supabaseAdmin
+                    .from('participants')
+                    .insert({
+                        calendar_id: calendarId,
                         name: guestInfo.name,
-                        guestPin: guestInfo.pin // Optional
-                    }
-                });
+                        guest_pin: guestInfo.pin // Optional
+                    })
+                    .select('id')
+                    .single();
+
+                if (createError) throw new Error(createError.message);
                 participantId = newParticipant.id;
             } else {
                 return { success: false, error: "게스트 정보가 필요합니다." };
@@ -84,24 +94,29 @@ export async function joinSchedule(
         }
 
         // 3. Save Availability
-        // Transaction to replace all availabilities
-        await prisma.$transaction(async (tx) => {
-            // Delete existing
-            await tx.availability.deleteMany({
-                where: { participantId }
-            });
+        // Sequential "transaction": Delete then Create
+        // Delete existing
+        const { error: deleteError } = await supabaseAdmin
+            .from('availabilities')
+            .delete()
+            .eq('participant_id', participantId);
 
-            // Create new
-            if (selectedSlots.length > 0) {
-                await tx.availability.createMany({
-                    data: selectedSlots.map(slot => ({
-                        calendarId,
-                        participantId,
-                        slot: new Date(slot)
+        if (deleteError) throw new Error(deleteError.message);
+
+        // Create new
+        if (selectedSlots.length > 0) {
+            const { error: insertError } = await supabaseAdmin
+                .from('availabilities')
+                .insert(
+                    selectedSlots.map(slot => ({
+                        calendar_id: calendarId,
+                        participant_id: participantId,
+                        slot: slot // ISO string is accepted by timestamptz
                     }))
-                });
-            }
-        });
+                );
+
+            if (insertError) throw new Error(insertError.message);
+        }
 
         revalidatePath('/app/dashboard');
         revalidatePath(`/app/calendar/${calendarId}`);
@@ -117,13 +132,15 @@ export async function createGuestParticipant(calendarId: string, name: string): 
     try {
         const pin = Math.floor(100000 + Math.random() * 900000).toString();
 
-        await prisma.participant.create({
-            data: {
-                calendarId,
-                name,
-                guestPin: pin
-            }
-        });
+        const { error } = await supabaseAdmin
+            .from('participants')
+            .insert({
+                calendar_id: calendarId,
+                name: name,
+                guest_pin: pin
+            });
+
+        if (error) throw new Error(error.message);
 
         return { success: true, pin };
     } catch (e) {
@@ -134,12 +151,12 @@ export async function createGuestParticipant(calendarId: string, name: string): 
 
 export async function loginGuestParticipant(calendarId: string, pin: string): Promise<{ success: boolean; error?: string }> {
     try {
-        const participant = await prisma.participant.findFirst({
-            where: {
-                calendarId,
-                guestPin: pin
-            }
-        });
+        const { data: participant, error } = await supabaseAdmin
+            .from('participants')
+            .select('id')
+            .eq('calendar_id', calendarId)
+            .eq('guest_pin', pin)
+            .single();
 
         if (participant) {
             return { success: true };
@@ -161,24 +178,34 @@ export async function deleteParticipant(participantId: string): Promise<{ succes
     }
 
     try {
-        const participant = await prisma.participant.findUnique({
-            where: { id: participantId },
-            include: { calendar: true }
-        });
+        const { data: participant, error: findError } = await supabaseAdmin
+            .from('participants')
+            .select(`
+                *,
+                calendar:calendars (*)
+            `)
+            .eq('id', participantId)
+            .single();
 
-        if (!participant) {
+        if (findError || !participant) {
             return { success: false, error: "참여자를 찾을 수 없습니다." };
         }
 
-        if (participant.calendar.hostId !== user.id) {
+        // Check if user is host
+        // Suppress TS error for now if types aren't inferred perfectly
+        const calendar = participant.calendar as any;
+        if (calendar.host_id !== user.id) {
             return { success: false, error: "권한이 없습니다." };
         }
 
-        await prisma.participant.delete({
-            where: { id: participantId }
-        });
+        const { error: deleteError } = await supabaseAdmin
+            .from('participants')
+            .delete()
+            .eq('id', participantId);
 
-        revalidatePath(`/app/calendar/${participant.calendarId}`);
+        if (deleteError) throw new Error(deleteError.message);
+
+        revalidatePath(`/app/calendar/${participant.calendar_id}`);
         revalidatePath('/app/dashboard');
         return { success: true };
 

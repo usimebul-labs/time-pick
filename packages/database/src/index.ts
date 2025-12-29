@@ -1,2 +1,1 @@
-export { prisma } from './client' // exports instance of prisma
-export * from './zod' // exports zod schemas and types
+export { supabaseAdmin } from './client' // exports supabase admin client with service role
