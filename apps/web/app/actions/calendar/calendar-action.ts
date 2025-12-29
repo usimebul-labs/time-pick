@@ -70,22 +70,34 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
         const excludedDates = excludedDatesStr ? JSON.parse(excludedDatesStr) as string[] : [];
         const hostId = user.id;
 
-        const calendar = await prisma.calendar.create({
-            data: {
-                host: { connect: { id: hostId } },
+
+
+        // Use Supabase JS directly instead of Prisma
+        const { data: calendar, error: createError } = await supabase
+            .from('calendars')
+            .insert({
+                host_id: hostId,
                 title,
                 description,
-                type: calendarType === 'date' ? 'monthly' : 'weekly',
-                startDate,
-                endDate,
-                startTime,
-                endTime,
-                excludedDays,
-                excludeHolidays,
-                excludedDates,
-                deadline
-            }
-        });
+                event_type: calendarType === 'date' ? 'monthly' : 'weekly',
+                start_date: startDate.toISOString(),
+                end_date: endDate.toISOString(),
+                start_time: startTime ? startTime.toISOString() : null,
+                end_time: endTime ? endTime.toISOString() : null,
+                excluded_days: excludedDays,
+                exclude_holidays: excludeHolidays,
+                excluded_dates: excludedDates,
+                deadline: deadline ? deadline.toISOString() : null
+                // is_confirmed default false
+                // created_at default now()
+            })
+            .select('id')
+            .single();
+
+        if (createError) {
+            console.error("Error creating calendar with Supabase:", createError);
+            return { error: "일정 생성 중 오류가 발생했습니다." };
+        }
 
         revalidatePath('/app/dashboard');
         return { message: "Success", calendarId: calendar.id };
