@@ -1,5 +1,5 @@
+import { createServerClient } from "@repo/database"
 import { NextResponse } from 'next/server'
-import { createClient } from '@/common/lib/supabase/server'
 
 
 export async function GET(request: Request) {
@@ -9,15 +9,17 @@ export async function GET(request: Request) {
 
 
     if (!code)
-        return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${encodeURIComponent("No code provided")}`)
+        return NextResponse.redirect(`${origin}/app/auth/auth-code-error?error=${encodeURIComponent("No code provided")}`)
 
-    const supabase = await createClient()
+    const supabase = await createServerClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error)
-        return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${encodeURIComponent(error.message)}`)
+        return NextResponse.redirect(`${origin}/app/auth/auth-code-error?error=${encodeURIComponent(error.message)}`)
 
     const { data: { user } } = await supabase.auth.getUser()
+
+
     if (user) {
         try {
             const email = user.email!
@@ -25,17 +27,8 @@ export async function GET(request: Request) {
             const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
 
             // Initialize admin client to bypass RLS
-            const { createClient: createAdminClient } = await import('@supabase/supabase-js')
-            const supabaseAdmin = createAdminClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.SUPABASE_SERVICE_ROLE_KEY!,
-                {
-                    auth: {
-                        autoRefreshToken: false,
-                        persistSession: false
-                    }
-                }
-            )
+            const { getSupabaseAdmin } = await import('@repo/database')
+            const supabaseAdmin = getSupabaseAdmin()
 
             // Check if profile exists
             const { data: existingProfile, error: searchError } = await supabaseAdmin
@@ -44,6 +37,8 @@ export async function GET(request: Request) {
                 .eq('email', email)
                 .maybeSingle()
 
+
+            console.log(existingProfile)
 
             if (!existingProfile) {
                 // Create profile
@@ -56,12 +51,10 @@ export async function GET(request: Request) {
                         avatar_url: avatarUrl,
                     })
 
-                if (insertError) {
-                    console.error("Profile insert error:", insertError);
-                }
+                if (insertError) throw insertError;
             }
-        } catch (e) {
-            console.error("Error creating profile in callback:", e)
+        } catch (e: any) {
+            return NextResponse.redirect(`${origin}/app/auth/auth-code-error?error=${encodeURIComponent(e.message)}`)
         }
     }
 

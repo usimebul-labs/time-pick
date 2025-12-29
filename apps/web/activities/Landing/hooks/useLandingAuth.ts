@@ -1,9 +1,9 @@
-import { createClient } from "@/common/lib/supabase/client";
+import { createBrowserClient } from "@repo/database";
 import { useFlow } from "../../../stackflow";
 
 export const useLandingAuth = () => {
     const { push } = useFlow();
-    const supabase = createClient();
+    const supabase = createBrowserClient();
 
     const handleLoginClick = () => {
         push("Login", {});

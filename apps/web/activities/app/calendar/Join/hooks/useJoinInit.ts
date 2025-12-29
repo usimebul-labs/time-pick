@@ -1,4 +1,4 @@
-import { createClient } from "@/common/lib/supabase/client";
+import { createBrowserClient } from "@repo/database";
 import { useFlow } from "@/stackflow";
 import { useEffect, useState } from "react";
 
@@ -8,7 +8,7 @@ export function useJoinInit(calendarId: string) {
 
     useEffect(() => {
         const checkSession = async () => {
-            const supabase = createClient();
+            const supabase = createBrowserClient();
 
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {

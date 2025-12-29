@@ -1,11 +1,12 @@
 "use server";
 
-import { supabaseAdmin } from "@repo/database";
+import { getSupabaseAdmin } from "@repo/database";
 import { User } from "@supabase/supabase-js";
 import { DashboardCalendar } from "./types";
 
 export async function getCalendars(user: User): Promise<{ calendars: DashboardCalendar[]; error?: string; }> {
     if (!user) return { calendars: [] };
+    const supabaseAdmin = getSupabaseAdmin();
 
     try {
         // 1. Get calendar IDs where user is a participant

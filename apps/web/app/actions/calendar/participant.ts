@@ -1,7 +1,7 @@
 "use server";
 
-import { createClient } from "@/common/lib/supabase/server";
-import { supabaseAdmin } from "@repo/database";
+import { createServerClient } from "@repo/database";
+import { getSupabaseAdmin } from "@repo/database";
 import { revalidatePath } from "next/cache";
 
 export async function joinSchedule(
@@ -9,8 +9,9 @@ export async function joinSchedule(
     selectedSlots: string[], // ISO strings
     guestInfo?: { name?: string; pin?: string }
 ): Promise<{ success: boolean; error?: string }> {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
+    const supabaseAdmin = getSupabaseAdmin();
 
     try {
         let participantId: string;
@@ -130,6 +131,7 @@ export async function joinSchedule(
 
 export async function createGuestParticipant(calendarId: string, name: string): Promise<{ success: boolean; pin?: string; error?: string }> {
     try {
+        const supabaseAdmin = getSupabaseAdmin();
         const pin = Math.floor(100000 + Math.random() * 900000).toString();
 
         const { error } = await supabaseAdmin
@@ -151,6 +153,7 @@ export async function createGuestParticipant(calendarId: string, name: string): 
 
 export async function loginGuestParticipant(calendarId: string, pin: string): Promise<{ success: boolean; error?: string }> {
     try {
+        const supabaseAdmin = getSupabaseAdmin();
         const { data: participant, error } = await supabaseAdmin
             .from('participants')
             .select('id')
@@ -170,8 +173,9 @@ export async function loginGuestParticipant(calendarId: string, pin: string): Pr
 }
 
 export async function deleteParticipant(participantId: string): Promise<{ success: boolean; error?: string }> {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
+    const supabaseAdmin = getSupabaseAdmin();
 
     if (!user) {
         return { success: false, error: "로그인이 필요합니다." };

@@ -1,10 +1,9 @@
-import { createClient } from "@/common/lib/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { createBrowserClient, User } from "@repo/database";
 import { useEffect, useState } from "react";
 
 export const useLoginedUser = () => {
     const [user, setUser] = useState<User | null>(null);
-    const supabase = createClient();
+    const supabase = createBrowserClient();
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data: { user } }) => {

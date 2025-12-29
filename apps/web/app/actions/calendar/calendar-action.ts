@@ -1,7 +1,7 @@
 "use server";
 
-import { createClient } from "@/common/lib/supabase/server";
-import { supabaseAdmin } from "@repo/database";
+import { createServerClient } from "@repo/database";
+import { getSupabaseAdmin } from "@repo/database";
 import { revalidatePath } from "next/cache";
 import {
     CreateCalendarState,
@@ -14,8 +14,9 @@ import {
 } from "./types";
 
 export async function createCalendar(prevState: CreateCalendarState, formData: FormData): Promise<CreateCalendarState> {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
+    const supabaseAdmin = getSupabaseAdmin();
 
     if (!user) return { error: "로그인 후 이용해주세요." }
 
@@ -99,8 +100,9 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
 }
 
 export async function getCalendarWithParticipation(calendarId: string, guestPin?: string): Promise<GetCalendarWithParticipationState> {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
+    const supabaseAdmin = getSupabaseAdmin();
 
     try {
         const { data: calendar, error: calendarError } = await supabaseAdmin
@@ -212,8 +214,9 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
 }
 
 export async function deleteCalendar(calendarId: string): Promise<{ success: boolean; error?: string }> {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
+    const supabaseAdmin = getSupabaseAdmin();
 
     if (!user) return { success: false, error: "로그인 후 이용해주세요." }
 
@@ -245,8 +248,9 @@ export async function deleteCalendar(calendarId: string): Promise<{ success: boo
 }
 
 export async function updateCalendar(calendarId: string, formData: FormData, confirmDelete: boolean = false): Promise<UpdateCalendarState> {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
+    const supabaseAdmin = getSupabaseAdmin();
 
     if (!user) return { error: "로그인 후 이용해주세요." }
 
@@ -424,8 +428,9 @@ export async function confirmCalendar(
         memo: string;
     }
 ): Promise<ConfirmCalendarState> {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
+    const supabaseAdmin = getSupabaseAdmin();
 
     if (!user) return { error: "로그인이 필요합니다." };
 
@@ -494,6 +499,7 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
     error?: string;
 }> {
     try {
+        const supabaseAdmin = getSupabaseAdmin();
         const { data: calendar, error: findError } = await supabaseAdmin
             .from('calendars')
             .select(`

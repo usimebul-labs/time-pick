@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createClient } from "../../../../common/lib/supabase/client";
+import { createBrowserClient } from "@repo/database";
 
 interface UseLoginParams {
     next?: string;
@@ -7,7 +7,7 @@ interface UseLoginParams {
 
 export const useLogin = ({ next }: UseLoginParams = {}) => {
     const [loading, setLoading] = useState(false);
-    const supabase = createClient();
+    const supabase = createBrowserClient();
 
     const handleGoogleLogin = async () => {
         try {

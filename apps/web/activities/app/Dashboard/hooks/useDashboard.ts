@@ -1,4 +1,4 @@
-import { createClient } from "@/common/lib/supabase/client";
+import { createBrowserClient } from "@repo/database";
 import { useFlow } from "@stackflow/react/future";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 export function useDashboard() {
     const [user, setUser] = useState<User | null>(null);
     const { push } = useFlow();
-    const supabase = createClient();
+    const supabase = createBrowserClient();
 
     useEffect(() => {
         const init = async () => {
