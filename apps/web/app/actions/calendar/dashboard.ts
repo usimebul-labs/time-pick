@@ -32,16 +32,10 @@ export async function getCalendars(): Promise<{ calendars: DashboardCalendar[]; 
             `)
             .order('created_at', { ascending: false })
             .order('created_at', { foreignTable: 'participants', ascending: true })
-            .limit(3);
+            .or(`host_id.eq.${user.id},id.in.(${calendarIds.join(',')})`);
 
-        if (calendarIds.length > 0) {
-            query = query.or(`host_id.eq.${user.id},id.in.(${calendarIds.join(',')})`);
-        } else {
-            query = query.eq('host_id', user.id);
-        }
 
         const { data: calendarsData, error: cError } = await query;
-
         if (cError) throw new Error(cError.message);
 
         const calendars: DashboardCalendar[] = (calendarsData || []).map((c: any) => {
@@ -51,7 +45,9 @@ export async function getCalendars(): Promise<{ calendars: DashboardCalendar[]; 
             let type: 'created' | 'joined' | 'confirmed' = 'joined';
             if (isConfirmed) {
                 type = 'confirmed';
-            } else if (isHost) {
+            } else if (!isHost) {
+                type = 'joined';
+            } else {
                 type = 'created';
             }
 
