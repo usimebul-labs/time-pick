@@ -1,5 +1,5 @@
 import { createMiddlewareClient } from '@repo/database'
-import { NextResponse, type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function updateSession(request: NextRequest) {
     console.log('Middleware request URL:', request.url);

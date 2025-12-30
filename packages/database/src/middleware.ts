@@ -1,5 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server';
 
 export function createMiddlewareClient(request: NextRequest, response: NextResponse) {
     // Bypass SSL verification for corporate proxy (SELF_SIGNED_CERT_IN_CHAIN)
