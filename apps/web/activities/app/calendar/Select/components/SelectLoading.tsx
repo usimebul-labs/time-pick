@@ -1,6 +1,4 @@
 import { ActivityLayout } from "@/common/components/ActivityLayout";
-import { Skeleton } from "@repo/ui";
-import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
 
 export function SelectLoading() {
     return (

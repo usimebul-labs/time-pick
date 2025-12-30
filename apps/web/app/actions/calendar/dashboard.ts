@@ -15,6 +15,8 @@ export async function getCalendars(): Promise<{ calendars: DashboardCalendar[]; 
             .select('calendar_id')
             .eq('user_id', user.id);
 
+        console.log(participations, pError)
+
         if (pError) throw new Error(pError.message);
 
         const calendarIds = participations?.map(p => p.calendar_id) || [];

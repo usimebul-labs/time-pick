@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
-import { useGuestStore } from "@/common/stores/useGuestStore";
+import { CalendarDetail, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
 import { useCalendarQuery } from "@/common/queries/useCalendarQuery";
 import { useFlow } from "@/stackflow";
 import { useActivity } from "@stackflow/react";
-import { CalendarDetail, ParticipantDetail, ParticipantSummary } from "@/app/actions/calendar";
+import { parseISO } from "date-fns";
+import { useEffect, useState } from "react";
+import { useSelectStore } from "./useSelectStore";
+
 
 export function useSelectData(id: string) {
     const { replace } = useFlow();
+    const setSelectedDates = useSelectStore((state) => state.setSelectedDates);
     const activity = useActivity();
 
     const [calendar, setCalendar] = useState<CalendarDetail | null>(null);
@@ -63,6 +66,14 @@ export function useSelectData(id: string) {
             setParticipants(sortedParticipants);
         }
     }, [data?.participants, data?.participation]);
+
+
+
+    useEffect(() => {
+        if (participation?.availabilities) {
+            setSelectedDates(participation.availabilities.map((d: string) => parseISO(d)));
+        }
+    }, [participation, setSelectedDates]);
 
     return {
         calendar,

@@ -3,6 +3,7 @@ import { useFlow } from "../../../../../stackflow";
 import { useCreateCalendarStore } from "./useCreateCalendarStore";
 import { createCalendar } from "@/app/actions/calendar";
 import { useLoading } from "@/common/components/LoadingOverlay/useLoading";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useDeadline() {
     const { replace } = useFlow();
@@ -10,6 +11,7 @@ export function useDeadline() {
     const [isUnlimited, setIsUnlimited] = useState(!data.deadline);
     const [isPending, startTransition] = useTransition();
     const { show, hide } = useLoading();
+    const queryClient = useQueryClient();
 
 
     const handleToggle = (checked: boolean) => {

@@ -5,9 +5,10 @@ import { useDashboardStore } from "./useDashboardStore";
 import { useQuery } from "@tanstack/react-query";
 
 export function useDashboardCalendars(user: User) {
-    const { filter, sort } = useDashboardStore();
 
-    const { data: allCalendars = [], isLoading: loading, error } = useQuery({
+
+    const { filter, sort } = useDashboardStore();
+    const { data: calendars = [], isLoading: loading, error } = useQuery({
         queryKey: ['calendars', user?.id],
         queryFn: async () => {
             if (!user) return [];
@@ -16,11 +17,10 @@ export function useDashboardCalendars(user: User) {
             return calendars;
         },
         enabled: !!user,
-        staleTime: 1000 * 60 * 5,
     });
 
     const filteredCalendars = useMemo(() => {
-        let result = [...allCalendars];
+        let result = [...calendars];
 
         if (filter === 'created')
             result = result.filter(c => c.type === 'created');
@@ -39,7 +39,7 @@ export function useDashboardCalendars(user: User) {
         });
 
         return result;
-    }, [allCalendars, filter, sort]);
+    }, [calendars, filter, sort]);
 
     return {
         calendars: filteredCalendars,
