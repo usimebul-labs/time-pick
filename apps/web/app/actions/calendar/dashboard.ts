@@ -15,18 +15,13 @@ export async function getCalendars(): Promise<{ calendars: DashboardCalendar[]; 
             .select('calendar_id')
             .eq('user_id', user.id);
 
-        console.log(participations, pError)
 
         if (pError) throw new Error(pError.message);
 
         const calendarIds = participations?.map(p => p.calendar_id) || [];
 
-        if (calendarIds.length === 0) {
-            return { calendars: [] };
-        }
-
         // 2. Fetch calendars with details
-        const { data: calendarsData, error: cError } = await supabase
+        let query = supabase
             .from('calendars')
             .select(`
                 *,
@@ -35,9 +30,17 @@ export async function getCalendars(): Promise<{ calendars: DashboardCalendar[]; 
                     user:profiles (*)
                 )
             `)
-            .in('id', calendarIds)
             .order('created_at', { ascending: false })
-            .order('created_at', { foreignTable: 'participants', ascending: true });
+            .order('created_at', { foreignTable: 'participants', ascending: true })
+            .limit(3);
+
+        if (calendarIds.length > 0) {
+            query = query.or(`host_id.eq.${user.id},id.in.(${calendarIds.join(',')})`);
+        } else {
+            query = query.eq('host_id', user.id);
+        }
+
+        const { data: calendarsData, error: cError } = await query;
 
         if (cError) throw new Error(cError.message);
 
