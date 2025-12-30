@@ -117,7 +117,7 @@ export function useStatus(id: string) {
     }, [calendar, participants, selectedVipIds]);
 
     const handleEdit = () => {
-        push("SelectEdit", { id });
+        push("Select", { id });
     };
 
     const handleComplete = () => {

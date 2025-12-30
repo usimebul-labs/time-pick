@@ -52,7 +52,14 @@ export default function CreateDeadline() {
 
             {/* float bottom button */}
             <div className="p-5 pb-8 pt-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
-                <form action={handleSubmit} className="w-full">
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        handleSubmit(formData);
+                    }}
+                    className="w-full"
+                >
                     {/* Hidden inputs to pass data to Server Action */}
                     <input type="hidden" name="title" value={data.title} />
                     <input type="hidden" name="description" value={data.description} />

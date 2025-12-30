@@ -17,7 +17,6 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-
     if (!user) return { error: "로그인 후 이용해주세요." }
 
 

@@ -11,7 +11,7 @@ export function useDashboardCalendars(user: User) {
         queryKey: ['calendars', user?.id],
         queryFn: async () => {
             if (!user) return [];
-            const { calendars, error } = await getCalendars(user);
+            const { calendars, error } = await getCalendars();
             if (error) throw new Error(error);
             return calendars;
         },
