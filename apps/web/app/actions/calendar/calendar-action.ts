@@ -2,15 +2,14 @@
 
 import { createServerClient } from "@repo/database";
 
-import { revalidatePath } from "next/cache";
 import {
+    ConfirmCalendarState,
+    ConfirmedCalendarResult,
     CreateCalendarState,
     GetCalendarWithParticipationState,
     ParticipantDetail,
     ParticipantSummary,
-    UpdateCalendarState,
-    ConfirmCalendarState,
-    ConfirmedCalendarResult
+    UpdateCalendarState
 } from "./types";
 
 export async function createCalendar(prevState: CreateCalendarState, formData: FormData): Promise<CreateCalendarState> {
@@ -89,7 +88,6 @@ export async function createCalendar(prevState: CreateCalendarState, formData: F
 
         if (error) throw new Error(error.message);
 
-        revalidatePath('/app/dashboard');
         return { message: "Success", calendarId: calendar.id };
 
     } catch (e) {
@@ -238,7 +236,6 @@ export async function deleteCalendar(calendarId: string): Promise<{ success: boo
 
         if (deleteError) throw new Error(deleteError.message);
 
-        revalidatePath('/app/dashboard');
         return { success: true };
     } catch (e) {
         console.error("Error deleting calendar:", e);
@@ -403,8 +400,6 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
             if (deleteError) throw new Error(deleteError.message);
         }
 
-        revalidatePath(`/app/dashboard`);
-        revalidatePath(`/app/calendar/${calendarId}`);
         return { success: true };
 
     } catch (e) {
@@ -481,9 +476,6 @@ export async function confirmCalendar(
 
         if (eventError) throw new Error(eventError.message);
 
-        revalidatePath(`/app/dashboard`);
-        revalidatePath(`/app/calendar/${calendarId}`);
-        revalidatePath(`/app/calendar/${calendarId}/confirm`);
 
         return { success: true };
 

@@ -2,11 +2,13 @@
 
 import { Card, CardContent, Input, Label, Checkbox, Button } from "@repo/ui";
 import { Clock, Check } from "lucide-react";
+import { useRef } from "react";
 import { useDeadline } from "../hooks/useDeadline";
 import CreateLayout from "./CreateLayout";
 
 export default function CreateDeadline() {
     const { data, updateData, isUnlimited, handleToggle, handleSubmit, isPending } = useDeadline();
+    const formRef = useRef<HTMLFormElement>(null);
 
     return (
         <CreateLayout title="일정 만들기" step={5} totalSteps={5}>
@@ -53,10 +55,8 @@ export default function CreateDeadline() {
             {/* float bottom button */}
             <div className="p-5 pb-8 pt-6 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent z-10 w-full fixed bottom-0 left-0 right-0 max-w-md mx-auto">
                 <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        handleSubmit(new FormData(e.currentTarget));
-                    }} className="w-full">
+                    ref={formRef}
+                    className="w-full">
                     {/* Hidden inputs to pass data to Server Action */}
                     <input type="hidden" name="title" value={data.title} />
                     <input type="hidden" name="description" value={data.description} />
@@ -84,7 +84,16 @@ export default function CreateDeadline() {
                         <input type="hidden" name="deadline" value={data.deadline} />
                     )}
 
-                    <Button size="xl" type="submit" disabled={isPending} className="w-full font-bold shadow-lg rounded-xl">
+                    <Button
+                        size="xl"
+                        type="button"
+                        onClick={() => {
+                            if (formRef.current) {
+                                handleSubmit(new FormData(formRef.current));
+                            }
+                        }}
+                        disabled={isPending}
+                        className="w-full font-bold shadow-lg rounded-xl">
                         {isPending ? "생성 중..." : "캘린더 만들고 초대하기"}
                     </Button>
                 </form>

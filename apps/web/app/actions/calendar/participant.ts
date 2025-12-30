@@ -2,7 +2,6 @@
 
 import { createServerClient } from "@repo/database";
 
-import { revalidatePath } from "next/cache";
 
 export async function joinSchedule(
     calendarId: string,
@@ -119,8 +118,6 @@ export async function joinSchedule(
             if (insertError) throw new Error(insertError.message);
         }
 
-        revalidatePath('/app/dashboard');
-        revalidatePath(`/app/calendar/${calendarId}`);
         return { success: true };
 
     } catch (e) {
@@ -209,8 +206,6 @@ export async function deleteParticipant(participantId: string): Promise<{ succes
 
         if (deleteError) throw new Error(deleteError.message);
 
-        revalidatePath(`/app/calendar/${participant.calendar_id}`);
-        revalidatePath('/app/dashboard');
         return { success: true };
 
     } catch (e) {

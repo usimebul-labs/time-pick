@@ -6,11 +6,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useFlow } from "@/stackflow";
 
 export function useDeadline() {
-    const { replace } = useFlow();
+    const { push } = useFlow();
     const { data, updateData } = useCreateCalendarStore();
     const [isUnlimited, setIsUnlimited] = useState(!data.deadline);
     const [isPending, startTransition] = useTransition();
     const { show, hide } = useLoading();
+    const queryClient = useQueryClient();
 
 
     const handleToggle = (checked: boolean) => {
@@ -42,9 +43,16 @@ export function useDeadline() {
             const result = await createCalendar({ message: "", error: "" }, formData);
 
             if (result.message === "Success" && result.calendarId) {
-                sessionStorage.setItem("lastCreatedEventId", result.calendarId);
-                replace("Select", { id: result.calendarId });
-            } else if (result.error) alert(result.error);
+                const calendarId = result.calendarId;
+                sessionStorage.setItem("lastCreatedEventId", calendarId);
+
+                // Invalidate dashboard query to refresh list without page reload
+                await queryClient.invalidateQueries({ queryKey: ["calendars"] });
+
+                setTimeout(() => {
+                    push("Select", { id: calendarId });
+                }, 0);
+            } else if (result.error && typeof result.error === 'string') alert(result.error);
         });
     };
 
