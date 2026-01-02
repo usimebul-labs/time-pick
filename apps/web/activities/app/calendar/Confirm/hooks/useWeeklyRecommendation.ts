@@ -9,7 +9,7 @@ const getParticipantsForSlot = (slotMap: Record<string, Set<string>>, key: strin
 export function useWeeklyRecommendation({
     calendar,
     participants,
-    duration
+    duration,
     selectedParticipantIds,
 }: {
     calendar: any; // Using any for now to avoid large type imports, or import Calendar type if available
