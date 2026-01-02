@@ -9,8 +9,8 @@ const getParticipantsForSlot = (slotMap: Record<string, Set<string>>, key: strin
 export function useWeeklyRecommendation({
     calendar,
     participants,
-    selectedParticipantIds,
     duration
+    selectedParticipantIds,
 }: {
     calendar: any; // Using any for now to avoid large type imports, or import Calendar type if available
     participants: ParticipantSummary[];
@@ -44,18 +44,15 @@ export function useWeeklyRecommendation({
 
         const sortedKeys = Object.keys(slotMap).sort(); // Ascending time
 
-        console.log(sortedKeys)
 
         // Filter valid slots based on selection state
         const isSelectedMode = selectedParticipantIds.size > 0;
 
-        console.log(selectedParticipantIds)
 
         // Weekly Logic
         // Need consecutive slots of 'duration' (hours)
         const slotsRequired = duration;
 
-        console.log(slotsRequired)
         const slotTimestamps = sortedKeys.map(k => new Date(k).getTime());
 
         const ranges: RankedSlot[] = [];
