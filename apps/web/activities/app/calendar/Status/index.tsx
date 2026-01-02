@@ -4,6 +4,7 @@ import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { FilteredSlotList } from "./components/FilteredSlotList";
 import { ParticipantList } from "./components/ParticipantList";
 import { StatusChart } from "./components/StatusChart";
+import { VipFilteredSlotList } from "./components/VipFilteredSlotList";
 import { StatusFooter } from "./components/StatusFooter";
 import { useStatus } from "./useStatus";
 
@@ -72,13 +73,25 @@ export default function Status({ params: { id } }: { params: { id: string } }) {
                         onClear={() => setSelectedCount(null)}
                     />
                 ) : (
-                    <ParticipantList
-                        participants={participants}
-                        selectedSlot={selectedSlot}
-                        selectedVipIds={selectedVipIds}
-                        onSlotClear={() => setSelectedSlot(null)}
-                        onVipToggle={handleVipToggle}
-                    />
+                    <>
+                        {selectedVipIds.size > 0 && (
+                            <div className="mb-4">
+                                <VipFilteredSlotList
+                                    chartData={chartData}
+                                    participants={participants}
+                                    selectedVipIds={selectedVipIds}
+                                />
+                                <div className="h-2 bg-gray-50 my-2" />
+                            </div>
+                        )}
+                        <ParticipantList
+                            participants={participants}
+                            selectedSlot={selectedSlot}
+                            selectedVipIds={selectedVipIds}
+                            onSlotClear={() => setSelectedSlot(null)}
+                            onVipToggle={handleVipToggle}
+                        />
+                    </>
                 )}
             </div>
 

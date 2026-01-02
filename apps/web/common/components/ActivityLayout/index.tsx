@@ -10,6 +10,7 @@ interface ActivityLayoutProps {
     appBar?: {
         title?: React.ReactNode;
         right?: React.ReactNode;
+        hideBack?: boolean;
     };
     className?: string;
     backgroundColor?: string;
@@ -32,6 +33,7 @@ export function ActivityLayout({ children, appBar, className, backgroundColor, h
                     <AppBar
                         title={appBar?.title}
                         right={appBar?.right ? appBar.right : user && <HomeButton />}
+                        hideBack={appBar?.hideBack}
                     />
                 )}
                 <div ref={contentRef} className={cn("flex-1 overflow-hidden flex flex-col relative", className)}>

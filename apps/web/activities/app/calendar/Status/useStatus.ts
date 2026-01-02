@@ -8,7 +8,7 @@ export type ChartDataPoint = {
     time: string;
     count: number;
     vipCount: number;
-    // Original timestamp or date object might be useful if needed, but string key is fine for now
+    availableParticipantIds: string[];
 };
 
 export type SelectedSlot = {
@@ -51,12 +51,11 @@ export function useStatus(id: string) {
         }
         setSelectedVipIds(newSet);
     };
-
     // Graph Data Processing
     const chartData = useMemo(() => {
         if (!calendar) return [];
 
-        const slotData: Record<string, { time: string, count: number, vipCount: number }> = {};
+        const slotData: Record<string, { time: string, count: number, vipCount: number, availableParticipantIds: string[], timestamp: number }> = {};
         const startDate = new Date(calendar.startDate);
         const endDate = new Date(calendar.endDate);
 
@@ -64,8 +63,15 @@ export function useStatus(id: string) {
         if (calendar.type === 'monthly') {
             const allDays = eachDayOfInterval({ start: startDate, end: endDate });
             allDays.forEach(day => {
-                const key = format(day, "MM/dd");
-                slotData[key] = { time: key, count: 0, vipCount: 0 };
+                // Use ISO date string (YYYY-MM-DD) as key to handle cross-year sorting correctly
+                const key = format(day, "yyyy-MM-dd");
+                slotData[key] = {
+                    time: format(day, "MM/dd"),
+                    count: 0,
+                    vipCount: 0,
+                    availableParticipantIds: [],
+                    timestamp: day.getTime()
+                };
             });
         } else {
             if (calendar.startTime && calendar.endTime) {
@@ -82,8 +88,15 @@ export function useStatus(id: string) {
                     endOfDay.setHours(endHour, 0, 0, 0);
 
                     while (current < endOfDay) {
-                        const key = format(current, "MM/dd HH:mm");
-                        slotData[key] = { time: key, count: 0, vipCount: 0 };
+                        // Use ISO like string (YYYY-MM-DD HH:mm) for unique key
+                        const key = format(current, "yyyy-MM-dd HH:mm");
+                        slotData[key] = {
+                            time: format(current, "MM/dd HH:mm"),
+                            count: 0,
+                            vipCount: 0,
+                            availableParticipantIds: [],
+                            timestamp: current.getTime()
+                        };
                         current = addMinutes(current, 30);
                     }
                 });
@@ -98,13 +111,14 @@ export function useStatus(id: string) {
                     const date = parseISO(iso);
                     let key;
                     if (calendar.type === 'monthly') {
-                        key = format(date, "MM/dd");
+                        key = format(date, "yyyy-MM-dd");
                     } else {
-                        key = format(date, "MM/dd HH:mm");
+                        key = format(date, "yyyy-MM-dd HH:mm");
                     }
 
                     if (slotData[key]) {
                         slotData[key]!.count += 1;
+                        slotData[key]!.availableParticipantIds.push(p.id);
                         if (isVip) {
                             slotData[key]!.vipCount += 1;
                         }
@@ -113,7 +127,7 @@ export function useStatus(id: string) {
             });
         }
 
-        return Object.values(slotData).sort((a, b) => a.time.localeCompare(b.time));
+        return Object.values(slotData).sort((a, b) => a.timestamp - b.timestamp);
     }, [calendar, participants, selectedVipIds]);
 
     const handleEdit = () => {

@@ -381,7 +381,11 @@ export function StatusChart({
                                 hide
                                 width={0}
                             />
-                            <Tooltip cursor={{ fill: 'transparent' }} content={<CustomTooltip />} />
+                            <Tooltip
+                                cursor={{ fill: 'transparent' }}
+                                content={<CustomTooltip />}
+                                isAnimationActive={false}
+                            />
                             <Area
                                 type="monotone"
                                 dataKey="count"

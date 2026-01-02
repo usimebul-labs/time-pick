@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ModifyFormState, ConflictedParticipant } from "../hooks/types";
+import { ModifyFormState } from "../hooks/types";
 import { ParticipantSummary } from "@/app/actions/calendar";
 
 interface ModifyState {
@@ -13,10 +13,7 @@ interface ModifyState {
     // Form State
     formState: ModifyFormState;
 
-    // Conflict State
-    showConflictDialog: boolean;
-    conflictedParticipants: ConflictedParticipant[];
-    pendingFormData: FormData | null;
+
 
     // Delete Participant State
     showDeleteDialog: boolean;
@@ -30,10 +27,7 @@ interface ModifyState {
     setFormState: (state: ModifyFormState) => void;
     updateForm: (updates: Partial<ModifyFormState>) => void;
 
-    // Conflict Actions
-    setConflict: (conflicted: ConflictedParticipant[], formData: FormData) => void;
-    setConflictDialog: (open: boolean) => void;
-    clearConflict: () => void;
+
 
     // Delete Participant Actions
     setDeleteDialog: (open: boolean) => void;
@@ -58,9 +52,7 @@ export const useModifyStore = create<ModifyState>((set) => ({
         excludedDates: [],
         deadline: "",
     },
-    showConflictDialog: false,
-    conflictedParticipants: [],
-    pendingFormData: null,
+
     showDeleteDialog: false,
     participantToDelete: null,
 
@@ -76,17 +68,7 @@ export const useModifyStore = create<ModifyState>((set) => ({
         formState: { ...state.formState, ...updates },
     })),
 
-    setConflict: (conflictedParticipants, pendingFormData) => set({
-        conflictedParticipants,
-        pendingFormData,
-        showConflictDialog: true,
-    }),
-    setConflictDialog: (showConflictDialog) => set({ showConflictDialog }),
-    clearConflict: () => set({
-        conflictedParticipants: [],
-        pendingFormData: null,
-        showConflictDialog: false,
-    }),
+
 
     setDeleteDialog: (showDeleteDialog) => set({ showDeleteDialog }),
     setParticipantToDelete: (participantToDelete) => set({ participantToDelete }),

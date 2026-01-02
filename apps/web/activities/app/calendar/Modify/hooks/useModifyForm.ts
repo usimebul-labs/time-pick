@@ -7,7 +7,7 @@ import { useModifyStore } from "../stores/useModifyStore";
 export function useModifyForm(id: string) {
     const { replace } = useFlow();
     const { show, hide } = useLoading();
-    const { formState, setConflict, setIsSubmitting } = useModifyStore();
+    const { formState, setIsSubmitting } = useModifyStore();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,13 +33,10 @@ export function useModifyForm(id: string) {
         setIsSubmitting(true);
         startTransition(async () => {
             show();
-            const result = await updateCalendar(id, formData, false); // First try without confirm
+            // Force update with confirmDelete=true to bypass conflict dialog and auto-delete available times
+            const result = await updateCalendar(id, formData, true);
 
-            if (result.requiresConfirmation && result.conflictedParticipants) {
-                setConflict(result.conflictedParticipants, formData);
-                setIsSubmitting(false);
-                hide();
-            } else if (result.success) {
+            if (result.success) {
                 setIsSubmitting(false);
                 hide();
                 replace("Dashboard", {});

@@ -34,3 +34,21 @@ export async function createClient() {
         }
     )
 }
+
+export async function createAdminClient() {
+    // Bypass SSL verification for corporate proxy (SELF_SIGNED_CERT_IN_CHAIN)
+    if (process.env.NODE_ENV === 'development') {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+    }
+
+    return createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+            cookies: {
+                getAll() { return [] },
+                setAll(cookiesToSet) { }
+            },
+        }
+    )
+}

@@ -29,7 +29,7 @@ export default function Dashboard() {
     if (!user) return <Loading />
 
     return (
-        <ActivityLayout appBar={{ title: "Time Pick", right: <UserMenu user={user} /> }}>
+        <ActivityLayout appBar={{ title: "Time Pick", right: <UserMenu user={user} />, hideBack: true }}>
             <div className="flex flex-col h-full bg-slate-50">
                 <div className="flex-1 p-5 overflow-hidden flex flex-col">
                     <DashboardFilter />

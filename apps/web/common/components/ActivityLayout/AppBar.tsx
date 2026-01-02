@@ -9,9 +9,10 @@ interface AppBarProps {
     title?: React.ReactNode;
     right?: React.ReactNode;
     className?: string;
+    hideBack?: boolean;
 }
 
-export function AppBar({ title, right, className }: AppBarProps) {
+export function AppBar({ title, right, className, hideBack }: AppBarProps) {
     const stack = useStack();
     const { pop } = useFlow();
     const canGoBack = stack.activities.filter(
@@ -26,7 +27,7 @@ export function AppBar({ title, right, className }: AppBarProps) {
     return (
         <header className={cn("sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 h-14 flex items-center justify-between px-4 transition-all duration-200", className)}>
             <div className="flex items-center gap-2 min-w-[40px]">
-                {canGoBack && (
+                {canGoBack && !hideBack && (
                     <button
                         type="button"
                         onClick={handleBack}

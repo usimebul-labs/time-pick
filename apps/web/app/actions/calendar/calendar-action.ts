@@ -228,7 +228,6 @@ export async function deleteCalendar(calendarId: string): Promise<{ success: boo
 
         if (calendar.host_id !== user.id) return { success: false, error: "권한이 없습니다." };
 
-
         const { error: deleteError } = await supabase
             .from('calendars')
             .delete()

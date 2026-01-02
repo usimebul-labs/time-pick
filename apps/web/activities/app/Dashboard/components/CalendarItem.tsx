@@ -91,6 +91,7 @@ export function CalendarItem({ calendar, user }: CalendarItemProps) {
     };
 
     const styles = getStatusStyles();
+    const isCrowded = calendar.participants.length > 3;
 
     return (
         <div
@@ -117,13 +118,8 @@ export function CalendarItem({ calendar, user }: CalendarItemProps) {
                 {calendar.title}
             </h3>
 
-            <div className="flex justify-between items-center mt-2">
+            <div className={`flex justify-between items-center mt-2 `}>
                 <span className="text-[11px] text-slate-500 font-medium flex items-center">
-                    <span className={`font-bold mr-2 ${styles.badgeColor}`}>
-                        {styles.badgeText}
-                    </span>
-                    <span className="w-px h-2.5 bg-slate-200 mr-2"></span>
-
                     {format(parseISO(calendar.startDate), "MM.dd")} ~ {format(parseISO(calendar.endDate), "MM.dd")}
                     {calendar.deadline && (
                         <>
@@ -133,13 +129,13 @@ export function CalendarItem({ calendar, user }: CalendarItemProps) {
                     )}
                 </span>
 
-                <div className="flex justify-end items-center gap-1.5">
+                <div className={`flex justify-end items-center gap-1.5`}>
                     {calendar.participants.length > 0 && (
                         <div className="flex items-center gap-1.5"
                             onClick={handleShowParticipants}>
                             <ParticipantFacepile
                                 participants={calendar.participants.map(p => ({ ...p, id: p.userId || p.name }))}
-                                maxFacepile={4}
+                                maxFacepile={3}
                                 overflowIndicator="icon"
                                 currentUser={user}
                                 className="-space-x-2"

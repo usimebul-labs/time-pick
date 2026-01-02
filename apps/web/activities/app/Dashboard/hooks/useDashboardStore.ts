@@ -26,9 +26,6 @@ interface DashboardState {
     setFilter: (filter: 'all' | 'created' | 'joined' | 'confirmed') => void;
     setSort: (sort: 'created' | 'deadline') => void;
 
-    // Refresh Trigger
-    refreshTrigger: number;
-    triggerRefresh: () => void;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -56,7 +53,4 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     setFilter: (filter) => set({ filter }),
     setSort: (sort) => set({ sort }),
 
-    // Refresh Trigger
-    refreshTrigger: 0,
-    triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
 }));

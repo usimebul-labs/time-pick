@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { CalendarDetail, ParticipantDetail } from "@/app/actions/calendar";
 import { useLoading } from "@/common/components/LoadingOverlay/useLoading";
 import { useGuestStore } from "@/common/stores/useGuestStore";
@@ -17,6 +18,7 @@ export function useSelectFooter(
     const { selectedDates } = useSelectStore();
     const queryClient = useQueryClient();
     const { show, hide } = useLoading();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
 
     const createGuest = async () => {
@@ -64,7 +66,10 @@ export function useSelectFooter(
     }
 
     const handleComplete = async () => {
+        if (isSubmitting) return;
+
         try {
+            setIsSubmitting(true);
             show()
             await createGuest();
             const guestPin = checkLogin();
@@ -73,11 +78,13 @@ export function useSelectFooter(
             alert(e?.message);
         } finally {
             hide();
+            setIsSubmitting(false);
         }
     };
 
     return {
         selectedCount: selectedDates.length,
-        handleComplete
+        handleComplete,
+        isSubmitting
     };
 }
