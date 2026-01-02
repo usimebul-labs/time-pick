@@ -13,7 +13,10 @@ export default function CreateDateRange() {
         isUndefined,
         handleUndefinedChange,
         handleNext,
+        isValid,
     } = useDateRange();
+
+    if (!isValid) return null;
 
     return (
         <CreateLayout title="일정 만들기" step={3} totalSteps={5}>

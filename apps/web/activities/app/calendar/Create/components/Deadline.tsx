@@ -7,8 +7,10 @@ import { useDeadline } from "../hooks/useDeadline";
 import CreateLayout from "./CreateLayout";
 
 export default function CreateDeadline() {
-    const { data, updateData, isUnlimited, handleToggle, handleSubmit, isPending } = useDeadline();
+    const { data, updateData, isUnlimited, handleToggle, handleSubmit, isPending, isValid } = useDeadline();
     const formRef = useRef<HTMLFormElement>(null);
+
+    if (!isValid) return null;
 
     return (
         <CreateLayout title="일정 만들기" step={5} totalSteps={5}>

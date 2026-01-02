@@ -5,7 +5,10 @@ import { useLoading } from "@/common/components/LoadingOverlay/useLoading";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFlow } from "@/stackflow";
 
+import { useRedirectCheck } from "./useRedirectCheck";
+
 export function useDeadline() {
+    const { isValid } = useRedirectCheck();
     const { push } = useFlow();
     const { data, updateData } = useCreateCalendarStore();
     const [isUnlimited, setIsUnlimited] = useState(!data.deadline);
@@ -63,5 +66,6 @@ export function useDeadline() {
         handleToggle,
         handleSubmit,
         isPending,
+        isValid,
     };
 }

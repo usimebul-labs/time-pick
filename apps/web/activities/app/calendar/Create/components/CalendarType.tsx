@@ -92,7 +92,9 @@ const WeeklyCalendarRadioItem = () => {
 
 
 export default function CreateCalendarType() {
-    const { data, updateData, handleNext } = useCalendarType();
+    const { data, updateData, handleNext, isValid } = useCalendarType();
+
+    if (!isValid) return null;
 
     return (
         <CreateLayout title="일정 만들기" step={2} totalSteps={5}>

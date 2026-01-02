@@ -16,7 +16,10 @@ export default function CreateExclusions() {
         removeExcludedDate,
         handleNext,
         toggleHolidays,
+        isValid,
     } = useExclusions();
+
+    if (!isValid) return null;
 
     return (
         <CreateLayout title="일정 만들기" step={4} totalSteps={5}>

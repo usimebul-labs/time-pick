@@ -1,5 +1,5 @@
-import { useCreateCalendarStore } from "./useCreateCalendarStore";
 import { useFlow } from "../../../../../stackflow";
+import { useCreateCalendarStore } from "./useCreateCalendarStore";
 
 const DAYS_OF_WEEK = [
     { id: "Sun", label: "일", isWeekend: true },
@@ -11,7 +11,10 @@ const DAYS_OF_WEEK = [
     { id: "Sat", label: "토", isWeekend: true },
 ];
 
+import { useRedirectCheck } from "./useRedirectCheck";
+
 export function useExclusions() {
+    const { isValid } = useRedirectCheck();
     const { push } = useFlow();
     const { data, updateData } = useCreateCalendarStore();
 
@@ -69,5 +72,6 @@ export function useExclusions() {
         removeExcludedDate,
         handleNext,
         toggleHolidays,
+        isValid,
     };
 }

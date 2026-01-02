@@ -1,7 +1,10 @@
 import { useCreateCalendarStore } from "./useCreateCalendarStore";
 import { useFlow } from "../../../../../stackflow";
 
+import { useRedirectCheck } from "./useRedirectCheck";
+
 export function useCalendarType() {
+    const { isValid } = useRedirectCheck();
     const { push } = useFlow();
     const { data, updateData } = useCreateCalendarStore();
 
@@ -13,5 +16,6 @@ export function useCalendarType() {
         data,
         updateData,
         handleNext,
+        isValid,
     };
 }

@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useCreateCalendarStore } from "./useCreateCalendarStore";
 import { useFlow } from "../../../../../stackflow";
 
+import { useRedirectCheck } from "./useRedirectCheck";
+
 export function useDateRange() {
+    const { isValid } = useRedirectCheck();
     const { push } = useFlow();
     const { data, updateData } = useCreateCalendarStore();
     const [isUndefined, setIsUndefined] = useState(false);
@@ -60,5 +63,6 @@ export function useDateRange() {
         isUndefined,
         handleUndefinedChange,
         handleNext,
+        isValid,
     };
 }
