@@ -5,8 +5,6 @@ import { useDashboardStore } from "./useDashboardStore";
 import { useQuery } from "@tanstack/react-query";
 
 export function useDashboardCalendars(user: User) {
-
-
     const { filter, sort } = useDashboardStore();
     const { data: calendars = [], isLoading: loading, error } = useQuery({
         queryKey: ['calendars', user?.id],

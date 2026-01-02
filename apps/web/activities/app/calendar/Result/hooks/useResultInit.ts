@@ -13,6 +13,8 @@ export function useResultInit(calendarId: string) {
             try {
                 const { data, error } = await getConfirmedCalendarResult(calendarId);
 
+                console.log(data)
+
                 if (isMounted) {
                     if (error) {
                         setError(error);

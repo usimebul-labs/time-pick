@@ -13,8 +13,12 @@ interface ResultHeaderProps {
 export function ResultHeader({ calendar, event, participants }: ResultHeaderProps) {
     if (!calendar || !event) return null;
 
+    console.log(event)
+
     const { startAt, endAt } = event;
     const sDate = new Date(startAt);
+
+    console.log(startAt)
     const eDate = new Date(endAt);
 
     const isAllDay = sDate.getHours() === 0 && sDate.getMinutes() === 0 && eDate.getHours() === 23 && eDate.getMinutes() === 59;
