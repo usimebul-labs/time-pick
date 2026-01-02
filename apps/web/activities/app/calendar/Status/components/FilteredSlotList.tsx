@@ -1,16 +1,24 @@
+import { ParticipantSummary } from "@/app/actions/calendar";
+import { ParticipantGrid } from "@/common/components/participant/ParticipantGrid";
 import { Clock } from "lucide-react";
 import { ChartDataPoint } from "../useStatus";
+import { useState } from "react";
 
 interface FilteredSlotListProps {
     selectedCount: number | null;
     chartData: ChartDataPoint[];
+    participants: ParticipantSummary[];
     onClear: () => void;
 }
 
-export function FilteredSlotList({ selectedCount, chartData, onClear }: FilteredSlotListProps) {
+export function FilteredSlotList({ selectedCount, chartData, participants, onClear }: FilteredSlotListProps) {
+    const [showAll, setShowAll] = useState(false);
+
     if (selectedCount === null) return null;
 
     const filteredData = chartData.filter(d => d.count === selectedCount);
+    const visibleData = showAll ? filteredData : filteredData.slice(0, 3);
+    const hasMore = filteredData.length > 3;
 
     return (
         <div className="p-5 pb-32">
@@ -29,15 +37,43 @@ export function FilteredSlotList({ selectedCount, chartData, onClear }: Filtered
                     필터 해제
                 </button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="flex flex-col gap-3">
                 {filteredData.length > 0 ? (
-                    filteredData.map((d) => (
-                        <div key={d.time} className="bg-orange-50 border border-orange-100 rounded-xl p-3 text-center">
-                            <span className="text-sm font-bold text-gray-800">{d.time}</span>
-                        </div>
-                    ))
+                    <>
+                        {visibleData.map((d) => {
+                            // Find participants for this slot
+                            const availableParticipants = participants.filter(p => d.availableParticipantIds.includes(p.id));
+                            return (
+                                <div key={d.time} className="flex p-4 bg-white border border-gray-100 rounded-xl shadow-sm gap-6">
+                                    {/* Left: Info (Approx 2/7) */}
+                                    <div className="flex flex-col justify-center min-w-0">
+                                        <span className="text-sm font-bold text-gray-900">{d.time}</span>
+                                    </div>
+
+                                    {/* Right: Participants (Approx 5/7) */}
+                                    <div className="flex">
+                                        <ParticipantGrid
+                                            participants={availableParticipants}
+                                            interaction="readonly"
+                                            className="gap-1"
+                                            itemClassName="py-0.5 px-1.5 border-none bg-gray-50"
+                                        />
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        {hasMore && (
+                            <button
+                                onClick={() => setShowAll(!showAll)}
+                                className="w-full py-3 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors"
+                            >
+                                {showAll ? "접기" : "더 보기"}
+                            </button>
+                        )}
+                    </>
                 ) : (
-                    <div className="col-span-2 text-center py-8 text-gray-400 text-sm">
+                    <div className="text-center py-8 text-gray-400 text-sm">
                         해당 인원이 가능한 시간이 없어요 🥲
                     </div>
                 )}

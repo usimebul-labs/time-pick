@@ -4,11 +4,9 @@ import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { FilteredSlotList } from "./components/FilteredSlotList";
 import { ParticipantList } from "./components/ParticipantList";
 import { StatusChart } from "./components/StatusChart";
-import { VipFilteredSlotList } from "./components/VipFilteredSlotList";
 import { StatusFooter } from "./components/StatusFooter";
 import { useStatus } from "./useStatus";
 
-import { HomeButton } from "@/common/components/ActivityLayout/HomeButton";
 import { useFlow } from "@/stackflow";
 
 export default function Status({ params: { id } }: { params: { id: string } }) {
@@ -70,28 +68,17 @@ export default function Status({ params: { id } }: { params: { id: string } }) {
                     <FilteredSlotList
                         selectedCount={selectedCount}
                         chartData={chartData}
+                        participants={participants}
                         onClear={() => setSelectedCount(null)}
                     />
                 ) : (
-                    <>
-                        {selectedVipIds.size > 0 && (
-                            <div className="mb-4">
-                                <VipFilteredSlotList
-                                    chartData={chartData}
-                                    participants={participants}
-                                    selectedVipIds={selectedVipIds}
-                                />
-                                <div className="h-2 bg-gray-50 my-2" />
-                            </div>
-                        )}
-                        <ParticipantList
-                            participants={participants}
-                            selectedSlot={selectedSlot}
-                            selectedVipIds={selectedVipIds}
-                            onSlotClear={() => setSelectedSlot(null)}
-                            onVipToggle={handleVipToggle}
-                        />
-                    </>
+                    <ParticipantList
+                        participants={participants}
+                        selectedSlot={selectedSlot}
+                        selectedVipIds={selectedVipIds}
+                        onSlotClear={() => setSelectedSlot(null)}
+                        onVipToggle={handleVipToggle}
+                    />
                 )}
             </div>
 
