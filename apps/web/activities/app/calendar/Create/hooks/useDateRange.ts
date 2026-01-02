@@ -72,6 +72,8 @@ export function useDateRange() {
         // Let's use string comparison for safety if we stick to 'YYYY-MM-DD' from inputs.
         // Or create Date from parts.
         const [sy, sm, sd] = data.startDate.split('-').map(Number);
+
+        if (!sy || !sm || !sd) return;
         const startDateObj = new Date(sy, sm - 1, sd); // Local 00:00
 
         if (startDateObj < today) {
