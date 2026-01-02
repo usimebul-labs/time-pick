@@ -15,8 +15,8 @@ export function DashboardParticipantSheet({ open, onOpenChange, user }: Dashboar
     if (!calendar) return null;
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent portal={false} side="bottom" className="rounded-t-xl h-[55vh] p-0 bg-white flex flex-col">
+        <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
+            <SheetContent portal={false} side="bottom" className="rounded-t-xl p-0 overflow-hidden max-h-[90vh] bg-white">
                 <SheetHeader className="p-6 pb-4 border-b border-gray-100 shrink-0">
                     <SheetTitle className="text-lg font-bold text-slate-900">참여자 목록
                         <span className="text-indigo-600 ml-1">{calendar.participants.length}명</span>

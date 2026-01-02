@@ -31,8 +31,8 @@ export function ShareCalendarSheet({ title, description, open, onOpenChange, lin
     };
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="bottom" className="rounded-t-xl" portal={false}>
+        <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
+            <SheetContent portal={false} side="bottom" className="rounded-t-xl">
                 <SheetHeader className="text-left mb-4">
                     <SheetTitle>{title}</SheetTitle>
                     <SheetDescription>{description}</SheetDescription>

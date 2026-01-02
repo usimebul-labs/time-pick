@@ -12,6 +12,14 @@ import {
     UpdateCalendarState
 } from "./types";
 
+function getSlots(availabilities: any): string[] {
+    if (!availabilities) return [];
+    if (Array.isArray(availabilities)) {
+        return availabilities[0]?.slot || [];
+    }
+    return availabilities.slot || [];
+}
+
 export async function createCalendar(prevState: CreateCalendarState, formData: FormData): Promise<CreateCalendarState> {
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -133,7 +141,7 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
                 participation = {
                     id: p.id,
                     name: p.name,
-                    availabilities: p.availabilities.map((a: any) => a.slot) // Supabase returns ISO string for timestamptz
+                    availabilities: getSlots(p.availabilities)
                 };
             }
         }
@@ -154,7 +162,7 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
                 participation = {
                     id: p.id,
                     name: p.name,
-                    availabilities: p.availabilities.map((a: any) => a.slot)
+                    availabilities: getSlots(p.availabilities)
                 };
             }
         }
@@ -175,7 +183,7 @@ export async function getCalendarWithParticipation(calendarId: string, guestPin?
             name: p.name,
             avatarUrl: p.user?.avatar_url || null,
             isGuest: !p.user_id,
-            availabilities: p.availabilities.map((a: any) => a.slot),
+            availabilities: getSlots(p.availabilities),
             email: p.user?.email,
             createdAt: p.created_at
         }));
@@ -317,18 +325,20 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
         const excludedDates = excludedDatesStr ? JSON.parse(excludedDatesStr) as string[] : [];
 
         const conflictedParticipants = new Set<string>();
-        const invalidAvailabilityIds: number[] = []; // availabilities.id is BigInt in Prisma, check Supabase type? 
-        // In schema.prisma it is BigInt. Supabase JS returns number (if safe) or string.
-        // Assuming number/string for now.
+        const updates: { participantId: string, newSlots: string[] }[] = [];
 
-        // Fix: availabilities is an array on participant
+        // Fix: availabilities is now an object with slot array
         const participants = oldCalendar.participants || [];
         for (const p of participants) {
-            if (!p.availabilities || p.availabilities.length === 0) continue;
+            const currentSlots: string[] = getSlots(p.availabilities);
+            if (currentSlots.length === 0) continue;
 
-            for (const a of p.availabilities) {
+            const validSlots: string[] = [];
+            let hasInvalidSlot = false;
+
+            for (const slotStr of currentSlots) {
                 let isSlotValid = true;
-                const slotDate = new Date(a.slot); // ISO string
+                const slotDate = new Date(slotStr); // ISO string
 
                 const sDate = new Date(startDateStr); sDate.setHours(0, 0, 0, 0);
                 const eDate = new Date(endDateStr); eDate.setHours(23, 59, 59, 999);
@@ -353,9 +363,15 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
                 }
 
                 if (!isSlotValid) {
-                    conflictedParticipants.add(p.id);
-                    invalidAvailabilityIds.push(a.id);
+                    hasInvalidSlot = true;
+                } else {
+                    validSlots.push(slotStr);
                 }
+            }
+
+            if (hasInvalidSlot) {
+                conflictedParticipants.add(p.id);
+                updates.push({ participantId: p.id, newSlots: validSlots });
             }
         }
 
@@ -390,13 +406,16 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
 
         if (updateError) throw new Error(updateError.message);
 
-        if (invalidAvailabilityIds.length > 0) {
-            const { error: deleteError } = await supabase
-                .from('availabilities')
-                .delete()
-                .in('id', invalidAvailabilityIds);
-
-            if (deleteError) throw new Error(deleteError.message);
+        // 3. Update participant slots (if invalid)
+        // Instead of deleting rows, we update the array
+        if (updates.length > 0) {
+            await Promise.all(updates.map(update =>
+                supabase
+                    .from('availabilities')
+                    .update({ slot: update.newSlots })
+                    .eq('participant_id', update.participantId)
+                    .eq('calendar_id', calendarId)
+            ));
         }
 
         return { success: true };
@@ -533,7 +552,7 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
                 name: p.name,
                 avatarUrl: p.user?.avatar_url || null,
                 isGuest: !p.user_id,
-                availabilities: p.availabilities.map((a: any) => a.slot),
+                availabilities: getSlots(p.availabilities),
                 email: p.user?.email,
                 createdAt: p.created_at
             }));

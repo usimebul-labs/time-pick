@@ -20,25 +20,43 @@ export async function getCalendars(): Promise<{ calendars: DashboardCalendar[]; 
 
         const calendarIds = participations?.map(p => p.calendar_id) || [];
 
-        // 2. Fetch calendars with details
+        // 2. Fetch calendars (without ambiguous embedding)
         let query = supabase
             .from('calendars')
-            .select(`
-                *,
-                participants (
-                    *,
-                    user:profiles (*)
-                )
-            `)
+            .select('*')
             .order('created_at', { ascending: false })
-            .order('created_at', { foreignTable: 'participants', ascending: true })
             .or(`host_id.eq.${user.id},id.in.(${calendarIds.join(',')})`);
-
 
         const { data: calendarsData, error: cError } = await query;
         if (cError) throw new Error(cError.message);
 
-        const calendars: DashboardCalendar[] = (calendarsData || []).map((c: any) => {
+        const fetchedCalendars = calendarsData || [];
+        const fetchedCalendarIds = fetchedCalendars.map((c: any) => c.id);
+
+        // 3. Fetch participants for these calendars manually
+        // This avoids the "more than one relationship" error caused by ambiguous FK paths
+        let participantsMap: Record<string, any[]> = {};
+        if (fetchedCalendarIds.length > 0) {
+            const { data: allParticipants, error: apError } = await supabase
+                .from('participants')
+                .select(`
+                    *,
+                    user:profiles (*)
+                `)
+                .in('calendar_id', fetchedCalendarIds)
+                .order('created_at', { ascending: true }); // Preserve ordering
+
+            if (apError) throw new Error(apError.message);
+
+            (allParticipants || []).forEach((p: any) => {
+                if (!participantsMap[p.calendar_id]) {
+                    participantsMap[p.calendar_id] = [];
+                }
+                participantsMap[p.calendar_id]!.push(p);
+            });
+        }
+
+        const calendars: DashboardCalendar[] = fetchedCalendars.map((c: any) => {
             const isHost = c.host_id === user.id;
             const isConfirmed = c.is_confirmed;
 
@@ -51,6 +69,8 @@ export async function getCalendars(): Promise<{ calendars: DashboardCalendar[]; 
                 type = 'created';
             }
 
+            const calendarParticipants = participantsMap[c.id] || [];
+
             return {
                 id: c.id,
                 title: c.title,
@@ -60,7 +80,7 @@ export async function getCalendars(): Promise<{ calendars: DashboardCalendar[]; 
                 isConfirmed,
                 isHost,
                 createdAt: c.created_at,
-                participants: (c.participants || []).map((ep: any) => ({
+                participants: calendarParticipants.map((ep: any) => ({
                     name: ep.name,
                     avatarUrl: ep.user?.avatar_url || null,
                     userId: ep.user_id

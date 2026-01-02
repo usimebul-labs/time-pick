@@ -94,29 +94,16 @@ export async function joinSchedule(
         }
 
         // 3. Save Availability
-        // Sequential "transaction": Delete then Create
-        // Delete existing
-        const { error: deleteError } = await supabase
+        // Upsert logic (Slot column is now timestamp[] array)
+        const { error: upsertError } = await supabase
             .from('availabilities')
-            .delete()
-            .eq('participant_id', participantId);
+            .upsert({
+                calendar_id: calendarId,
+                participant_id: participantId,
+                slot: selectedSlots
+            }, { onConflict: 'participant_id, calendar_id' });
 
-        if (deleteError) throw new Error(deleteError.message);
-
-        // Create new
-        if (selectedSlots.length > 0) {
-            const { error: insertError } = await supabase
-                .from('availabilities')
-                .insert(
-                    selectedSlots.map(slot => ({
-                        calendar_id: calendarId,
-                        participant_id: participantId,
-                        slot: slot // ISO string is accepted by timestamptz
-                    }))
-                );
-
-            if (insertError) throw new Error(insertError.message);
-        }
+        if (upsertError) throw new Error(upsertError.message);
 
         return { success: true };
 

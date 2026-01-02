@@ -83,7 +83,7 @@ export function LocationSearchDialog() {
     if (!isOpen) return null;
 
     return (
-        <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()} modal={false}>
             <SheetContent portal={false} side="bottom" className="rounded-t-2xl h-[65%] p-0 bg-white">
                 <SheetHeader className="px-5 pt-5 pb-2 text-left space-y-0">
                     <div className="flex items-center justify-between">
