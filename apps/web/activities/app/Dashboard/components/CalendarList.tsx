@@ -2,7 +2,6 @@ import { User } from "@supabase/supabase-js";
 import { Calendar } from "lucide-react";
 import { CalendarItem } from "./CalendarItem";
 import { DashboardCalendar } from "@/app/actions/calendar/types";
-import { useDashboardCalendars } from "../hooks/useDashboardCalendars";
 
 
 const ListLoading = () => {
@@ -50,11 +49,12 @@ const Empty = () => {
 
 interface CalendarListProps {
     user: User;
+    calendars: DashboardCalendar[];
+    loading: boolean;
+    error: string | null;
 }
 
-export function CalendarList({ user }: CalendarListProps) {
-    const { calendars, loading, error } = useDashboardCalendars(user!);
-
+export function CalendarList({ user, calendars, loading, error }: CalendarListProps) {
     if (loading) return <ListLoading />
     if (error) return <div className="text-red-500 text-center py-10">{error}</div>
     if (calendars.length === 0) return <Empty />

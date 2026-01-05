@@ -1,7 +1,7 @@
 import { DashboardCalendar } from "@/app/actions/calendar";
 import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
-import { MoreVertical, Share2 } from "lucide-react";
+import { Check, MoreVertical, Share2 } from "lucide-react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { useDashboardStore } from "../hooks/useDashboardStore";
 import { useFlow } from "../../../../stackflow";
@@ -33,10 +33,18 @@ interface CalendarItemProps {
 
 export function CalendarItem({ calendar, user }: CalendarItemProps) {
     const { push } = useFlow();
-    const { openShare, openMenu, openParticipant } = useDashboardStore();
+    const { openShare, openMenu, openParticipant, isSelectionMode, selectedIds, toggleCalendarSelection } = useDashboardStore();
+
+    const isSelected = selectedIds.includes(calendar.id);
 
     const handleSelect: MouseEventHandler<HTMLDivElement> = (e) => {
         e.stopPropagation();
+
+        if (isSelectionMode) {
+            toggleCalendarSelection(calendar.id);
+            return;
+        }
+
         const isParticipating = calendar.participants.some(p => p.userId === user.id);
         if (calendar.isConfirmed) {
             push("Result", { id: calendar.id });
@@ -95,56 +103,71 @@ export function CalendarItem({ calendar, user }: CalendarItemProps) {
 
     return (
         <div
-            className={`bg-white rounded-xl p-4 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-200 active:scale-[0.99] group relative ${styles.border}`}
+            className={`bg-white rounded-xl p-4 shadow-sm border border-slate-200 cursor-pointer transition-all hover:shadow-md hover:border-indigo-200 active:scale-[0.99] group relative ${styles.border} flex items-center gap-3`}
             onClick={handleSelect}
         >
-            <div className="absolute top-3 right-3 flex items-center gap-0.5">
-                <Button variant="ghost" size="icon"
-                    className="h-7 w-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                    onClick={handleShare}>
-                    <Share2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                </Button>
+            {isSelectionMode && (
+                <div className={`
+                    w-5 h-5 rounded border flex items-center justify-center transition-colors
+                    ${isSelected ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300'}
+                `}>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                </div>
+            )}
 
-                {calendar.type === "created" && !calendar.isConfirmed && (
-                    <Button variant="ghost" size="icon"
-                        className="h-7 w-7 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
-                        onClick={handleMenuOpen}>
-                        <MoreVertical className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    </Button>
-                )}
-            </div>
-
-            <h3 className="text-base font-bold text-slate-900 mb-0.5 pr-12 leading-tight line-clamp-1">
-                {calendar.title}
-            </h3>
-
-            <div className={`flex justify-between items-center mt-2 `}>
-                <span className="text-[11px] text-slate-500 font-medium flex items-center">
-                    {format(parseISO(calendar.startDate), "MM.dd")} ~ {format(parseISO(calendar.endDate), "MM.dd")}
-                    {calendar.deadline && (
+            <div className="flex-1 min-w-0">
+                <div className="absolute top-3 right-3 flex items-center gap-0.5">
+                    {!isSelectionMode && (
                         <>
-                            <span className="mx-2 text-slate-300">|</span>
-                            {format(parseISO(calendar.deadline), "MM.dd")} 마감 <DDay deadline={calendar.deadline} />
+                            <Button variant="ghost" size="icon"
+                                className="h-7 w-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                                onClick={handleShare}>
+                                <Share2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            </Button>
+
+                            {calendar.type === "created" && !calendar.isConfirmed && (
+                                <Button variant="ghost" size="icon"
+                                    className="h-7 w-7 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
+                                    onClick={handleMenuOpen}>
+                                    <MoreVertical className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                </Button>
+                            )}
                         </>
                     )}
-                </span>
+                </div>
 
-                <div className={`flex justify-end items-center gap-1.5`}>
-                    {calendar.participants.length > 0 && (
-                        <div className="flex items-center gap-1.5"
-                            onClick={handleShowParticipants}>
-                            <ParticipantFacepile
-                                participants={calendar.participants.map(p => ({ ...p, id: p.userId || p.name }))}
-                                maxFacepile={3}
-                                overflowIndicator="icon"
-                                currentUser={user}
-                                className="-space-x-2"
-                                itemClassName="w-6 h-6 ring-1 focus:ring-1" />
-                            <span className="text-[10px] text-indigo-600 font-semibold">
-                                {calendar.participants.length}명
-                            </span>
-                        </div>
-                    )}
+                <h3 className="text-base font-bold text-slate-900 mb-0.5 pr-12 leading-tight line-clamp-1">
+                    {calendar.title}
+                </h3>
+
+                <div className={`flex justify-between items-center mt-2 `}>
+                    <span className="text-[11px] text-slate-500 font-medium flex items-center">
+                        {format(parseISO(calendar.startDate), "MM.dd")} ~ {format(parseISO(calendar.endDate), "MM.dd")}
+                        {calendar.deadline && (
+                            <>
+                                <span className="mx-2 text-slate-300">|</span>
+                                {format(parseISO(calendar.deadline), "MM.dd")} 마감 <DDay deadline={calendar.deadline} />
+                            </>
+                        )}
+                    </span>
+
+                    <div className={`flex justify-end items-center gap-1.5`}>
+                        {calendar.participants.length > 0 && (
+                            <div className="flex items-center gap-1.5"
+                                onClick={!isSelectionMode ? handleShowParticipants : undefined}>
+                                <ParticipantFacepile
+                                    participants={calendar.participants.map(p => ({ ...p, id: p.userId || p.name }))}
+                                    maxFacepile={3}
+                                    overflowIndicator="icon"
+                                    currentUser={user}
+                                    className="-space-x-2"
+                                    itemClassName="w-6 h-6 ring-1 focus:ring-1" />
+                                <span className="text-[10px] text-indigo-600 font-semibold">
+                                    {calendar.participants.length}명
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
