@@ -21,6 +21,15 @@ export default function CreateDateRange() {
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
+    const getNextDay = (dateStr: string) => {
+        if (!dateStr) return todayStr;
+        const d = new Date(dateStr);
+        d.setDate(d.getDate() + 1);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    };
+
+    const minEndDate = getNextDay(data.startDate);
+
     return (
         <CreateLayout title="일정 만들기" step={3} totalSteps={5}>
             <section className="space-y-8">
@@ -67,7 +76,7 @@ export default function CreateDateRange() {
                                         </Label>
                                         <Input
                                             type="date"
-                                            min={todayStr}
+                                            min={minEndDate}
                                             value={data.endDate}
                                             onChange={(e) => updateData({ endDate: e.target.value })}
                                             className="bg-transparent border-none shadow-none p-0 h-auto text-base focus-visible:ring-0"

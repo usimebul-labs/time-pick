@@ -22,19 +22,25 @@ export function useDateRange() {
         if (data.scheduleType === "datetime") {
             const getEndOfMonthStr = () => {
                 const d = new Date();
-                return formatDate(new Date(d.getFullYear(), d.getMonth() + 1, 0));
+                const lastDayOfThisMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+
+                if (d.getDate() === lastDayOfThisMonth.getDate()) {
+                    return formatDate(new Date(d.getFullYear(), d.getMonth() + 2, 0));
+                }
+                return formatDate(lastDayOfThisMonth);
             };
 
             const getEndOfWeekStr = () => {
                 const d = new Date();
                 const day = d.getDay(); // 0 (Sun) to 6 (Sat)
-                const diff = 6 - day; // Days to add to reach Saturday
+                const diff = day === 6 ? 7 : 6 - day;
                 const endOfWeek = new Date(d);
                 endOfWeek.setDate(d.getDate() + diff);
                 return formatDate(endOfWeek);
             };
 
             const targetDate = getEndOfWeekStr();
+
             // If the current endDate is the default (End of Month), update it to End of Week
             if (data.endDate === getEndOfMonthStr() && data.endDate !== targetDate) {
                 updateData({ endDate: targetDate });
@@ -89,9 +95,22 @@ export function useDateRange() {
         push("CreateExclusions", {});
     };
 
+    const wrappedUpdateData = (updates: Partial<typeof data>) => {
+        if (updates.startDate) {
+            if (data.endDate && updates.startDate >= data.endDate) {
+                // Ensure endDate is at least startDate + 1 day
+                const d = new Date(updates.startDate);
+                d.setDate(d.getDate() + 1);
+                const nextDay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                updates.endDate = nextDay;
+            }
+        }
+        updateData(updates);
+    };
+
     return {
         data,
-        updateData,
+        updateData: wrappedUpdateData,
         isUndefined,
         handleUndefinedChange,
         handleNext,

@@ -514,7 +514,7 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
             .select(`
                 *,
                 event:events (*),
-                participants (
+                participants!participants_calendar_id_fkey (
                     *,
                     user:profiles (*),
                     availabilities (*)
@@ -523,6 +523,8 @@ export async function getConfirmedCalendarResult(calendarId: string): Promise<{
             .eq('id', calendarId)
             .single();
 
+
+        console.log("calendar", calendar, findError);
         if (findError || !calendar) return { data: null, error: "일정을 찾을 수 없습니다." };
 
         // Check if event exists (Supabase might return null for single relation if missing? or empty array if hasMany?)

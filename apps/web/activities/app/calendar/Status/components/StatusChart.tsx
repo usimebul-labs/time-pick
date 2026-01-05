@@ -375,6 +375,13 @@ export function StatusChart({
                                 dataKey="time"
                                 tick={{ fontSize: 10, fill: '#64748B' }}
                                 minTickGap={50}
+                                ticks={
+                                    calendar.type !== 'monthly'
+                                        ? visibleData
+                                            .filter((d) => d.time.endsWith(":00"))
+                                            .map((d) => d.time)
+                                        : undefined
+                                }
                             />
                             <YAxis
                                 domain={[0, maxCount]}

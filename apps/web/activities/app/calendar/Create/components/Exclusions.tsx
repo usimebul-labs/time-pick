@@ -100,7 +100,7 @@ export default function CreateExclusions() {
                 <div className="space-y-3">
                     <Label className="text-base font-bold block text-slate-900">이 날은 안 돼요 (선택)</Label>
                     <div className="flex gap-2">
-                        <div className="relative flex-1">
+                        <div className="relative flex-1 min-w-0">
                             <Input
                                 type="date"
                                 min={data.startDate}
