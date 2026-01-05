@@ -97,7 +97,7 @@ export function useStatus(id: string) {
                             availableParticipantIds: [],
                             timestamp: current.getTime()
                         };
-                        current = addMinutes(current, 30);
+                        current = addMinutes(current, 60);
                     }
                 });
             }
