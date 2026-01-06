@@ -31,11 +31,7 @@ export const LandingHero = ({ user }: LandingHeroProps) => {
                         }
                     </div>
 
-                    <div className="w-full max-w-5xl overflow-hidden rounded-xl border bg-muted/50 shadow-xl lg:mt-20">
-                        <div className="aspect-video flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 text-zinc-400">
-                            <span className="text-lg">Product Demo Image Placeholder</span>
-                        </div>
-                    </div>
+
                 </div>
             </Section >
         </main>

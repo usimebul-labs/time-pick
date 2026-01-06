@@ -3,6 +3,7 @@ import { ActivityComponentType } from "@stackflow/react";
 import { LandingFooter } from "./components/LandingFooter";
 import { LandingHeader } from "./components/LandingHeader";
 import { LandingHero } from "./components/LandingHero";
+import { LandingDemo } from "./components/LandingDemo";
 import { useLoginedUser } from "../../common/hooks/useLoginedUser";
 
 const Landing: ActivityComponentType = () => {
@@ -13,6 +14,7 @@ const Landing: ActivityComponentType = () => {
             <div className="flex flex-col min-h-screen bg-background text-foreground overflow-y-auto">
                 <LandingHeader user={user} />
                 <LandingHero user={user} />
+                <LandingDemo />
                 <LandingFooter />
             </div>
         </ActivityLayout>
