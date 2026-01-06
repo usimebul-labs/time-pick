@@ -6,7 +6,7 @@ export const useLandingAuth = () => {
     const supabase = createBrowserClient();
 
     const handleLoginClick = () => {
-        push("Login", {});
+        push("Login", { next: "/app/dashboard" });
     };
 
     const handleLogoutClick = async () => {
