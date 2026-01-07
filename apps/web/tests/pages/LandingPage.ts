@@ -13,13 +13,11 @@ export class LandingPage {
     }
 
     async goToCreateAfterlogin() {
-        await expect(this.startButton).toBeVisible();
         await expect(this.startButton).toBeEnabled();
         await this.startButton.click();
     }
 
     async goToLogin() {
-        await expect(this.loginButton).toBeVisible();
         await expect(this.loginButton).toBeEnabled();
         await this.loginButton.click();
     }

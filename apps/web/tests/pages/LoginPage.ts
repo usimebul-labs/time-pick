@@ -20,6 +20,7 @@ export class LoginPage {
         await expect(this.passwordInput).toBeEditable();
         await this.emailInput.fill(LoginPage.TEST_EMAIL);
         await this.passwordInput.fill(LoginPage.TEST_PASSWORD);
+        await expect(this.submitButton).toBeEnabled();
         await this.submitButton.click();
     }
 }
