@@ -2,7 +2,8 @@ import { test, expect } from './fixtures'; // 커스텀 fixture import
 import { SelectPage } from './pages/SelectPage';
 
 test.describe('통합 테스트', () => {
-    test('랜딩 페이지에서 일정 확정 까지', async ({ page, landingPage, loginPage, basicInfo, calendarTypePage, dateRangePage, exclusionsPage, deadlinePage, selectPage }) => {
+    test('랜딩 페이지에서 일정 확정 까지', async ({ page, landingPage, loginPage, basicInfo, calendarTypePage,
+        dateRangePage, exclusionsPage, deadlinePage, selectPage, statusPage }) => {
         console.log("STEP1: 랜딩 페이지에서 시작 버튼 클릭")
         await page.goto('/');
         await landingPage.goToCreateAfterlogin();
@@ -40,5 +41,9 @@ test.describe('통합 테스트', () => {
         await selectPage.selectRandomCells();
         await selectPage.submit();
         await expect(page).toHaveURL(new RegExp('app/calendar/[a-f0-9-]+/status'));
+
+        console.log("STEP4: 일정 현황")
+        await statusPage.clickComplete();
+        await expect(page).toHaveURL(new RegExp('app/dashboard'));
     });
 })

@@ -7,6 +7,7 @@ import { DateRangePage } from '../pages/DateRangePage';
 import { ExclusionsPage } from '../pages/ExclusionsPage';
 import { DeadlinePage } from '../pages/DeadlinePage';
 import { SelectPage } from '../pages/SelectPage';
+import { StatusPage } from '../pages/StatusPage';
 
 // Page Object 타입 정의
 type Fixtures = {
@@ -18,6 +19,7 @@ type Fixtures = {
     exclusionsPage: ExclusionsPage;
     deadlinePage: DeadlinePage;
     selectPage: SelectPage;
+    statusPage: StatusPage;
 };
 
 // Fixture 확장
@@ -45,6 +47,9 @@ export const test = base.extend<Fixtures>({
     },
     selectPage: async ({ page }, use) => {
         await use(new SelectPage(page));
+    },
+    statusPage: async ({ page }, use) => {
+        await use(new StatusPage(page));
     }
 });
 

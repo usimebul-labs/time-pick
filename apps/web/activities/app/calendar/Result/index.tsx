@@ -29,7 +29,7 @@ export default function Result({ params: { id } }: { params: { id: string } }) {
                     <div className="text-xl font-bold text-slate-900 mb-2">일정을 찾을 수 없어요 😢</div>
                     <p className="text-slate-500">{error || "잘못된 접근입니다."}</p>
                     <button
-                        onClick={() => replace("Dashboard", {})}
+                        onClick={() => location.href = "/app/dashboard"}
                         className="mt-6 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold"
                     >
                         홈으로 돌아가기
