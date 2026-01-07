@@ -1,7 +1,7 @@
 import { useFlow } from "@/stackflow";
-import { Home } from "lucide-react";
 import { cn } from "@repo/ui";
-import { useStack } from "@stackflow/react";
+import { Home } from "lucide-react";
+import { useStackReset } from "@/common/hooks/useStackReset";
 
 interface HomeButtonProps {
     className?: string;
@@ -9,12 +9,11 @@ interface HomeButtonProps {
 }
 
 export function HomeButton({ className, disabled }: HomeButtonProps) {
-    const { pop, replace } = useFlow();
-    const stack = useStack();
+    const { resetToDashboard } = useStackReset();
 
 
     const resetToHome = () => {
-        replace("Dashboard", {}, { animate: false });
+        resetToDashboard();
     };
 
 

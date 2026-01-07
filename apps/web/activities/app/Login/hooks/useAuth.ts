@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createBrowserClient } from "@repo/database";
 import { useFlow } from "@stackflow/react/future";
+import { useStackReset } from "@/common/hooks/useStackReset";
 
 interface UseAuthParams {
     next?: string;
@@ -14,6 +15,7 @@ export const useAuth = ({ next }: UseAuthParams = {}) => {
 
     const supabase = createBrowserClient();
     const { replace } = useFlow();
+    const { resetToDashboard } = useStackReset();
 
     const getRedirectUrl = () => {
         const origin = window.location.origin;
@@ -59,7 +61,9 @@ export const useAuth = ({ next }: UseAuthParams = {}) => {
 
             if (!loginError && loginData.session) {
                 if (next) location.href = next
-                else replace("Dashboard", {});
+                else {
+                    resetToDashboard();
+                }
                 return;
             }
 
@@ -85,7 +89,9 @@ export const useAuth = ({ next }: UseAuthParams = {}) => {
                 // Signup Success
                 if (signupData.session) {
                     if (next) location.href = next
-                    else replace("Dashboard", {});
+                    else {
+                        resetToDashboard();
+                    }
                 } else if (signupData.user) {
                     setConfirmationSent(true);
                 }

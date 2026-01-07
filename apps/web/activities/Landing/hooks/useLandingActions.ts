@@ -1,10 +1,12 @@
 import { useFlow } from "@/stackflow";
+import { useStackReset } from "@/common/hooks/useStackReset";
 
 export const useLandingActions = () => {
     const { push } = useFlow();
+    const { resetToDashboard } = useStackReset();
 
     const handleDashboardClick = () => {
-        push("Dashboard", {});
+        resetToDashboard();
     };
 
     const handleStartClick = () => {
