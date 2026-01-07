@@ -1,6 +1,6 @@
 import { deleteCalendar } from "@/app/actions/calendar";
 import { User } from "@supabase/supabase-js";
-import { useFlow } from "../../../../stackflow";
+import { useFlow } from "@/stackflow";
 import { useDashboardStore } from "./useDashboardStore";
 
 import { useQueryClient } from "@tanstack/react-query";

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useCreateCalendarStore } from "./useCreateCalendarStore";
-import { useFlow } from "../../../../../stackflow";
+import { useFlow } from "@/stackflow";
 
 export function useBasicInfo() {
     const { push } = useFlow();

@@ -1,4 +1,4 @@
-import { useFlow } from "../../../stackflow";
+import { useFlow } from "@/stackflow";
 
 export const useLandingActions = () => {
     const { push } = useFlow();

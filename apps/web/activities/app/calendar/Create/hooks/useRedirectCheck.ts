@@ -1,6 +1,6 @@
 import { useLayoutEffect } from "react";
 import { useCreateCalendarStore } from "./useCreateCalendarStore";
-import { useFlow } from "../../../../../stackflow";
+import { useFlow } from "@/stackflow";
 
 export function useRedirectCheck() {
     const { replace } = useFlow();

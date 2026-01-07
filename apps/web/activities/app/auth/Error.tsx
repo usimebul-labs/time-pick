@@ -1,5 +1,5 @@
 import { ActivityLayout } from "@/common/components/ActivityLayout";
-import { useFlow } from "../../../stackflow";
+import { useFlow } from "@/stackflow";
 import { useEffect, useState } from "react";
 
 type ErrorProps = {};

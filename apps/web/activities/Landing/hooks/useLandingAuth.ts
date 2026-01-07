@@ -1,5 +1,5 @@
 import { createBrowserClient } from "@repo/database";
-import { useFlow } from "../../../stackflow";
+import { useFlow } from "@/stackflow";
 
 export const useLandingAuth = () => {
     const { push } = useFlow();

@@ -1,12 +1,12 @@
 import { DashboardCalendar } from "@/app/actions/calendar";
+import { ParticipantFacepile } from "@/common/components/participant/ParticipantFacepile";
+import { useFlow } from "@/stackflow";
 import { Button } from "@repo/ui";
 import { User } from "@supabase/supabase-js";
-import { Check, MoreVertical, Share2 } from "lucide-react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
-import { useDashboardStore } from "../hooks/useDashboardStore";
-import { useFlow } from "../../../../stackflow";
+import { Check, MoreVertical, Share2 } from "lucide-react";
 import { MouseEventHandler } from "react";
-import { ParticipantFacepile } from "@/common/components/participant/ParticipantFacepile";
+import { useDashboardStore } from "../hooks/useDashboardStore";
 
 
 const DDay = ({ deadline }: { deadline: string }) => {
