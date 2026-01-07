@@ -1,10 +1,10 @@
 import { ActivityLayout } from "@/common/components/ActivityLayout";
 import { SocialLoginButton } from "@repo/ui";
-import { useLogin } from "./hooks/useLogin";
+import { useAuth } from "./hooks/useAuth";
 import { EmailLoginForm } from "./components/EmailLoginForm";
 
 export default function Login({ params: { next } }: { params: { next?: string } }) {
-    const { loading, handleGoogleLogin } = useLogin({ next });
+    const { loading, loginWithGoogle } = useAuth({ next });
 
     return (
         <ActivityLayout hideAppBar>
@@ -28,7 +28,7 @@ export default function Login({ params: { next } }: { params: { next?: string } 
                         </div>
 
                         <div className="space-y-4">
-                            <SocialLoginButton provider="google" onClick={handleGoogleLogin} disabled={loading}>
+                            <SocialLoginButton provider="google" onClick={loginWithGoogle} disabled={loading}>
                                 {loading ? "연결 중..." : "Google로 계속하기"}
                             </SocialLoginButton>
                         </div>

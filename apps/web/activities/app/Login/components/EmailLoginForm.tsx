@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
-import { useEmailAuth } from "../hooks/useEmailAuth";
+import { useAuth } from "../hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
 const emailSchema = z.string().email("이메일 형식이 올바르지 않습니다.");
@@ -11,7 +11,7 @@ interface EmailLoginFormProps {
 }
 
 export function EmailLoginForm({ next }: EmailLoginFormProps) {
-    const { loading, error, confirmationSent, lastEmail, handleLoginOrSignup, handleResend } = useEmailAuth({ next });
+    const { loading, error, confirmationSent, lastEmail, loginWithEmail, resendSignupEmail } = useAuth({ next });
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -36,7 +36,7 @@ export function EmailLoginForm({ next }: EmailLoginFormProps) {
             return;
         }
 
-        await handleLoginOrSignup(email, password);
+        await loginWithEmail(email, password);
     };
 
     if (confirmationSent) {
@@ -48,7 +48,7 @@ export function EmailLoginForm({ next }: EmailLoginFormProps) {
                     <p className="text-blue-600/80 text-xs">메일함에서 인증 링크를 클릭하여 가입을 완료해주세요.</p>
                 </div>
                 <button
-                    onClick={handleResend}
+                    onClick={resendSignupEmail}
                     disabled={loading}
                     className="text-sm text-slate-500 hover:text-slate-800 underline disabled:opacity-50 transition-colors"
                 >
