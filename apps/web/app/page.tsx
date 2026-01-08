@@ -21,7 +21,7 @@ export default function Page() {
   }
 
   return (
-    <div className="lg:flex lg:justify-center lg:items-center min-h-screen lg:bg-slate-200">
+    <div className="lg:!flex lg:justify-center lg:items-center min-h-screen lg:bg-slate-200">
       <div className="w-full min-h-screen max-w-md bg-white lg:overflow-hidden relative">
         <Stack />
       </div>
