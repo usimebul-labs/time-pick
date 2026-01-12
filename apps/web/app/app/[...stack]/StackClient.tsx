@@ -9,8 +9,8 @@ const Stack = dynamic(() => import("@/stackflow").then((mod) => mod.Stack), {
 
 export default function StackClient() {
     return (
-        <div className="lg:!flex lg:justify-center lg:items-center min-h-screen lg:bg-slate-200">
-            <div className="w-full min-h-screen max-w-md bg-white lg:overflow-hidden relative">
+        <div className="md:!flex md:justify-center md:items-center min-h-screen md:bg-slate-200">
+            <div className="w-full min-h-screen md:max-w-md bg-white md:overflow-hidden relative">
                 <LoadingOverlay />
                 <Stack />
             </div>
