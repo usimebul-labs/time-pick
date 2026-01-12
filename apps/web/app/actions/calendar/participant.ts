@@ -165,17 +165,20 @@ export async function deleteParticipant(participantId: string): Promise<{ succes
         return { success: false, error: "로그인이 필요합니다." };
     }
 
+    console.log(participantId)
+
     try {
         const { data: participant, error: findError } = await supabase
             .from('participants')
             .select(`
                 *,
-                calendar:calendars (*)
+                calendar:calendars!participants_calendar_id_fkey (*)
             `)
             .eq('id', participantId)
             .single();
 
         if (findError || !participant) {
+            console.log(findError, participant)
             return { success: false, error: "참여자를 찾을 수 없습니다." };
         }
 

@@ -279,13 +279,16 @@ export async function updateCalendar(calendarId: string, formData: FormData, con
             .from('calendars')
             .select(`
                 *,
-                participants (
+                participants:participants!participants_calendar_id_fkey (
                     *,
                     availabilities (*)
                 )
             `)
             .eq('id', calendarId)
             .single();
+
+
+        console.log(fetchError)
 
         if (fetchError || !oldCalendar) return { error: "일정을 찾을 수 없습니다." };
         if (oldCalendar.host_id !== user.id) return { error: "권한이 없습니다." };
